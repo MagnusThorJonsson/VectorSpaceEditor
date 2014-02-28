@@ -55,7 +55,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Adorners\ResizingAdorner.cs" />
+    <Compile Include="Adorners\SelectedAdorner.cs" />
+    <Compile Include="Behaviours\LayerItemSelectionBehaviour.cs" />
     <Compile Include="Controls\DragCanvas.cs" />
+    <Compile Include="Dialogs\NewLayerWindow.xaml.cs">
+      <DependentUpon>NewLayerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\NewLevelWindow.xaml.cs">
       <DependentUpon>NewLevelWindow.xaml</DependentUpon>
     </Compile>
@@ -69,6 +75,10 @@
     <Compile Include="MapData\Texture.cs" />
     <Compile Include="MapData\TextureLibrary.cs" />
     <Page Include="Dialogs\ApplicationSettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\NewLayerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

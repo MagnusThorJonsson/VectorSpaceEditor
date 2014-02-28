@@ -3,25 +3,37 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:vcsp="clr-namespace:VectorSpace.Controls" 
+        xmlns:behaviour="clr-namespace:VectorSpace.Behaviours"
+        xmlns:local="clr-namespace:VectorSpace"
         Title="VectorSpace v0.1a" Height="720" Width="1280">
     <Window.CommandBindings>
         <CommandBinding Command="New" CanExecute="MenuItem_File_New_CanExecute" Executed="MenuItem_File_New_Executed" />
         <CommandBinding Command="Close" CanExecute="MenuItem_File_Close_CanExecute" Executed="MenuItem_File_Close_Executed" />
+        <CommandBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedSelectToolShortcutCommand" />
+        <CommandBinding Command="{x:Static local:MainWindow.PaintToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedPaintToolShortcutCommand" />
+        <CommandBinding Command="{x:Static local:MainWindow.TransformToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedTransformToolShortcutCommand" />
+        <CommandBinding Command="{x:Static local:MainWindow.EditToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedEditToolShortcutCommand" />
     </Window.CommandBindings>
+    
+    <Window.InputBindings>
+        <KeyBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" Key="V" Modifiers="Control" />
+        <KeyBinding Command="{x:Static local:MainWindow.PaintToolShortcutCommand}" Key="P" Modifiers="Control" />
+        <KeyBinding Command="{x:Static local:MainWindow.TransformToolShortcutCommand}" Key="T" Modifiers="Control" />
+        <KeyBinding Command="{x:Static local:MainWindow.EditToolShortcutCommand}" Key="E" Modifiers="Control" />
+    </Window.InputBindings>
+    
     <Window.Resources>
-        <Style x:Key="LayerContainerStyle" TargetType="{x:Type ListBoxItem}">
-            <Setter Property="Background" Value="LightBlue" />
+        <Style x:Key="LayerItemContainerStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Background" Value="White" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
 
-                        <StackPanel Orientation="Vertical">
-                            <StackPanel x:Name="ItemPanel" Orientation="Horizontal">
+                        <StackPanel Name="ItemPanel" Orientation="Vertical">
                                 <ContentPresenter x:Name="ContentHost" 
                                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                            </StackPanel>
                             <Separator Margin="0" />
                         </StackPanel>
 
@@ -29,14 +41,14 @@
                             <Trigger Property="Selector.IsSelected" Value="True">
                                 <Setter TargetName="ItemPanel" Property="Background">
                                     <Setter.Value>
-                                        White
+                                        LightBlue
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
                             <Trigger Property="Selector.IsSelected" Value="False">
                                 <Setter TargetName="ItemPanel" Property="Background">
                                     <Setter.Value>
-                                        LightBlue
+                                        White
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
@@ -47,6 +59,7 @@
             </Setter>
         </Style>
     </Window.Resources>
+    
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -111,21 +124,21 @@
                 <Label FontSize="10" HorizontalAlignment="Center">Tools</Label>
                 <Separator />
 
-                <Button Name="SelectToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Select tool" IsEnabled="False" Margin="0, 5, 0, 5">
+                <ToggleButton Name="SelectToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Select tool" IsEnabled="False" Margin="0, 5, 0, 5" Click="SelectToolBtn_Click">
                     <Image Source="Resources/Tools/icon-select.png"  Stretch="None" />
-                </Button>
+                </ToggleButton>
 
-                <Button Name="PaintToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Paint tool" IsEnabled="False">
+                <ToggleButton Name="PaintToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Paint tool" IsEnabled="False" Click="PaintToolBtn_Click">
                     <Image Source="Resources/Tools/icon-paint.png"  Stretch="None" />
-                </Button>
+                </ToggleButton>
 
-                <Button Name="TransformToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Transform tool" IsEnabled="False" Margin="0, 5, 0, 5">
+                <ToggleButton Name="TransformToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Transform tool" IsEnabled="False" Margin="0, 5, 0, 5" Click="TransformToolBtn_Click">
                     <Image Source="Resources/Tools/icon-transform.png"  Stretch="None" />
-                </Button>
+                </ToggleButton>
 
-                <Button Name="EditToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Edit tool" IsEnabled="False" Margin="0, 0, 0, 5">
+                <ToggleButton Name="EditToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Edit tool" IsEnabled="False" Margin="0, 0, 0, 5" Click="EditToolBtn_Click">
                     <Image Source="Resources/Tools/icon-edit.png"  Stretch="None" />
-                </Button>
+                </ToggleButton>
 
                 <Separator />
 
@@ -158,7 +171,7 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Image Source="{Binding Texture.Source}" />
+                                            <Image Source="{Binding Texture.Source}" MouseDown="CanvasItem_MouseDown" />
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -167,7 +180,7 @@
                     </DockPanel>
                 </Border>
 
-                <TabControl Name="CanvasItemsTab" Grid.Row="1" Margin="0, 5, 0, 0">
+                <TabControl Name="CanvasItemsTab" Grid.Row="1" Margin="0, 5, 0, 0" SelectionChanged="CanvasItemsTab_SelectionChanged">
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="{x:Type TabItem}">
                             <Setter Property="Header">
@@ -182,7 +195,7 @@
                             
                             <Border BorderBrush="#999999" BorderThickness="0,0,1,1">
                                 <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
-                                    <ListBox Name="TextureListBox" ItemsSource="{Binding Textures}" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionMode="Single" BorderThickness="0">
+                                    <ListBox Name="TextureListBox" ItemsSource="{Binding Textures}" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionMode="Single" BorderThickness="0" SelectionChanged="TextureListBox_SelectionChanged">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Border x:Name="border" BorderThickness="1" BorderBrush="Gray" Margin="5, 0, 0, 0" Width="70" Height="70" Background="White" >
@@ -231,19 +244,41 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
+                                    
                                     <Border Grid.Row="0" BorderBrush="#EEE" BorderThickness="0,0,1,1" Margin="2, 0, 2, 0">
                                         <Border BorderBrush="#999" BorderThickness="1,1,0,0">
-                                            
-                                            <ListBox Name="LayersListBox" ItemContainerStyle="{StaticResource LayerContainerStyle}" HorizontalContentAlignment="Stretch">
+
+                                            <ListBox Name="LayersListBox" HorizontalContentAlignment="Stretch" SelectionMode="Single">
+                                                <ListBox.ItemContainerStyle>
+                                                    <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ListBox.ItemContainerStyle>
+
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{Binding Name}" />
-                                                        </StackPanel>
+                                                        
+                                                        <Expander IsExpanded="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Header="{Binding Name}">
+                                                            <ListBox Name="LayerItemListBox" behaviour:LayerItemSelectionBehaviour.ClickSelection="True" ItemContainerStyle="{StaticResource LayerItemContainerStyle}" 
+                                                                     ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch" SelectionChanged="LayerItemListBox_SelectionChanged" SelectionMode="Single">
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Label Content="{Binding Name}" />
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                            </ListBox>
+                                                        </Expander>
+                                                        
                                                     </DataTemplate>
                                                 </ListBox.ItemTemplate>
                                             </ListBox>
-                                            
+
                                         </Border>
                                     </Border>
 

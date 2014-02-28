@@ -47,6 +47,8 @@ namespace VectorSpace.MapData
         {
             this.id = id;
             this.name = "Layer " + id.ToString();
+
+            items = new ObservableCollection<IRenderable>();
         }
 
         /// <summary>
@@ -58,6 +60,8 @@ namespace VectorSpace.MapData
         {
             this.id = id;
             this.name = name;
+
+            items = new ObservableCollection<IRenderable>();
         }
         #endregion
 

@@ -19,23 +19,42 @@ using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 using Xceed.Wpf.Toolkit;
 using VectorSpace.Controls;
+using System.Windows.Controls.Primitives;
+using System.Collections;
 
 namespace VectorSpace
 {
+
+    public enum ApplicationEditState
+    { 
+        Select,
+        Create,
+        Transform,
+        Edit // ?
+    }
+
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+
+
+        #region Variables & Properties
         public Map Map { get { return _currentMap; } }
         private Map _currentMap;
 
-        #region Variables & Properties
-        private VisualBrush canvasGrid;
-        private bool _isGridShowing;
+        private ApplicationEditState _currentEditState;
 
         private IHasProperties _currentPropertyContainer;
+        
+        private VisualBrush canvasGrid;
+        private bool _isGridShowing;
         #endregion
+
+        private int _selectedLibrary;
+        private int _selectedLibraryItem;
 
 
         #region Constructor & Initialization
@@ -44,8 +63,12 @@ namespace VectorSpace
         /// </summary>
         public MainWindow()
         {
+            _currentEditState = ApplicationEditState.Select;
             _currentMap = null;
             _isGridShowing = false;
+            _selectedLibrary = 0;
+            _selectedLibraryItem = 0;
+
             InitializeComponent();
             loadResources();
         }
@@ -123,10 +146,13 @@ namespace VectorSpace
                 // Layers panel
                 RemoveLayerBtn.IsEnabled = true;
                 AddLayerBtn.IsEnabled = true;
-                LayersListBox.ItemsSource = _currentMap.Layers;
+                LayersListBox.ItemsSource = _currentMap.Layers; 
                 LayersListBox.SelectedIndex = 0;
 
+                // Set the application edit state to select mode, enable tools and toggle the Select tool as in use
+                _currentEditState = ApplicationEditState.Select;
                 enableTools(true);
+                toggleToolButton(SelectToolBtn);
             }
         }
         #endregion
@@ -162,7 +188,6 @@ namespace VectorSpace
             _currentMap = null;
         }
         #endregion
-
 
         /// <summary>
         /// Exit application
@@ -208,7 +233,7 @@ namespace VectorSpace
             showCanvasGrid(_isGridShowing);
         }
         #endregion
-
+        
 
         #region MenuItem Tools Handlers
         private void MenuItem_Tools_TextureManager(object sender, RoutedEventArgs e)
@@ -226,7 +251,13 @@ namespace VectorSpace
                 //TEST
                 _currentMap.AddItem(
                     0,
-                    new TextureItem(0, "testing", _currentMap.TextureLibraries[0].Textures[0], new WorldPosition(new System.Drawing.Point(50, 50), new System.Drawing.Point(), 1f, 1f, 0f), 1)
+                    TextureItem.Create(
+                        0, 
+                        _currentMap.TextureLibraries[0].Textures[0].Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
+                        _currentMap.TextureLibraries[0].Textures[0], 
+                        new WorldPosition(new System.Drawing.Point(50, 50), new System.Drawing.Point(), 1f, 1f, 0f), 
+                        1
+                    )
                 );
 
             }
@@ -250,7 +281,6 @@ namespace VectorSpace
         }
         #endregion
 
-
         #endregion
 
 
@@ -267,18 +297,6 @@ namespace VectorSpace
 
             AddPropertyBtn.IsEnabled = true;
             RemovePropertyBtn.IsEnabled = true;
-        }
-
-        /// <summary>
-        /// Enables or disables the toolbar buttons
-        /// </summary>
-        /// <param name="isEnabled">True to enable</param>
-        private void enableTools(bool isEnabled)
-        {
-            SelectToolBtn.IsEnabled = isEnabled;
-            PaintToolBtn.IsEnabled = isEnabled;
-            TransformToolBtn.IsEnabled = isEnabled;
-            EditToolBtn.IsEnabled = isEnabled;
         }
         #endregion
 
@@ -313,57 +331,290 @@ namespace VectorSpace
             }
         }
         #endregion
+        
 
-
+        #region Layer Event Handlers
+        /// <summary>
+        /// Add layer button click handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddLayerBtn_Click(object sender, RoutedEventArgs e)
         {
             if (_currentMap != null)
             {
-                _currentMap.AddLayer();
+                NewLayerWindow layerWindow = new NewLayerWindow(_currentMap.NextLayerId);
+                layerWindow.Owner = this;
+                layerWindow.ShowDialog();
+
+                if (layerWindow.DialogResult.HasValue && layerWindow.DialogResult.Value == true)
+                {
+                    _currentMap.AddLayer(layerWindow.Layer);
+                }
             }
         }
 
+        /// <summary>
+        /// Remove layer button click handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RemoveLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentMap != null)
+            {
+                _currentMap.RemoveLayer((Layer)LayersListBox.SelectedItem);
+            }
+        }
+
+        private void LayerItemListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
+        #endregion
 
 
-
-        private Image draggedImage;
-        private Point mousePosition;
+        #region Canvas Helpers
+        private Image _draggedImage;
+        private Point _mousePosition;
         private void CanvasMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Image image = e.Source as Image;
 
             if (image != null && LevelCanvas.CaptureMouse())
             {
-                mousePosition = e.GetPosition(LevelCanvas);
-                draggedImage = image;
-                Panel.SetZIndex(draggedImage, 1); // in case of multiple images
+                _mousePosition = e.GetPosition(LevelCanvas);
+                _draggedImage = image;
+                Panel.SetZIndex(_draggedImage, 1); // in case of multiple images
             }
         }
 
         private void CanvasMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (draggedImage != null)
+            if (_draggedImage != null)
             {
                 LevelCanvas.ReleaseMouseCapture();
-                Panel.SetZIndex(draggedImage, 0);
-                draggedImage = null;
+                Panel.SetZIndex(_draggedImage, 0);
+                _draggedImage = null;
             }
         }
 
         private void CanvasMouseMove(object sender, MouseEventArgs e)
         {
-            if (draggedImage != null)
+            if (_draggedImage != null)
             {
                 Point position = e.GetPosition(LevelCanvas);
-                Vector offset = position - mousePosition;
-                mousePosition = position;
-                Canvas.SetLeft(draggedImage, Canvas.GetLeft(draggedImage) + offset.X);
-                Canvas.SetTop(draggedImage, Canvas.GetTop(draggedImage) + offset.Y);
+                Vector offset = position - _mousePosition;
+                _mousePosition = position;
+                Canvas.SetLeft(_draggedImage, Canvas.GetLeft(_draggedImage) + offset.X);
+                Canvas.SetTop(_draggedImage, Canvas.GetTop(_draggedImage) + offset.Y);
             }
         }
+
+
+        private void CanvasItem_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+        #endregion 
+
+
+        #region Toolbar Button Methods
+
+        #region Shortcut Key Commands
+        /// <summary>
+        /// Select Tool Shortcut Command (Ctrl + V)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ExecutedSelectToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Select;
+            toggleToolButton(SelectToolBtn);
+        }
+        public static RoutedCommand SelectToolShortcutCommand = new RoutedCommand();
+
+        /// <summary>
+        /// Paint Tool Shortcut Command (Ctrl + P)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ExecutedPaintToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Create;
+            toggleToolButton(PaintToolBtn);
+        }
+        public static RoutedCommand PaintToolShortcutCommand = new RoutedCommand();
+
+        /// <summary>
+        /// Transform Tool Shortcut Command (Ctrl + V)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ExecutedTransformToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Transform;
+            toggleToolButton(TransformToolBtn);
+        }
+        public static RoutedCommand TransformToolShortcutCommand = new RoutedCommand();
+
+        /// <summary>
+        /// Edit Tool Shortcut Command (Ctrl + E)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ExecutedEditToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Edit;
+            toggleToolButton(EditToolBtn);
+        }
+        public static RoutedCommand EditToolShortcutCommand = new RoutedCommand();
+
+
+        public void CanExecuteToolShortcutCommands(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (_currentMap != null)
+            {
+                e.CanExecute = true;
+            }
+            else
+                e.CanExecute = false;
+        }  
+        #endregion
+
+        #region Toolbar Event Handlers
+        private void SelectToolBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Select;
+            toggleToolButton((ToggleButton)sender);
+        }
+
+        private void PaintToolBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Create;
+            toggleToolButton((ToggleButton)sender);
+        }
+
+        private void TransformToolBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Transform;
+            toggleToolButton((ToggleButton)sender);
+        }
+
+        private void EditToolBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.Edit;
+            toggleToolButton((ToggleButton)sender);
+        }
+        #endregion
+
+        #region Toolbar Private Helper Methods
+        /// <summary>
+        /// Enables or disables the toolbar buttons
+        /// </summary>
+        /// <param name="isEnabled">True to enable</param>
+        private void enableTools(bool isEnabled)
+        {
+            SelectToolBtn.IsEnabled = isEnabled;
+            PaintToolBtn.IsEnabled = isEnabled;
+            TransformToolBtn.IsEnabled = isEnabled;
+            EditToolBtn.IsEnabled = isEnabled;
+        }
+
+        /// <summary>
+        /// Clears the tool buttons
+        /// </summary>
+        /// <param name="enabledButton">The active tool button (null for no button selected)</param>
+        private void toggleToolButton(ToggleButton enabledButton = null)
+        {
+            SelectToolBtn.IsChecked = false;
+            PaintToolBtn.IsChecked = false;
+            TransformToolBtn.IsChecked = false;
+            EditToolBtn.IsChecked = false;
+
+            if (enabledButton != null)
+                enabledButton.IsChecked = true;
+        }
+        #endregion
+
+        #endregion
+
+
+        #region Map Item Selection Methods
+        private void TextureListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _selectedLibraryItem = ((ListBox)sender).SelectedIndex;
+        }
+
+
+        private void CanvasItemsTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Clear currently selected library item from previous tab
+            _selectedLibraryItem = 0;
+
+            /*
+            TabItem item = null;
+            if (e.RemovedItems.Count > 0)
+            {
+                item = e.RemovedItems[0] as TabItem; //((TabControl)sender).SelectedItem as TabItem;
+                item.Content
+            }
+            */                
+                //List<ListBox> listBox = GetLogicalChildCollection<ListBox>(((TabControl)sender).GetValue(TabItem.ContentProperty) as ListItem);
+        }
+        #endregion
+
+
+
+
+        #region Might use later
+        public static List<T> GetLogicalChildCollection<T>(object parent) where T : DependencyObject
+        {
+            List<T> logicalCollection = new List<T>();
+            GetLogicalChildCollection(parent as DependencyObject, logicalCollection);
+            return logicalCollection;
+        }
+        private static void GetLogicalChildCollection<T>(DependencyObject parent, List<T> logicalCollection) where T : DependencyObject
+        {
+            IEnumerable children = LogicalTreeHelper.GetChildren(parent);
+            foreach (object child in children)
+            {
+                if (child is DependencyObject)
+                {
+                    DependencyObject depChild = child as DependencyObject;
+                    if (child is T)
+                    {
+                        logicalCollection.Add(child as T);
+                    }
+                    GetLogicalChildCollection(depChild, logicalCollection);
+                }
+            }
+        }
+
+        public static List<T> FindChildren<T>(DependencyObject parent) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            List<T> children = new List<T>();
+
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+
+            for (int i = 0; i < childrenCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                T childType = child as T;
+                if (childType == null)
+                {
+                    children.AddRange(FindChildren<T>(child));
+                }
+                else
+                {
+                    children.Add((T)child);
+                }
+            }
+
+            return children;
+        }
+        #endregion
     }
 }

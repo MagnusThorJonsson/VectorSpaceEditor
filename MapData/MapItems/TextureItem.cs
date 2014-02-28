@@ -20,6 +20,7 @@ namespace VectorSpace.MapData.MapItems
         protected int zIndex;
         #endregion
 
+
         #region Interface Properties
         /// <summary>
         /// Item layer id

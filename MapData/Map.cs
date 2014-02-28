@@ -36,7 +36,12 @@ namespace VectorSpace.MapData
         /// </summary>
         public ObservableCollection<Layer> Layers { get { return _layers; } }
         private ObservableCollection<Layer> _layers;
+ 
         // TODO: Shitty way, make custom observablecollection for this shiz
+        /// <summary>
+        /// The next layer id that is available
+        /// </summary>
+        public int NextLayerId { get { return _nextLayerId; } }
         private int _nextLayerId;
 
         /// <summary>
@@ -229,6 +234,9 @@ namespace VectorSpace.MapData
 
         #region Layer Methods
         // TODO: Create a custom ObservableClass for the Layers and move these methods there
+        /// <summary>
+        /// Adds a layer to the map
+        /// </summary>
         public void AddLayer()
         {
             _layers.Add(
@@ -238,6 +246,10 @@ namespace VectorSpace.MapData
         }
 
 
+        /// <summary>
+        /// Adds a layer to the map
+        /// </summary>
+        /// <param name="name">The layer name</param>
         public void AddLayer(string name)
         {
             _layers.Add(
@@ -246,10 +258,56 @@ namespace VectorSpace.MapData
             _nextLayerId++;
         }
 
+        /// <summary>
+        /// Adds a layer to the map
+        /// </summary>
+        /// <param name="layer">The layer to add</param>
+        public void AddLayer(Layer layer)
+        {
+            if (layer != null)
+            {
+                _layers.Add(layer);
+                _nextLayerId++;
+            }
+        }
+
+        /// <summary>
+        /// Removes a layer from the map
+        /// </summary>
+        /// <param name="layer">The layer to remove</param>
+        /// <returns>True on success</returns>
+        public bool RemoveLayer(Layer layer)
+        {
+            if (layer != null)
+            {
+                // Remove all layer items from the mapItems array
+                for (int i = 0; i < layer.Items.Count; i++)
+                    _mapItems.Remove(layer.Items[i]);
+
+                // Clear all items from the layer
+                layer.Items.Clear();
+                _layers.Remove(layer);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes a layer from the map
+        /// </summary>
+        /// <param name="index">The layer index to remove</param>
+        /// <returns>True on success</returns>
         public bool RemoveLayer(int index)
         {
-            if (index < _layers.Count - 1)
+            if (index < _layers.Count)
             {
+                // Remove all layer items from the mapItems array
+                for (int i = 0; i < _layers[index].Items.Count; i++)
+                    _mapItems.Remove(_layers[index].Items[i]);
+
+                // Clear all items from the layer
+                _layers[index].Items.Clear();
                 _layers.RemoveAt(index);
                 return true;
             }
@@ -259,10 +317,24 @@ namespace VectorSpace.MapData
         #endregion
 
 
+        #region Item Methods
+        /// <summary>
+        /// Adds an item to the specified layer
+        /// </summary>
+        /// <param name="layer">The layer index</param>
+        /// <param name="item">The item to add to the layer</param>
         public void AddItem(int layer, IRenderable item)
         {
-            item.Layer = layer;
-            _mapItems.Add(item);
+            if (layer < _layers.Count)
+            {
+                // Do we need this cross-coupling?
+                item.Layer = layer;
+
+                // Add to both the specified layer and mapitem list
+                _layers[layer].AddItem(item);
+                _mapItems.Add(item);
+            }
         }
+        #endregion
     }
 }

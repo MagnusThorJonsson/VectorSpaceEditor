@@ -20,105 +20,34 @@ namespace VectorSpace.Controls
     /// </remarks> 
     public class DragCanvas : Canvas
     {
-        #region Data
-        private UIElement elementBeingDragged;
-        private Point origCursorLocation;
-        private double origHorizOffset, origVertOffset;
-        private bool modifyLeftOffset, modifyTopOffset;
-        private bool isDragInProgress;
-        #endregion
+        #region Variables & Properties
 
-        #region Attached Properties
-
-        #region CanBeDragged
+        #region Interface Properties
         public static readonly DependencyProperty CanBeDraggedProperty;
-        public static bool GetCanBeDragged(UIElement uiElement)
-        {
-            if (uiElement == null)
-                return false;
 
-            return (bool)uiElement.GetValue(CanBeDraggedProperty);
-        }
-
-        public static void SetCanBeDragged(UIElement uiElement, bool value)
-        {
-            if (uiElement != null)
-                uiElement.SetValue(CanBeDraggedProperty, value);
-        }
-        #endregion
-
-        #endregion
-
-        
-        #region Static Constructor
-        static DragCanvas()
-        {
-            AllowDraggingProperty = DependencyProperty.Register(
-                "AllowDragging",
-                typeof(bool),
-                typeof(DragCanvas),
-                new PropertyMetadata(true));
-
-            AllowDragOutOfViewProperty = DependencyProperty.Register(
-                "AllowDragOutOfView",
-                typeof(bool),
-                typeof(DragCanvas),
-                new UIPropertyMetadata(false));
-
-            CanBeDraggedProperty = DependencyProperty.RegisterAttached(
-                "CanBeDragged",
-                typeof(bool),
-                typeof(DragCanvas),
-                new UIPropertyMetadata(true));
-        }
-
-        #endregion
-
-
-        #region Constructor
-        public DragCanvas()
-        {
-        }
-
-        #endregion
-
-
-        #region Interface
-
-        #region AllowDragging
-        public static readonly DependencyProperty AllowDraggingProperty;
+        /// <summary>
+        /// Allow dragging property
+        /// </summary>
         public bool AllowDragging
         {
             get { return (bool)base.GetValue(AllowDraggingProperty); }
             set { base.SetValue(AllowDraggingProperty, value); }
         }
+        public static readonly DependencyProperty AllowDraggingProperty;
 
-        #endregion
-
-        #region AllowDragOutOfView
-        public static readonly DependencyProperty AllowDragOutOfViewProperty;
+        /// <summary>
+        /// Drag out of view property
+        /// </summary>
         public bool AllowDragOutOfView
         {
             get { return (bool)GetValue(AllowDragOutOfViewProperty); }
             set { SetValue(AllowDragOutOfViewProperty, value); }
         }
+        public static readonly DependencyProperty AllowDragOutOfViewProperty;
 
-        #endregion
-
-        #region BringToFront / SendToBack
-        public void BringToFront(UIElement element)
-        {
-            this.UpdateZOrder(element, true);
-        }
-        
-        public void SendToBack(UIElement element)
-        {
-            this.UpdateZOrder(element, false);
-        }
-
-        #endregion
-
-        #region ElementBeingDragged
+        /// <summary>
+        /// Holds the element currently being dragged
+        /// </summary>
         public UIElement ElementBeingDragged
         {
             get
@@ -147,11 +76,108 @@ namespace VectorSpace.Controls
                 }
             }
         }
+        #endregion
+
+        #region Data Variables
+        private UIElement elementBeingDragged;
+        private Point origCursorLocation;
+        private double origHorizOffset, origVertOffset;
+        private bool modifyLeftOffset, modifyTopOffset;
+        private bool isDragInProgress;
+        #endregion
+
+        #endregion
+
+        
+        #region Constructors
+        /// <summary>
+        /// Static constructor for the DragCanvas
+        /// </summary>
+        static DragCanvas()
+        {
+            AllowDraggingProperty = DependencyProperty.Register(
+                "AllowDragging",
+                typeof(bool),
+                typeof(DragCanvas),
+                new PropertyMetadata(true)
+            );
+
+            AllowDragOutOfViewProperty = DependencyProperty.Register(
+                "AllowDragOutOfView",
+                typeof(bool),
+                typeof(DragCanvas),
+                new UIPropertyMetadata(false)
+            );
+
+            CanBeDraggedProperty = DependencyProperty.RegisterAttached(
+                "CanBeDragged",
+                typeof(bool),
+                typeof(DragCanvas),
+                new UIPropertyMetadata(true)
+            );
+        }
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public DragCanvas()
+        {
+        }
+        #endregion
+
+
+        #region Attached Property Methods
+        /// <summary>
+        /// Checks whether an element can be dragged
+        /// </summary>
+        /// <param name="uiElement">The element to check</param>
+        /// <returns>True on success</returns>
+        public static bool GetCanBeDragged(UIElement uiElement)
+        {
+            if (uiElement == null)
+                return false;
+
+            return (bool)uiElement.GetValue(CanBeDraggedProperty);
+        }
+
+        /// <summary>
+        /// Flag whether element can be dragged or not
+        /// </summary>
+        /// <param name="uiElement">The element to flag</param>
+        /// <param name="value">True/False</param>
+        public static void SetCanBeDragged(UIElement uiElement, bool value)
+        {
+            if (uiElement != null)
+                uiElement.SetValue(CanBeDraggedProperty, value);
+        }
 
         #endregion
 
 
-        #region FindCanvasChild
+        #region Interface Methods
+        /// <summary>
+        /// Brings element to the front of the canvas
+        /// </summary>
+        /// <param name="element"></param>
+        public void BringToFront(UIElement element)
+        {
+            this.UpdateZOrder(element, true);
+        }
+        
+        /// <summary>
+        /// Sends the element to the back of the canvas
+        /// </summary>
+        /// <param name="element"></param>
+        public void SendToBack(UIElement element)
+        {
+            this.UpdateZOrder(element, false);
+        }
+
+        /// <summary>
+        /// Finds child elements within the canvas
+        /// </summary>
+        /// <param name="depObj">Element to fid</param>
+        /// <returns>The found element</returns>
         public UIElement FindCanvasChild(DependencyObject depObj)
         {
             while (depObj != null)
@@ -168,12 +194,12 @@ namespace VectorSpace.Controls
         }
         #endregion
 
-        #endregion
 
-
-        #region Overrides
-
-        #region OnPreviewMouseLeftButtonDown
+        #region Override Methods
+        /// <summary>
+        /// Handles preview for left mouse dragging
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseLeftButtonDown(e);
@@ -193,9 +219,11 @@ namespace VectorSpace.Controls
 
             this.isDragInProgress = true;
         }
-        #endregion
 
-        #region OnPreviewMouseMove
+        /// <summary>
+        /// Handles preview while mouse is moving
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
             base.OnPreviewMouseMove(e);
@@ -247,9 +275,11 @@ namespace VectorSpace.Controls
             else
                 Canvas.SetBottom(this.ElementBeingDragged, newVerticalOffset);
         }
-        #endregion
 
-        #region OnHostPreviewMouseUp
+        /// <summary>
+        /// Preview for mouse button up
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseUp(e);
@@ -257,12 +287,14 @@ namespace VectorSpace.Controls
         }
         #endregion
 
-        #endregion
 
-
-        #region Private Helpers
-
-        #region CalculateDragElementRect
+        #region Private Helper Methods
+        /// <summary>
+        /// Calculkates the rectangle size for the element being dragged
+        /// </summary>
+        /// <param name="newHorizOffset">The horizontal offset</param>
+        /// <param name="newVertOffset">The vertical offset</param>
+        /// <returns>The rectangle size</returns>
         private Rect CalculateDragElementRect(double newHorizOffset, double newVertOffset)
         {
             if (this.ElementBeingDragged == null)
@@ -283,9 +315,14 @@ namespace VectorSpace.Controls
             Point elemLoc = new Point(x, y);
             return new Rect(elemLoc, elemSize);
         }
-        #endregion
 
-        #region ResolveOffset
+        /// <summary>
+        /// Handles the offset 
+        /// </summary>
+        /// <param name="side1"></param>
+        /// <param name="side2"></param>
+        /// <param name="useSide1"></param>
+        /// <returns></returns>
         private static double ResolveOffset(double side1, double side2, out bool useSide1)
         {
             useSide1 = true;
@@ -308,9 +345,12 @@ namespace VectorSpace.Controls
             }
             return result;
         }
-        #endregion
-        
-        #region UpdateZOrder
+
+        /// <summary>
+        /// Updates the Z order for an item within the canvas
+        /// </summary>
+        /// <param name="element">The element to update</param>
+        /// <param name="bringToFront">True for closer / false for away</param>
         private void UpdateZOrder(UIElement element, bool bringToFront)
         {
             if (element == null)
@@ -351,8 +391,6 @@ namespace VectorSpace.Controls
                 }
             }
         }
-        #endregion
-
         #endregion
     }     
 }

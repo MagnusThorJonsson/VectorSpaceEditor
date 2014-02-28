@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using VectorSpace.MapData.Components;
+using VectorSpace.MapData.Components; 
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 
