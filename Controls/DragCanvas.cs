@@ -203,7 +203,11 @@ namespace VectorSpace.Controls
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseLeftButtonDown(e);
-            this.isDragInProgress = false;
+
+            // If we aren't in select mode we bail
+            if (MainWindow.EditState != ApplicationEditState.Select)
+                return;
+
             this.origCursorLocation = e.GetPosition(this);
             this.ElementBeingDragged = this.FindCanvasChild(e.Source as DependencyObject);
             if (this.ElementBeingDragged == null)
@@ -227,8 +231,15 @@ namespace VectorSpace.Controls
         protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
             base.OnPreviewMouseMove(e);
-            if (this.ElementBeingDragged == null || !this.isDragInProgress)
+
+            // If we aren't in select mode we bail
+            if (MainWindow.EditState != ApplicationEditState.Select ||
+                this.ElementBeingDragged == null || !this.isDragInProgress)
+            {
+                this.ElementBeingDragged = null;
+                this.isDragInProgress = false;
                 return;
+            }
            
             Point cursorLocation = e.GetPosition(this);
             double newHorizontalOffset, newVerticalOffset;
@@ -284,6 +295,7 @@ namespace VectorSpace.Controls
         {
             base.OnPreviewMouseUp(e);
             this.ElementBeingDragged = null;
+            this.isDragInProgress = false;
         }
         #endregion
 

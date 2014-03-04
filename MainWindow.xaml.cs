@@ -21,6 +21,7 @@ using Xceed.Wpf.Toolkit;
 using VectorSpace.Controls;
 using System.Windows.Controls.Primitives;
 using System.Collections;
+using System.Windows.Media.Media3D;
 
 namespace VectorSpace
 {
@@ -40,21 +41,21 @@ namespace VectorSpace
     public partial class MainWindow : Window
     {
 
-
         #region Variables & Properties
         public Map Map { get { return _currentMap; } }
         private Map _currentMap;
 
-        private ApplicationEditState _currentEditState;
+        public static ApplicationEditState EditState { get { return _currentEditState; } }
+        private static ApplicationEditState _currentEditState;
 
         private IHasProperties _currentPropertyContainer;
         
         private VisualBrush canvasGrid;
         private bool _isGridShowing;
-        #endregion
 
         private int _selectedLibrary;
         private int _selectedLibraryItem;
+        #endregion
 
 
         #region Constructor & Initialization
@@ -284,141 +285,6 @@ namespace VectorSpace
         #endregion
 
 
-        #region Private Helper Methods
-        /// <summary>
-        /// Assigns object properties to the property grid
-        /// </summary>
-        /// <param name="property">Property holder</param>
-        private void assingPropertyGrid(IHasProperties property)
-        {
-            _currentPropertyContainer = property;
-            PropertyNameText.Text = property.Name;
-            PropertiesDataGrid.ItemsSource = property.Properties;
-
-            AddPropertyBtn.IsEnabled = true;
-            RemovePropertyBtn.IsEnabled = true;
-        }
-        #endregion
-
-
-        #region Property Button Handlers
-        /// <summary>
-        /// Adds a property to the currently selected property container
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void AddPropertyBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentPropertyContainer != null)
-            {
-                _currentPropertyContainer.AddProperty("Key", "Value");
-            }
-        }
-
-        /// <summary>
-        /// Removes the selected property from the currently selected property container
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RemovePropertyBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentPropertyContainer != null)
-            {
-                if (PropertiesDataGrid.SelectedItem != null)
-                {
-                    _currentPropertyContainer.RemoveProperty((ItemProperty)PropertiesDataGrid.SelectedItem);
-                }
-            }
-        }
-        #endregion
-        
-
-        #region Layer Event Handlers
-        /// <summary>
-        /// Add layer button click handler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void AddLayerBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentMap != null)
-            {
-                NewLayerWindow layerWindow = new NewLayerWindow(_currentMap.NextLayerId);
-                layerWindow.Owner = this;
-                layerWindow.ShowDialog();
-
-                if (layerWindow.DialogResult.HasValue && layerWindow.DialogResult.Value == true)
-                {
-                    _currentMap.AddLayer(layerWindow.Layer);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Remove layer button click handler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RemoveLayerBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentMap != null)
-            {
-                _currentMap.RemoveLayer((Layer)LayersListBox.SelectedItem);
-            }
-        }
-
-        private void LayerItemListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-        #endregion
-
-
-        #region Canvas Helpers
-        private Image _draggedImage;
-        private Point _mousePosition;
-        private void CanvasMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Image image = e.Source as Image;
-
-            if (image != null && LevelCanvas.CaptureMouse())
-            {
-                _mousePosition = e.GetPosition(LevelCanvas);
-                _draggedImage = image;
-                Panel.SetZIndex(_draggedImage, 1); // in case of multiple images
-            }
-        }
-
-        private void CanvasMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (_draggedImage != null)
-            {
-                LevelCanvas.ReleaseMouseCapture();
-                Panel.SetZIndex(_draggedImage, 0);
-                _draggedImage = null;
-            }
-        }
-
-        private void CanvasMouseMove(object sender, MouseEventArgs e)
-        {
-            if (_draggedImage != null)
-            {
-                Point position = e.GetPosition(LevelCanvas);
-                Vector offset = position - _mousePosition;
-                _mousePosition = position;
-                Canvas.SetLeft(_draggedImage, Canvas.GetLeft(_draggedImage) + offset.X);
-                Canvas.SetTop(_draggedImage, Canvas.GetTop(_draggedImage) + offset.Y);
-            }
-        }
-
-
-        private void CanvasItem_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-
-        }
-        #endregion 
-
-
         #region Toolbar Button Methods
 
         #region Shortcut Key Commands
@@ -479,7 +345,7 @@ namespace VectorSpace
             }
             else
                 e.CanExecute = false;
-        }  
+        }
         #endregion
 
         #region Toolbar Event Handlers
@@ -540,27 +406,290 @@ namespace VectorSpace
         #endregion
 
 
-        #region Map Item Selection Methods
-        private void TextureListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        #region Property Grid & Button Handlers
+        /// <summary>
+        /// Adds a property to the currently selected property container
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddPropertyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPropertyContainer != null)
+            {
+                _currentPropertyContainer.AddProperty("Key", "Value");
+            }
+        }
+
+        /// <summary>
+        /// Removes the selected property from the currently selected property container
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RemovePropertyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPropertyContainer != null)
+            {
+                if (PropertiesDataGrid.SelectedItem != null)
+                {
+                    _currentPropertyContainer.RemoveProperty((ItemProperty)PropertiesDataGrid.SelectedItem);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Assigns object properties to the property grid
+        /// </summary>
+        /// <param name="property">Property holder</param>
+        private void assingPropertyGrid(IHasProperties property)
+        {
+            _currentPropertyContainer = property;
+            PropertyNameText.Text = property.Name;
+            PropertiesDataGrid.ItemsSource = property.Properties;
+
+            AddPropertyBtn.IsEnabled = true;
+            RemovePropertyBtn.IsEnabled = true;
+        }
+        #endregion
+        
+
+        #region Layer Event Handlers
+        /// <summary>
+        /// Add layer button click handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentMap != null)
+            {
+                NewLayerWindow layerWindow = new NewLayerWindow(_currentMap.NextLayerId);
+                layerWindow.Owner = this;
+                layerWindow.ShowDialog();
+
+                if (layerWindow.DialogResult.HasValue && layerWindow.DialogResult.Value == true)
+                {
+                    _currentMap.AddLayer(layerWindow.Layer);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove layer button click handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RemoveLayerBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentMap != null)
+            {
+                _currentMap.RemoveLayer((Layer)LayersListBox.SelectedItem);
+            }
+        }
+        #endregion
+
+
+        #region Library & Canvas Methods
+
+        #region Canvas Drag Helpers
+        /// <summary>
+        /// Handles the Left Mouse button click on the Canvas
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LevelCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            switch (EditState)
+            {
+                case ApplicationEditState.Select:
+                    _currentlySelectedImage = e.OriginalSource as Image;
+                    if (_currentlySelectedImage != null)
+                    {
+                        _lastMousePosition = e.GetPosition(LevelCanvas);
+                    }
+                    break;
+            }
+        }
+        private Image _currentlySelectedImage = null;
+        private Point _lastMousePosition = new Point();
+
+        /// <summary>
+        /// Handles the Left Mouse button release on the Canvas
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LevelCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            switch (EditState)
+            {
+                case ApplicationEditState.Select:
+                    _currentlySelectedImage = null;
+                    _lastMousePosition = new Point();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Handles the Canvas Mouse Move event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LevelCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            displayStatusTip(e.GetPosition(LevelCanvas));
+
+            switch (EditState)
+            {
+                case ApplicationEditState.Select:
+                    if (e.LeftButton == MouseButtonState.Pressed && _currentlySelectedImage != null)
+                    {
+                        Point mousePos = e.GetPosition(LevelCanvas);
+                        TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                        item.Move(
+                            (int)(mousePos.X - _lastMousePosition.X), 
+                            (int)(mousePos.Y - _lastMousePosition.Y)
+                        );
+                        _lastMousePosition = mousePos;
+                    }
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Canvas Library Drag & Drop Helpers
+        /// <summary>
+        /// Handles DragOver event for the canvas library item drag & drop.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LevelCanvas_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("Texture"))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+        }
+
+        /// <summary>
+        /// Handles the library item drag & drop on to the canvas
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LevelCanvas_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Handled == false && e.Data.GetDataPresent("Texture"))
+            {
+                ItemsControl canvasControl = (ItemsControl)sender;
+                Texture item = (Texture)((WeakReference)e.Data.GetData("Texture")).Target;
+
+                if (canvasControl != null && item != null && e.AllowedEffects.HasFlag(DragDropEffects.Copy))
+                {
+                    Point mousePos = e.GetPosition(LevelCanvas);
+                    _currentMap.AddItem(0,
+                        TextureItem.Create(
+                            0,
+                            item.Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
+                            item,
+                            new WorldPosition(new System.Drawing.Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new System.Drawing.Point(), 1f, 1f, 0f),
+                            1
+                        )
+                    );
+                }
+            }
+
+            e.Handled = true;
+        }
+        #endregion
+
+        #region Library Selection Events
+        /// <summary>
+        /// Updates the selected library item
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LibraryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _selectedLibraryItem = ((ListBox)sender).SelectedIndex;
         }
 
-
-        private void CanvasItemsTab_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <summary>
+        /// Updates the selected library 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LibraryTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Clear currently selected library item from previous tab
-            _selectedLibraryItem = 0;
+            _selectedLibrary = ((TabControl)sender).SelectedIndex;
+        }
+        #endregion
 
-            /*
-            TabItem item = null;
-            if (e.RemovedItems.Count > 0)
+        #region Library Events
+        /// <summary>
+        /// Initiates a library item drag and drop
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LibraryItem_MouseMove(object sender, MouseEventArgs e)
+        {
+            Image image = (Image)sender;
+            if (image != null && e.LeftButton == MouseButtonState.Pressed)
             {
-                item = e.RemovedItems[0] as TabItem; //((TabControl)sender).SelectedItem as TabItem;
-                item.Content
+                // Package the data.
+                DataObject data = new DataObject(
+                    "Texture",
+                    new WeakReference(_currentMap.TextureLibraries[_selectedLibrary].Textures[_selectedLibraryItem])
+                );
+
+                // Inititate the drag-and-drop operation.
+                DragDrop.DoDragDrop((DependencyObject)sender, data, DragDropEffects.Copy);
             }
-            */                
-                //List<ListBox> listBox = GetLogicalChildCollection<ListBox>(((TabControl)sender).GetValue(TabItem.ContentProperty) as ListItem);
+        }
+
+        /// <summary>
+        /// Changes canvas feedback cursor icon
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LibraryItem_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            // These Effects values are set in the drop target's 
+            // DragOver event handler. 
+            if (e.Effects.HasFlag(DragDropEffects.Copy))
+            {
+                Mouse.SetCursor(Cursors.Cross);
+            }
+            else if (e.Effects.HasFlag(DragDropEffects.Move))
+            {
+                Mouse.SetCursor(Cursors.Pen);
+            }
+            else
+            {
+                Mouse.SetCursor(Cursors.No);
+            }
+            e.Handled = true;
+        }
+        #endregion 
+
+        #endregion
+
+
+        #region Status Bar Helpers
+        /// <summary>
+        /// Displays the mouse position in the status bar
+        /// </summary>
+        /// <param name="mouse">The mouse position</param>
+        private void displayStatusTip(Point mouse)
+        {
+            StatusBarText.Text = "Canvas Mouse Position: (" + (int)mouse.X + ", " + (int)mouse.Y + ")";
+        }
+
+        /// <summary>
+        /// Displays a message in the status bar
+        /// </summary>
+        /// <param name="tip">The message tip to display</param>
+        private void displayStatusTip(String tip)
+        {
+            StatusBarText.Text = tip;
         }
         #endregion
 
@@ -616,5 +745,8 @@ namespace VectorSpace
             return children;
         }
         #endregion
+
+
+
     }
 }

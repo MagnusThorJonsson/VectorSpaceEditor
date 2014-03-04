@@ -39,6 +39,16 @@ namespace VectorSpace.MapData
         /// </summary>
         public Point Size { get { return _size; } }
         private Point _size;
+
+        /// <summary>
+        /// Texture origin point
+        /// </summary>
+        public Point Origin 
+        { 
+            get { return _origin; }
+            set { _origin = value; }
+        }
+        private Point _origin;
         
         /// <summary>
         /// Texture user properties
@@ -65,6 +75,7 @@ namespace VectorSpace.MapData
             _source.EndInit();
 
             _size = new Point((int)_source.Width, (int)_source.Height);
+            _origin = new Point(_size.X / 2, _size.Y / 2);
 
             properties = new ObservableCollection<ItemProperty>();
         }
@@ -86,6 +97,7 @@ namespace VectorSpace.MapData
             _source.EndInit();
 
             _size = new Point((int)_source.Width, (int)_source.Height);
+            _origin = new Point(_size.X / 2, _size.Y / 2);
 
             properties = new ObservableCollection<ItemProperty>();
         }
@@ -101,7 +113,9 @@ namespace VectorSpace.MapData
             filename = name;
             filepath = path;
             _source = source;
+
             _size = new Point((int)source.Width, (int)source.Height);
+            _origin = new Point(_size.X / 2, _size.Y / 2);
 
             properties = new ObservableCollection<ItemProperty>();
         }
@@ -119,6 +133,27 @@ namespace VectorSpace.MapData
             filepath = path;
             _source = source;
             _size = size;
+
+            _origin = new Point(_size.X / 2, _size.Y / 2);
+
+            properties = new ObservableCollection<ItemProperty>();
+        }
+
+        /// <summary>
+        /// Constructs a texture object
+        /// </summary>
+        /// <param name="name">The file name</param>
+        /// <param name="path">The file path</param>
+        /// <param name="source">The image source</param>
+        /// <param name="size">The image size</param>
+        /// <param name="origin">The image origin point</param>
+        public Texture(string name, string path, BitmapImage source, Point size, Point origin)
+        {
+            filename = name;
+            filepath = path;
+            _source = source;
+            _size = size;
+            _origin = origin;
 
             properties = new ObservableCollection<ItemProperty>();
         }

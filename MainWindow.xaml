@@ -155,23 +155,28 @@
                         <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
                             <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" Width="{Binding ElementName=LevelCanvas,Path=ActualWidth}"  Height="{Binding ElementName=LevelCanvas,Path=ActualHeight}">
                                 <ItemsControl Name="LevelCanvas" Background="White" IsEnabled="False"
-                                                MouseLeftButtonDown="CanvasMouseLeftButtonDown"
-                                                MouseLeftButtonUp="CanvasMouseLeftButtonUp"
-                                                MouseMove="CanvasMouseMove">
+                                                AllowDrop="True"
+                                                MouseLeftButtonDown="LevelCanvas_MouseLeftButtonDown"
+                                                MouseLeftButtonUp="LevelCanvas_MouseLeftButtonUp"
+                                                MouseMove="LevelCanvas_MouseMove"
+                                                                                             
+                                                DragOver="LevelCanvas_DragOver"
+                                                Drop="LevelCanvas_Drop">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <vcsp:DragCanvas />
+                                            <!--vcsp:DragCanvas Background="Transparent" /-->
+                                            <Canvas Background="Transparent" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemContainerStyle>
                                         <Style TargetType="ContentPresenter">
-                                            <Setter Property="Canvas.Left" Value="{Binding Position.X}"/>
-                                            <Setter Property="Canvas.Top" Value="{Binding Position.Y}"/>
+                                            <Setter Property="Canvas.Left" Value="{Binding Position.X}" />
+                                            <Setter Property="Canvas.Top" Value="{Binding Position.Y}" />
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Image Source="{Binding Texture.Source}" MouseDown="CanvasItem_MouseDown" />
+                                            <Image Source="{Binding Texture.Source}" />
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -180,7 +185,7 @@
                     </DockPanel>
                 </Border>
 
-                <TabControl Name="CanvasItemsTab" Grid.Row="1" Margin="0, 5, 0, 0" SelectionChanged="CanvasItemsTab_SelectionChanged">
+                <TabControl Name="CanvasItemsTab" Grid.Row="1" Margin="0, 5, 0, 0" SelectionChanged="LibraryTabControl_SelectionChanged">
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="{x:Type TabItem}">
                             <Setter Property="Header">
@@ -195,11 +200,12 @@
                             
                             <Border BorderBrush="#999999" BorderThickness="0,0,1,1">
                                 <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
-                                    <ListBox Name="TextureListBox" ItemsSource="{Binding Textures}" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectionMode="Single" BorderThickness="0" SelectionChanged="TextureListBox_SelectionChanged">
+                                    <ListBox Name="TextureListBox" ItemsSource="{Binding Textures}" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+                                             SelectionMode="Single" BorderThickness="0" SelectionChanged="LibraryListBox_SelectionChanged">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Border x:Name="border" BorderThickness="1" BorderBrush="Gray" Margin="5, 0, 0, 0" Width="70" Height="70" Background="White" >
-                                                    <Image Source="{Binding Source}" Stretch="Uniform" />
+                                                    <Image Source="{Binding Source}" Stretch="Uniform" MouseMove="LibraryItem_MouseMove" GiveFeedback="LibraryItem_GiveFeedback" />
                                                 </Border>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
@@ -266,7 +272,7 @@
                                                         
                                                         <Expander IsExpanded="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Header="{Binding Name}">
                                                             <ListBox Name="LayerItemListBox" behaviour:LayerItemSelectionBehaviour.ClickSelection="True" ItemContainerStyle="{StaticResource LayerItemContainerStyle}" 
-                                                                     ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch" SelectionChanged="LayerItemListBox_SelectionChanged" SelectionMode="Single">
+                                                                     ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch" SelectionMode="Single">
                                                                 <ListBox.ItemTemplate>
                                                                     <DataTemplate>
                                                                         <Label Content="{Binding Name}" />
@@ -363,7 +369,7 @@
                     </ItemsPanelTemplate>
                 </StatusBar.ItemsPanel>
                 <StatusBarItem>
-                    <TextBlock Name="Status">Ready</TextBlock>
+                    <TextBlock Name="StatusBarText">Ready</TextBlock>
                 </StatusBarItem>
             </StatusBar>
         </DockPanel>

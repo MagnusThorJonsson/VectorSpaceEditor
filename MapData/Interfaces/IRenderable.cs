@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using VectorSpace.MapData.Components;
 
 namespace VectorSpace.MapData.Interfaces
 {
-    public interface IRenderable
+    public interface IRenderable : INotifyPropertyChanged
     {
         #region Properties
         /// <summary>

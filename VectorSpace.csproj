@@ -55,6 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Adorners\CanvasDragAdorner.cs" />
+    <Compile Include="Adorners\PaintImageDragAdorner.cs" />
     <Compile Include="Adorners\ResizingAdorner.cs" />
     <Compile Include="Adorners\SelectedAdorner.cs" />
     <Compile Include="Behaviours\LayerItemSelectionBehaviour.cs" />
