@@ -22,6 +22,7 @@ using VectorSpace.Controls;
 using System.Windows.Controls.Primitives;
 using System.Collections;
 using System.Windows.Media.Media3D;
+using VectorSpace.Adorners;
 
 namespace VectorSpace
 {
@@ -491,6 +492,9 @@ namespace VectorSpace
         #region Library & Canvas Methods
 
         #region Canvas Drag Helpers
+        private Image _currentlySelectedImage = null;
+        private Point _lastMousePosition = new Point();
+        
         /// <summary>
         /// Handles the Left Mouse button click on the Canvas
         /// </summary>
@@ -501,17 +505,27 @@ namespace VectorSpace
             switch (EditState)
             {
                 case ApplicationEditState.Select:
+                    // Remove adorner from the cached item
+                    if (_currentlySelectedImage != null)
+                    {
+                        Adorner[] itemAdorners = AdornerLayer.GetAdornerLayer(_currentlySelectedImage).GetAdorners(_currentlySelectedImage);
+                        if (itemAdorners != null)
+                        {
+                            // Shitty hack, we only remove the first one (only using one atm anyways)
+                            AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Remove(itemAdorners[0]);
+                        }
+                    }
+
                     _currentlySelectedImage = e.OriginalSource as Image;
                     if (_currentlySelectedImage != null)
                     {
-                        _lastMousePosition = e.GetPosition(LevelCanvas);
+                        AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Add(new MapItemSelectedAdorner(_currentlySelectedImage));
+                        //_lastMousePosition = e.GetPosition(LevelCanvas);
                     }
                     break;
             }
         }
-        private Image _currentlySelectedImage = null;
-        private Point _lastMousePosition = new Point();
-
+        
         /// <summary>
         /// Handles the Left Mouse button release on the Canvas
         /// </summary>
@@ -522,8 +536,7 @@ namespace VectorSpace
             switch (EditState)
             {
                 case ApplicationEditState.Select:
-                    _currentlySelectedImage = null;
-                    _lastMousePosition = new Point();
+                    //_lastMousePosition = new Point();
                     break;
             }
         }
@@ -535,23 +548,24 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LevelCanvas_MouseMove(object sender, MouseEventArgs e)
         {
-            displayStatusTip(e.GetPosition(LevelCanvas));
+            Point mousePos = e.GetPosition(LevelCanvas);
+            displayStatusTip(mousePos);
 
             switch (EditState)
             {
                 case ApplicationEditState.Select:
                     if (e.LeftButton == MouseButtonState.Pressed && _currentlySelectedImage != null)
                     {
-                        Point mousePos = e.GetPosition(LevelCanvas);
                         TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
                         item.Move(
-                            (int)(mousePos.X - _lastMousePosition.X), 
+                            (int)(mousePos.X - _lastMousePosition.X),
                             (int)(mousePos.Y - _lastMousePosition.Y)
                         );
-                        _lastMousePosition = mousePos;
                     }
                     break;
             }
+
+            _lastMousePosition = mousePos;
         }
 
         #endregion
