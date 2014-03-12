@@ -56,6 +56,10 @@ namespace VectorSpace
 
         private int _selectedLibrary;
         private int _selectedLibraryItem;
+        private int _selectedLayer;
+
+        private Image _currentlySelectedImage;
+        private Point _lastMousePosition;
         #endregion
 
 
@@ -70,6 +74,10 @@ namespace VectorSpace
             _isGridShowing = false;
             _selectedLibrary = 0;
             _selectedLibraryItem = 0;
+            _selectedLayer = 0;
+
+            _currentlySelectedImage = null;
+            _lastMousePosition = new Point();
 
             InitializeComponent();
             loadResources();
@@ -249,19 +257,6 @@ namespace VectorSpace
                 // Add texture library to the map
                 _currentMap.AddTextureLibrary(txtManagerWindow.TextureLibrary);
                 CanvasItemsTab.SelectedIndex = CanvasItemsTab.Items.Count - 1;
-
-                //TEST
-                _currentMap.AddItem(
-                    0,
-                    TextureItem.Create(
-                        0, 
-                        _currentMap.TextureLibraries[0].Textures[0].Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
-                        _currentMap.TextureLibraries[0].Textures[0], 
-                        new WorldPosition(new System.Drawing.Point(50, 50), new System.Drawing.Point(), 1f, 1f, 0f), 
-                        1
-                    )
-                );
-
             }
         }
         #endregion
@@ -451,9 +446,23 @@ namespace VectorSpace
             RemovePropertyBtn.IsEnabled = true;
         }
         #endregion
-        
 
-        #region Layer Event Handlers
+
+        #region Layer List Handlers 
+
+        #region Layer List Event Handlers
+        /// <summary>
+        /// Updates the selected layer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LayerListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            _selectedLayer = ((ListBox)sender).SelectedIndex;
+        }
+        #endregion
+
+        #region Layer Button Event Handlers
         /// <summary>
         /// Add layer button click handler
         /// </summary>
@@ -488,13 +497,12 @@ namespace VectorSpace
         }
         #endregion
 
+        #endregion
+
 
         #region Library & Canvas Methods
 
         #region Canvas Drag Helpers
-        private Image _currentlySelectedImage = null;
-        private Point _lastMousePosition = new Point();
-        
         /// <summary>
         /// Handles the Left Mouse button click on the Canvas
         /// </summary>
@@ -516,11 +524,11 @@ namespace VectorSpace
                         }
                     }
 
+                    // Add an adorner if an image was clicked
                     _currentlySelectedImage = e.OriginalSource as Image;
                     if (_currentlySelectedImage != null)
                     {
-                        AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Add(new MapItemSelectedAdorner(_currentlySelectedImage));
-                        //_lastMousePosition = e.GetPosition(LevelCanvas);
+                        AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Add(new ResizingAdorner(_currentlySelectedImage));
                     }
                     break;
             }
@@ -591,17 +599,17 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LevelCanvas_Drop(object sender, DragEventArgs e)
         {
-            if (e.Handled == false && e.Data.GetDataPresent("Texture"))
+            if (e.Handled == false && e.Data.GetDataPresent("Texture") && _currentMap != null)
             {
                 ItemsControl canvasControl = (ItemsControl)sender;
                 Texture item = (Texture)((WeakReference)e.Data.GetData("Texture")).Target;
 
-                if (canvasControl != null && item != null && e.AllowedEffects.HasFlag(DragDropEffects.Copy))
+                if (canvasControl != null && item != null && _selectedLayer >= 0 && _selectedLayer < _currentMap.Layers.Count && e.AllowedEffects.HasFlag(DragDropEffects.Copy))
                 {
                     Point mousePos = e.GetPosition(LevelCanvas);
-                    _currentMap.AddItem(0,
+                    _currentMap.AddItem(_selectedLayer,
                         TextureItem.Create(
-                            0,
+                            _selectedLayer,
                             item.Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
                             item,
                             new WorldPosition(new System.Drawing.Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new System.Drawing.Point(), 1f, 1f, 0f),

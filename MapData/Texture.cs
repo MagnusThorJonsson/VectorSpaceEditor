@@ -6,8 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using VectorSpace.MapData.Components; 
+using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 
@@ -73,6 +74,9 @@ namespace VectorSpace.MapData
             _source.CacheOption = BitmapCacheOption.OnLoad;
             _source.UriSource = new Uri(filepath);
             _source.EndInit();
+
+            // Set the scaling mode to the best available
+            RenderOptions.SetBitmapScalingMode(_source, BitmapScalingMode.NearestNeighbor);
 
             _size = new Point((int)_source.Width, (int)_source.Height);
             _origin = new Point(_size.X / 2, _size.Y / 2);

@@ -9,6 +9,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using VectorSpace.MapData.MapItems;
 
 namespace VectorSpace.Adorners
 {
@@ -52,23 +53,29 @@ namespace VectorSpace.Adorners
         {
             FrameworkElement adornedElement = this.AdornedElement as FrameworkElement;
             Thumb hitThumb = sender as Thumb;
-
             if (adornedElement == null || hitThumb == null) return;
-            FrameworkElement parentElement = adornedElement.Parent as FrameworkElement;
 
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
+            TextureItem item = (TextureItem)adornedElement.DataContext;
+
             // Change the size by the amount the user drags the mouse, as long as it’s larger 
             // than the width or height of an adorner, respectively.
-            adornedElement.Width = Math.Max(adornedElement.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
-            //adornedElement.Height = Math.Max(adornedElement.Height – args.VerticalChange, hitThumb.DesiredSize.Height);
+            //adornedElement.Width = Math.Max(adornedElement.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
+            item.Width = (float)Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
 
-            double height_old = adornedElement.Height;
-            double height_new = Math.Max(adornedElement.Height - args.VerticalChange, hitThumb.DesiredSize.Height);
-            double top_old = Canvas.GetTop(adornedElement);
-            adornedElement.Height = height_new;
-            Canvas.SetTop(adornedElement, top_old - (height_new - height_old));
+            float height_old = item.Height;
+            float height_new = (float)Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height);
+            float top_old = item.Position.Y;
+            item.Height = height_new;
+
+            // Adjust position
+            item.SetPosition(
+                item.Position.X,
+                (int)(top_old - (height_new - height_old))
+            );
+
         }
 
 
@@ -77,17 +84,16 @@ namespace VectorSpace.Adorners
         {
             FrameworkElement adornedElement = this.AdornedElement as FrameworkElement;
             Thumb hitThumb = sender as Thumb;
-
             if (adornedElement == null || hitThumb == null) return;
-            FrameworkElement parentElement = adornedElement.Parent as FrameworkElement;
 
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
+            TextureItem item = (TextureItem)adornedElement.DataContext;
             // Change the size by the amount the user drags the mouse, as long as it’s larger 
             // than the width or height of an adorner, respectively.
-            adornedElement.Width = Math.Max(adornedElement.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
-            adornedElement.Height = Math.Max(args.VerticalChange + adornedElement.Height, hitThumb.DesiredSize.Height);
+            item.Width = (float)Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
+            item.Height = (float)Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height);
         }
 
         // Handler for resizing from the top-left.
@@ -101,21 +107,23 @@ namespace VectorSpace.Adorners
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
-            // Change the size by the amount the user drags the mouse, as long as it’s larger 
-            // than the width or height of an adorner, respectively.
-            //adornedElement.Width = Math.Max(adornedElement.Width – args.HorizontalChange, hitThumb.DesiredSize.Width);
-            //adornedElement.Height = Math.Max(adornedElement.Height – args.VerticalChange, hitThumb.DesiredSize.Height);
+            TextureItem item = (TextureItem)adornedElement.DataContext;
 
-            double width_old = adornedElement.Width;
-            double width_new = Math.Max(adornedElement.Width - args.HorizontalChange, hitThumb.DesiredSize.Width);
-            double left_old = Canvas.GetLeft(adornedElement);
-            adornedElement.Width = width_new;
-            Canvas.SetLeft(adornedElement, left_old - (width_new - width_old));
-            double height_old = adornedElement.Height;
-            double height_new = Math.Max(adornedElement.Height - args.VerticalChange, hitThumb.DesiredSize.Height);
-            double top_old = Canvas.GetTop(adornedElement);
-            adornedElement.Height = height_new;
-            Canvas.SetTop(adornedElement, top_old - (height_new - height_old));
+            float width_old = item.Width;
+            float width_new = (float)Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width);
+            float left_old = item.Position.X;
+            item.Width = width_new;
+            
+            float height_old = item.Height;
+            float height_new = (float)Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height);
+            float top_old = item.Position.Y;
+            item.Height = height_new;
+           
+            item.SetPosition(
+                (int)(left_old - (width_new - width_old)),
+                (int)(top_old - (height_new - height_old))
+            );
+
         }
 
         // Handler for resizing from the bottom-left.
@@ -123,26 +131,31 @@ namespace VectorSpace.Adorners
         {
             FrameworkElement adornedElement = AdornedElement as FrameworkElement;
             Thumb hitThumb = sender as Thumb;
-
             if (adornedElement == null || hitThumb == null) return;
 
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
+            TextureItem item = (TextureItem)adornedElement.DataContext;
+            
             // Change the size by the amount the user drags the mouse, as long as it’s larger 
             // than the width or height of an adorner, respectively.
             //adornedElement.Width = Math.Max(adornedElement.Width – args.HorizontalChange, hitThumb.DesiredSize.Width);
-            adornedElement.Height = Math.Max(args.VerticalChange + adornedElement.Height, hitThumb.DesiredSize.Height);
+            item.Height = (float)Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height);
 
-            double width_old = adornedElement.Width;
-            double width_new = Math.Max(adornedElement.Width - args.HorizontalChange, hitThumb.DesiredSize.Width);
-            double left_old = Canvas.GetLeft(adornedElement);
-            adornedElement.Width = width_new;            
-            Canvas.SetLeft(adornedElement, left_old - (width_new - width_old));
+            float width_old = item.Width;
+            float width_new = (float)Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width);
+            float left_old = item.Position.X;
+            item.Width = width_new;            
+
+            item.SetPosition(
+                (int)(left_old - (width_new - width_old)),
+                item.Position.Y
+            );
         }
         #endregion
 
-
+        #region Setup Helpers
         // Helper method to instantiate the corner Thumbs, set the Cursor property, 
         // set some appearance properties, and add the elements to the visual tree.
         void BuildAdornerCorner(ref Thumb cornerThumb, Cursor customizedCursor)
@@ -180,24 +193,28 @@ namespace VectorSpace.Adorners
             // Return the final size.
             return finalSize;
         }
-
+        #endregion
 
         // This method ensures that the Widths and Heights are initialized.  Sizing to content produces
         // Width and Height values of Double.NaN.  Because this Adorner explicitly resizes, the Width and Height
         // need to be set first.  It also sets the maximum size of the adorned element.
         void EnforceSize(FrameworkElement adornedElement)
         {
-            if (adornedElement.Width.Equals(Double.NaN))
-                adornedElement.Width = adornedElement.DesiredSize.Width;
-            if (adornedElement.Height.Equals(Double.NaN))
-                adornedElement.Height = adornedElement.DesiredSize.Height;
+            TextureItem item = (TextureItem)adornedElement.DataContext;
 
+            if (item.Width.Equals(Double.NaN))
+                item.Width = (float)adornedElement.DesiredSize.Width;
+            if (item.Height.Equals(Double.NaN))
+                item.Height = (float)adornedElement.DesiredSize.Height;
+
+            /*
             FrameworkElement parent = adornedElement.Parent as FrameworkElement;
             if (parent != null)
             {
                 adornedElement.MaxHeight = parent.ActualHeight;
                 adornedElement.MaxWidth = parent.ActualWidth;
             }
+             */
         }
 
     }

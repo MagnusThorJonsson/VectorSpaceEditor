@@ -19,6 +19,48 @@ namespace VectorSpace.MapData.MapItems
         protected Texture texture;
         protected WorldPosition position;
         protected int zIndex;
+
+        /// <summary>
+        /// Current width based on scale
+        /// </summary>
+        public float Width
+        {
+            get
+            {
+                return texture.Size.X * position.ScaleX;
+            }
+            set
+            {
+                if (value > 0f)
+                {
+                    position.ScaleX = value / texture.Size.X;
+
+                    OnPropertyChanged("Position");
+                    OnPropertyChanged("Width");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Current height based on scale
+        /// </summary>
+        public float Height
+        {
+            get
+            {
+                return texture.Size.Y * position.ScaleY;
+            }
+            set
+            {
+                if (value > 0f)
+                {
+                    position.ScaleY = value / texture.Size.Y;
+
+                    OnPropertyChanged("Position");
+                    OnPropertyChanged("Height");
+                }
+            }
+        }
         #endregion
 
 
@@ -113,6 +155,11 @@ namespace VectorSpace.MapData.MapItems
 
 
         #region Helper Methods
+        /// <summary>
+        /// Moves the texture item by the given amount
+        /// </summary>
+        /// <param name="x">Amount to move on the X axis</param>
+        /// <param name="y">Amount to move on the Y axis</param>
         public void Move(int x, int y)
         {
             position.Position = new System.Drawing.Point(
@@ -123,11 +170,64 @@ namespace VectorSpace.MapData.MapItems
             OnPropertyChanged("Position");
         }
 
+        /// <summary>
+        /// Sets the texture item to the given position
+        /// </summary>
+        /// <param name="x">Position on the X axis</param>
+        /// <param name="y">Position on the Y axis</param>
         public void SetPosition(int x, int y)
         {
             position.Position = new System.Drawing.Point(x, y);
 
             OnPropertyChanged("Position");
+        }
+
+        /// <summary>
+        /// Sets the texture items scale
+        /// </summary>
+        /// <param name="sX">Scale width</param>
+        /// <param name="sY">Scale height</param>
+        public void SetScale(float sX, float sY)
+        {
+            if (sX <= 0f || sY <= 0f)
+                return;
+
+            position.ScaleX = sX;
+            position.ScaleY = sY;
+
+            OnPropertyChanged("Position");
+            OnPropertyChanged("Width");
+            OnPropertyChanged("Height");
+        }
+
+        /// <summary>
+        /// Sets the texture items width scale
+        /// </summary>
+        /// <param name="sX">Scale width</param>
+        public void SetScaleX(float sX)
+        {
+            if (sX <= 0f)
+                return;
+
+            position.ScaleX = sX;
+
+            OnPropertyChanged("Position");
+            OnPropertyChanged("Width");
+        }
+
+        /// <summary>
+        /// Sets the texture items height scale
+        /// </summary>
+        /// <param name="sX">Scale height</param>
+        public void SetScaleY(float sY)
+        {
+            if (sY <= 0f)
+                return;
+
+            position.ScaleY = sY;
+
+            OnPropertyChanged("Position");
+            OnPropertyChanged("Height");
         }
         #endregion
     }

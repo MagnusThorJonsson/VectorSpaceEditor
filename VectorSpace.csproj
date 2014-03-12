@@ -56,7 +56,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Adorners\ResizingAdorner.cs" />
-    <Compile Include="Adorners\MapItemSelectedAdorner.cs" />
     <Compile Include="Behaviours\LayerItemSelectionBehaviour.cs" />
     <Compile Include="Controls\DragCanvas.cs" />
     <Compile Include="Dialogs\NewLayerWindow.xaml.cs">
