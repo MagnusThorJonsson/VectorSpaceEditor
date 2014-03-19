@@ -29,7 +29,7 @@ namespace VectorSpace.MapData.Interfaces
         /// <summary>
         /// The ZIndex depth for the object (controlled by the layer placement)
         /// </summary>
-        int ZIndex { get; } 
+        int ZIndex { get; set; } 
         #endregion
     }
 }

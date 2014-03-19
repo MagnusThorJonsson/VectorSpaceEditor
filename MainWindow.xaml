@@ -172,21 +172,27 @@
                                         <Style TargetType="ContentPresenter">
                                             <Setter Property="Canvas.Left" Value="{Binding Position.X}" />
                                             <Setter Property="Canvas.Top" Value="{Binding Position.Y}" />
+                                            <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}" />
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true">
+                                            <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true"
+                                                   ContextMenuOpening="CanvasItem_ContextMenuOpening"
+                                                   ContextMenuClosing="CanvasItem_ContextMenuClosing">
                                                 <Image.RenderTransformOrigin>
                                                     <Point X="0.5" Y="0.5" />
                                                 </Image.RenderTransformOrigin>
                                                 <Image.ContextMenu>
                                                     <ContextMenu>
+                                                        <MenuItem Header="Hide" />
                                                         <Separator />
-                                                        <MenuItem Header="Bring to Top" />
-                                                        <MenuItem Header="Move up" />
-                                                        <MenuItem Header="Move down" />
-                                                        <MenuItem Header="Send to Bottom" />
+                                                        <MenuItem Header="Order">
+                                                            <MenuItem Header="Bring to Front" Click="CanvasItemContext_BringToFront" />
+                                                            <MenuItem Header="Bring Forward" Click="CanvasItemContext_BringForward" />
+                                                            <MenuItem Header="Send Backward" Click="CanvasItemContext_SendBackward" />
+                                                            <MenuItem Header="Send to Back" Click="CanvasItemContext_SendToBack" />
+                                                        </MenuItem>
                                                         <Separator />
                                                         <MenuItem Header="Remove" />
                                                     </ContextMenu>

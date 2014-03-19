@@ -59,6 +59,8 @@ namespace VectorSpace
 
         private Image _currentlySelectedImage;
         private Point _lastMousePosition;
+        
+        private bool _isContextOpen = false;
         #endregion
 
 
@@ -519,31 +521,25 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LevelCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // We don't do anything if the context menu is open
+            if (_isContextOpen)
+                return;
+
             switch (EditState)
             {
                 case ApplicationEditState.Select:
                     // Remove adorner from the cached item
                     if (_currentlySelectedImage != null)
-                    {
-                        Adorner[] itemAdorners = AdornerLayer.GetAdornerLayer(_currentlySelectedImage).GetAdorners(_currentlySelectedImage);
-                        if (itemAdorners != null)
-                        {
-                            // Shitty hack, we only remove the first one (only using one atm anyways)
-                            AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Remove(itemAdorners[0]);
-                        }
-                    }
-
+                        removeAdorner(_currentlySelectedImage);
+                    
                     // Add an adorner if an image was clicked
                     _currentlySelectedImage = e.OriginalSource as Image;
                     if (_currentlySelectedImage != null)
                     {
-                        assingPropertyGrid((IHasProperties)_currentlySelectedImage.DataContext);
-                        AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Add(new MapItemSelectionAdorner(_currentlySelectedImage, LevelCanvas));
+                        selectMapTextureItem(_currentlySelectedImage);
                     }
                     else
-                    {
                         assingPropertyGrid(_currentMap);
-                    }
                     break;
             }
         }
@@ -570,6 +566,10 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LevelCanvas_MouseMove(object sender, MouseEventArgs e)
         {
+            // We don't do anything if the context menu is open
+            if (_isContextOpen)
+                return;
+
             Point mousePos = e.GetPosition(LevelCanvas);
             displayStatusTip(mousePos);
 
@@ -618,22 +618,54 @@ namespace VectorSpace
                 ItemsControl canvasControl = (ItemsControl)sender;
                 Texture item = (Texture)((WeakReference)e.Data.GetData("Texture")).Target;
 
-                if (canvasControl != null && item != null && _selectedLayer >= 0 && _selectedLayer < _currentMap.Layers.Count && e.AllowedEffects.HasFlag(DragDropEffects.Copy))
+                if (canvasControl != null && item != null && 
+                    _selectedLayer >= 0 && _selectedLayer < _currentMap.Layers.Count && 
+                    e.AllowedEffects.HasFlag(DragDropEffects.Copy))
                 {
                     Point mousePos = e.GetPosition(LevelCanvas);
-                    _currentMap.AddItem(_selectedLayer,
-                        TextureItem.Create(
-                            _selectedLayer,
-                            item.Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
-                            item,
-                            new WorldPosition(new System.Drawing.Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new System.Drawing.Point(), 1f, 1f, 0f),
-                            1
-                        )
+                    _currentMap.CreateItem(
+                        _selectedLayer,
+                        item.Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
+                        item,
+                        new WorldPosition(new System.Drawing.Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new System.Drawing.Point(), 1f, 1f, 0f)
                     );
                 }
             }
 
             e.Handled = true;
+        }
+        #endregion
+
+        #region Canvas Selection Helpers
+        /// <summary>
+        /// Handles the selection of map texture items
+        /// </summary>
+        /// <param name="image">The texture item being selected</param>
+        private void selectMapTextureItem(Image image)
+        {
+            // If the item we're trying to select isn't on the same layer we don't allow selection
+            TextureItem selectedItem = image.DataContext as TextureItem;
+            if (selectedItem != null && selectedItem.Layer == _selectedLayer)
+            {
+                assingPropertyGrid((IHasProperties)image.DataContext);
+                AdornerLayer.GetAdornerLayer(image).Add(new MapItemSelectionAdorner(image, LevelCanvas));
+            }
+            else
+                assingPropertyGrid(_currentMap);
+        }
+
+        /// <summary>
+        /// Removes an adorner from an element
+        /// </summary>
+        /// <param name="uiElement">The element to remove from</param>
+        private void removeAdorner(UIElement uiElement)
+        {
+            Adorner[] itemAdorners = AdornerLayer.GetAdornerLayer(uiElement).GetAdorners(uiElement);
+            if (itemAdorners != null)
+            {
+                // Shitty hack, we only remove the first one (only using one atm anyways)
+                AdornerLayer.GetAdornerLayer(uiElement).Remove(itemAdorners[0]);
+            }
         }
         #endregion
 
@@ -717,9 +749,95 @@ namespace VectorSpace
         #endregion 
 
         #region Canvas Item Context Menu Handlers
-        private void CanvasItemContext_BringToTop(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Moves the Canvas Item to the top of the layer it is on
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItemContext_BringToFront(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        /// <summary>
+        /// Moves the Canvas Item to the bottom of the layer it is on
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItemContext_SendToBack(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Moves the Canvas Item up by one item on the layer it is on
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItemContext_BringForward(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Moves the Canvas Item down by one item on the layer it is on
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItemContext_SendBackward(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
+        #region Context Menu Open & Close Event Handlers
+        /// <summary>
+        /// Handles the context menu closing event for canvas items
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItem_ContextMenuClosing(object sender, ContextMenuEventArgs e)
+        {
+            _isContextOpen = false;
+        }
+
+        /// <summary>
+        /// Handles the event just before 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            _isContextOpen = true;
+            switch (EditState)
+            {
+                case ApplicationEditState.Select:
+                    if (_currentlySelectedImage != null)
+                    {
+                        removeAdorner(_currentlySelectedImage);
+                        // Cancel the context menu if we're not on the same layer
+                        TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                        if (item == null || item.Layer != _selectedLayer)
+                        {
+                            e.Handled = true;
+                            return;
+                        }
+                    }
+
+                    // Add an adorner if an image was clicked
+                    _currentlySelectedImage = e.OriginalSource as Image;
+                    if (_currentlySelectedImage != null)
+                    {
+                        selectMapTextureItem(_currentlySelectedImage);
+                    }
+                    else
+                    {
+                        // Cancel the context menu if no image was selected
+                        assingPropertyGrid(_currentMap);
+                        e.Handled = true;
+                    }
+                    break;
+            }
         }
         #endregion
 
@@ -745,63 +863,6 @@ namespace VectorSpace
             StatusBarText.Text = tip;
         }
         #endregion
-
-
-
-
-
-        #region Might use later
-        public static List<T> GetLogicalChildCollection<T>(object parent) where T : DependencyObject
-        {
-            List<T> logicalCollection = new List<T>();
-            GetLogicalChildCollection(parent as DependencyObject, logicalCollection);
-            return logicalCollection;
-        }
-        private static void GetLogicalChildCollection<T>(DependencyObject parent, List<T> logicalCollection) where T : DependencyObject
-        {
-            IEnumerable children = LogicalTreeHelper.GetChildren(parent);
-            foreach (object child in children)
-            {
-                if (child is DependencyObject)
-                {
-                    DependencyObject depChild = child as DependencyObject;
-                    if (child is T)
-                    {
-                        logicalCollection.Add(child as T);
-                    }
-                    GetLogicalChildCollection(depChild, logicalCollection);
-                }
-            }
-        }
-
-        public static List<T> FindChildren<T>(DependencyObject parent) where T : DependencyObject
-        {
-            if (parent == null) return null;
-
-            List<T> children = new List<T>();
-
-            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
-
-            for (int i = 0; i < childrenCount; i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                T childType = child as T;
-                if (childType == null)
-                {
-                    children.AddRange(FindChildren<T>(child));
-                }
-                else
-                {
-                    children.Add((T)child);
-                }
-            }
-
-            return children;
-        }
-        #endregion
-
-
-
 
     }
 }

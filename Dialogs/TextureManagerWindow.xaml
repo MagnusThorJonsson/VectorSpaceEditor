@@ -23,13 +23,13 @@
 
                         <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 5">
                             <Label DockPanel.Dock="Left" Width="80">Name:</Label>
-                            <TextBox DockPanel.Dock="Right" Width="150" Name="TextureLibName" TextChanged="TextureLibName_TextChanged" />
+                            <TextBox DockPanel.Dock="Right" Width="150" Name="TextureLibName" TextChanged="TextureLibName_TextChanged" TabIndex="0" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0, 0, 5, 5">
                             <Label DockPanel.Dock="Left" Width="80">Location:</Label>
                             <TextBox DockPanel.Dock="Right" Width="300" Name="TextureLibLocation" IsReadOnly="True" />
-                            <Button DockPanel.Dock="Right" Name="FileBrowseBtn" Click="FileBrowseBtn_Click" Margin="10, 0, 0, 0" Height="23" Content="Browse" />
+                            <Button DockPanel.Dock="Right" Name="FileBrowseBtn" Click="FileBrowseBtn_Click" Margin="10, 0, 0, 0" Height="23" Content="Browse" TabIndex="1" />
                         </StackPanel>
 
                     </StackPanel>
@@ -125,8 +125,8 @@
         </Grid>
 
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,5">
-            <Button Name="CreateBtn" Width="50" Margin="0,0,5,0" IsEnabled="False" Click="CreateBtn_Click">Create</Button>
-            <Button Name="CancelBtn" IsCancel="True" Width="50" Margin="0,0,5,0">Cancel</Button>
+            <Button Name="CreateBtn" Width="50" Margin="0,0,5,0" IsEnabled="False" Click="CreateBtn_Click" TabIndex="2">Create</Button>
+            <Button Name="CancelBtn" IsCancel="True" Width="50" Margin="0,0,5,0" TabIndex="3">Cancel</Button>
         </StackPanel>
     </Grid>
 </Window>

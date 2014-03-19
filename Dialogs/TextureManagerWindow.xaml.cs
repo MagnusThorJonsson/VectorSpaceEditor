@@ -37,6 +37,8 @@ namespace VectorSpace.Dialogs
             Textures = new List<Texture>();
             TextureLibrary = null;
             InitializeComponent();
+
+            TextureLibName.Focus();
         }
         #endregion
 

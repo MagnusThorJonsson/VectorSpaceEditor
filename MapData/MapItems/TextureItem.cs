@@ -140,7 +140,15 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Depth index
         /// </summary>
-        public int ZIndex { get { return zIndex; } }
+        public int ZIndex 
+        { 
+            get { return zIndex; }
+            set
+            {
+                zIndex = value;
+                OnPropertyChanged("ZIndex");
+            }
+        }
         #endregion
 
 

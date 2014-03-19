@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
+using VectorSpace.MapData.MapItems;
 
 namespace VectorSpace.MapData
 {
@@ -239,8 +240,9 @@ namespace VectorSpace.MapData
         /// </summary>
         public void AddLayer()
         {
+            // TODO: Generate unique id
             _layers.Add(
-                new Layer(_nextLayerId)
+                new Layer(_nextLayerId.ToString())
             );
             _nextLayerId++;
         }
@@ -252,8 +254,9 @@ namespace VectorSpace.MapData
         /// <param name="name">The layer name</param>
         public void AddLayer(string name)
         {
+            // TODO: Generate unique id
             _layers.Add(
-                new Layer(_nextLayerId, name)
+                new Layer(_nextLayerId.ToString(), name)
             );
             _nextLayerId++;
         }
@@ -335,6 +338,29 @@ namespace VectorSpace.MapData
                 _mapItems.Add(item);
             }
         }
+
+        public IRenderable CreateItem(int layer, string name, Texture texture, WorldPosition position)
+        {
+            //_mapItems.Single(i => i.ZIndex == 1);
+            /*
+            IOrderedEnumerable<IRenderable> bla = from item in _mapItems 
+                                                  orderby item.ZIndex 
+                                                  select item;
+            */
+            int zIndex = 0;
+            // TODO: Make the layer id a string lookup
+            TextureItem textureItem = TextureItem.Create(
+                layer, 
+                name, 
+                texture, 
+                position,
+                zIndex
+            );
+            this.AddItem(layer, textureItem);
+
+            return textureItem;
+        }
         #endregion
+
     }
 }

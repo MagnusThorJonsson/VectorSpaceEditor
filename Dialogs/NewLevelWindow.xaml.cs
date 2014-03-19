@@ -31,6 +31,7 @@ namespace VectorSpace.Dialogs
         public NewLevelWindow()
         {
             InitializeComponent();
+            LevelName.Focus();
         }
         #endregion
 
