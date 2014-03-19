@@ -18,7 +18,6 @@ using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 using Xceed.Wpf.Toolkit;
-using VectorSpace.Controls;
 using System.Windows.Controls.Primitives;
 using System.Collections;
 using System.Windows.Media.Media3D;
@@ -438,12 +437,22 @@ namespace VectorSpace
         /// <param name="property">Property holder</param>
         private void assingPropertyGrid(IHasProperties property)
         {
-            _currentPropertyContainer = property;
-            PropertyNameText.Text = property.Name;
-            PropertiesDataGrid.ItemsSource = property.Properties;
-
-            AddPropertyBtn.IsEnabled = true;
-            RemovePropertyBtn.IsEnabled = true;
+            if (property == null)
+            {
+                _currentPropertyContainer = null;
+                PropertyNameText.Text = "N/A";
+                PropertiesDataGrid.ItemsSource = null;
+                AddPropertyBtn.IsEnabled = false;
+                RemovePropertyBtn.IsEnabled = false;
+            }
+            else
+            {
+                _currentPropertyContainer = property;
+                PropertyNameText.Text = property.Name;
+                PropertiesDataGrid.ItemsSource = property.Properties;
+                AddPropertyBtn.IsEnabled = true;
+                RemovePropertyBtn.IsEnabled = true;
+            }
         }
         #endregion
 
@@ -528,7 +537,12 @@ namespace VectorSpace
                     _currentlySelectedImage = e.OriginalSource as Image;
                     if (_currentlySelectedImage != null)
                     {
-                        AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Add(new ResizingAdorner(_currentlySelectedImage));
+                        assingPropertyGrid((IHasProperties)_currentlySelectedImage.DataContext);
+                        AdornerLayer.GetAdornerLayer(_currentlySelectedImage).Add(new MapItemSelectionAdorner(_currentlySelectedImage, LevelCanvas));
+                    }
+                    else
+                    {
+                        assingPropertyGrid(_currentMap);
                     }
                     break;
             }
@@ -631,7 +645,15 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LibraryListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _selectedLibraryItem = ((ListBox)sender).SelectedIndex;
+            if (_currentMap != null && _selectedLibrary >= 0)
+            {
+                _selectedLibraryItem = ((ListBox)sender).SelectedIndex;
+
+                if (_selectedLibraryItem < _currentMap.TextureLibraries[_selectedLibrary].Textures.Count)
+                    assingPropertyGrid(_currentMap.TextureLibraries[_selectedLibrary].Textures[_selectedLibraryItem]);
+            }
+            else
+                assingPropertyGrid(null);
         }
 
         /// <summary>
@@ -642,6 +664,8 @@ namespace VectorSpace
         private void LibraryTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _selectedLibrary = ((TabControl)sender).SelectedIndex;
+
+            assingPropertyGrid(null);
         }
         #endregion
 
@@ -692,6 +716,13 @@ namespace VectorSpace
         }
         #endregion 
 
+        #region Canvas Item Context Menu Handlers
+        private void CanvasItemContext_BringToTop(object sender, RoutedEventArgs e)
+        {
+
+        }
+        #endregion
+
         #endregion
 
 
@@ -714,6 +745,7 @@ namespace VectorSpace
             StatusBarText.Text = tip;
         }
         #endregion
+
 
 
 
@@ -767,6 +799,7 @@ namespace VectorSpace
             return children;
         }
         #endregion
+
 
 
 

@@ -55,9 +55,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Adorners\ResizingAdorner.cs" />
+    <Compile Include="Adorners\MapItemSelectionAdorner.cs" />
     <Compile Include="Behaviours\LayerItemSelectionBehaviour.cs" />
-    <Compile Include="Controls\DragCanvas.cs" />
     <Compile Include="Dialogs\NewLayerWindow.xaml.cs">
       <DependentUpon>NewLayerWindow.xaml</DependentUpon>
     </Compile>

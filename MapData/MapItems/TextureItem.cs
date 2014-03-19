@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ using VectorSpace.MapData.Interfaces;
 
 namespace VectorSpace.MapData.MapItems
 {
-    public class TextureItem : IRenderable
+    public class TextureItem : IRenderable, IHasProperties
     {
         #region Variables & Properties
         protected int layer;
@@ -19,6 +20,12 @@ namespace VectorSpace.MapData.MapItems
         protected Texture texture;
         protected WorldPosition position;
         protected int zIndex;
+
+        /// <summary>
+        /// TextureItem user properties
+        /// </summary>
+        public ObservableCollection<ItemProperty> Properties { get { return properties; } }
+        protected ObservableCollection<ItemProperty> properties;
 
         /// <summary>
         /// Current width based on scale
@@ -61,6 +68,36 @@ namespace VectorSpace.MapData.MapItems
                 }
             }
         }
+
+        /// <summary>
+        /// Current angle in degrees
+        /// </summary>
+        public float Angle
+        {
+            get
+            {
+                return position.Rotation;
+                /*
+                // Radians to Degrees
+                float degrees = (float)(180f / Math.PI * position.Rotation);
+                
+                if (degrees < 0f)
+                    degrees += 360f;
+                else if (degrees > 360f)
+                    degrees -= 360f;
+                return degrees;         
+                */  
+            }
+            set
+            {
+                // Degrees to radians
+                //position.Rotation = WrapRotation((float)((Math.PI / 180f) * value));
+                position.Rotation = value;//(float)(Math.PI / 180f * value);
+
+                OnPropertyChanged("Angle");
+            }
+        }
+
         #endregion
 
 
@@ -107,6 +144,48 @@ namespace VectorSpace.MapData.MapItems
         #endregion
 
 
+        #region User Property Handlers
+        /// <summary>
+        /// Adds a property to the collection
+        /// </summary>
+        /// <param name="key">Property key</param>
+        /// <param name="value">Property value</param>
+        public void AddProperty(string key, string value)
+        {
+            Properties.Add(new ItemProperty(key, value));
+        }
+
+        /// <summary>
+        /// Removes a property from the collection
+        /// </summary>
+        /// <param name="key">Property key</param>
+        /// <returns>True on success</returns>
+        public bool RemoveProperty(string key)
+        {
+            for (int i = 0; i < properties.Count; i++)
+            {
+                if (properties[i].Key.Equals(key))
+                {
+                    properties.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Removes a property from the collection
+        /// </summary>
+        /// <param name="property">The property to remove</param>
+        /// <returns>True on success</returns>
+        public bool RemoveProperty(ItemProperty property)
+        {
+            return Properties.Remove(property);
+        }
+        #endregion
+
+
         #region Notify Interface
         /// <summary>
         /// Property Changed event
@@ -142,6 +221,8 @@ namespace VectorSpace.MapData.MapItems
             this.texture = texture;
             this.position = position;
             this.zIndex = zIndex;
+
+            this.properties = new ObservableCollection<ItemProperty>();
         }
         #endregion
 
@@ -229,6 +310,50 @@ namespace VectorSpace.MapData.MapItems
             OnPropertyChanged("Position");
             OnPropertyChanged("Height");
         }
+        /*
+        /// <summary>
+        /// Sets the texture items rotation in radians
+        /// </summary>
+        /// <param name="radians">rotation in radians</param>
+        public void SetRotation(float radians)
+        {
+
+            position.Rotation = radians;
+
+            OnPropertyChanged("Angle");
+        }
+
+        /// <summary>
+        /// Adds to the texture items rotation
+        /// </summary>
+        /// <param name="radians">rotation to add in radians</param>
+        public void AddRotation(float radians)
+        {
+            //position.Rotation += WrapRotation(radians);
+            position.Rotation += radians;
+
+            OnPropertyChanged("Angle");
+        }
+        */
         #endregion
+
+        /// <summary>
+        /// Wraps radian rotation 
+        /// </summary>
+        /// <param name="radians">Radian to wrap</param>
+        /// <returns>Wrapped radian</returns>
+        protected float wrapRotation(float radians)
+        {
+            while (radians < -Math.PI)
+            {
+                radians += (float)(Math.PI * 2.0);
+            }
+            while (radians > Math.PI)
+            {
+                radians -= (float)(Math.PI * 2.0);
+            }
+
+            return radians;
+        }
     }
 }

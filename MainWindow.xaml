@@ -2,7 +2,6 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:vcsp="clr-namespace:VectorSpace.Controls" 
         xmlns:behaviour="clr-namespace:VectorSpace.Behaviours"
         xmlns:local="clr-namespace:VectorSpace"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
@@ -177,7 +176,22 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true" />
+                                            <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true">
+                                                <Image.RenderTransformOrigin>
+                                                    <Point X="0.5" Y="0.5" />
+                                                </Image.RenderTransformOrigin>
+                                                <Image.ContextMenu>
+                                                    <ContextMenu>
+                                                        <Separator />
+                                                        <MenuItem Header="Bring to Top" />
+                                                        <MenuItem Header="Move up" />
+                                                        <MenuItem Header="Move down" />
+                                                        <MenuItem Header="Send to Bottom" />
+                                                        <Separator />
+                                                        <MenuItem Header="Remove" />
+                                                    </ContextMenu>
+                                                </Image.ContextMenu>
+                                            </Image>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
