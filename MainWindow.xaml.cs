@@ -578,11 +578,15 @@ namespace VectorSpace
                 case ApplicationEditState.Select:
                     if (e.LeftButton == MouseButtonState.Pressed && _currentlySelectedImage != null)
                     {
+                        // If item is on the currently selected layer we allow the move
                         TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                        item.Move(
-                            (int)(mousePos.X - _lastMousePosition.X),
-                            (int)(mousePos.Y - _lastMousePosition.Y)
-                        );
+                        if (item.Layer == _selectedLayer)
+                        {
+                            item.Move(
+                                (int)(mousePos.X - _lastMousePosition.X),
+                                (int)(mousePos.Y - _lastMousePosition.Y)
+                            );
+                        }
                     }
                     break;
             }
@@ -756,17 +760,18 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItemContext_BringToFront(object sender, RoutedEventArgs e)
         {
+            if (_currentlySelectedImage != null)
+            {
+                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                if (item.Layer == _selectedLayer)
+                {
+                    bool doAgain = true;
+                    while (doAgain)
+                        doAgain = _currentMap.IncrementItemZ(item);
+                }
+            }
 
-        }
-
-        /// <summary>
-        /// Moves the Canvas Item to the bottom of the layer it is on
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CanvasItemContext_SendToBack(object sender, RoutedEventArgs e)
-        {
-
+            e.Handled = true;
         }
 
         /// <summary>
@@ -776,7 +781,37 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItemContext_BringForward(object sender, RoutedEventArgs e)
         {
+            if (_currentlySelectedImage != null)
+            {
+                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                if (item.Layer == _selectedLayer)
+                {
+                    _currentMap.IncrementItemZ(item);
+                }
+            }
 
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Moves the Canvas Item to the bottom of the layer it is on
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItemContext_SendToBack(object sender, RoutedEventArgs e)
+        {
+            if (_currentlySelectedImage != null)
+            {
+                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                if (item.Layer == _selectedLayer)
+                {
+                    bool doAgain = true;
+                    while (doAgain)
+                        doAgain = _currentMap.DecrementItemZ(item);
+                }
+            }
+
+            e.Handled = true;
         }
 
         /// <summary>
@@ -786,7 +821,16 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItemContext_SendBackward(object sender, RoutedEventArgs e)
         {
+            if (_currentlySelectedImage != null)
+            {
+                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                if (item.Layer == _selectedLayer)
+                {
+                    _currentMap.DecrementItemZ(item);
+                }
+            }
 
+            e.Handled = true;
         }
         #endregion
 

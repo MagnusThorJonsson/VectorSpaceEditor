@@ -321,6 +321,8 @@ namespace VectorSpace.MapData
 
 
         #region Item Methods
+
+        #region Item Add & Create Methods
         /// <summary>
         /// Adds an item to the specified layer
         /// </summary>
@@ -328,6 +330,9 @@ namespace VectorSpace.MapData
         /// <param name="item">The item to add to the layer</param>
         public void AddItem(int layer, IRenderable item)
         {
+            // We need to get the zIndex before the item is added
+            int zIndex = GetHighestZ(layer) + 1;
+
             if (layer < _layers.Count)
             {
                 // Do we need this cross-coupling?
@@ -337,29 +342,133 @@ namespace VectorSpace.MapData
                 _layers[layer].AddItem(item);
                 _mapItems.Add(item);
             }
+
+            // Sets the zIndex for the newly added item
+            SetItemZ(
+                item,
+                zIndex
+            );
         }
 
+        /// <summary>
+        /// Creates a new Texture Item on the Canvas map
+        /// </summary>
+        /// <param name="layer">The layer put the object on</param>
+        /// <param name="name">The name of the object</param>
+        /// <param name="texture">The texture for the item</param>
+        /// <param name="position">The position</param>
+        /// <returns>The created item</returns>
         public IRenderable CreateItem(int layer, string name, Texture texture, WorldPosition position)
         {
-            //_mapItems.Single(i => i.ZIndex == 1);
-            /*
-            IOrderedEnumerable<IRenderable> bla = from item in _mapItems 
-                                                  orderby item.ZIndex 
-                                                  select item;
-            */
-            int zIndex = 0;
             // TODO: Make the layer id a string lookup
             TextureItem textureItem = TextureItem.Create(
                 layer, 
                 name, 
                 texture, 
                 position,
-                zIndex
+                0
             );
             this.AddItem(layer, textureItem);
 
             return textureItem;
         }
+        #endregion
+
+        #region Z Index Helpers
+        /// <summary>
+        /// Sets the items Z Index 
+        /// </summary>
+        /// <param name="item">The item to change</param>
+        /// <param name="zIndex">The new zIndex</param>
+        public void SetItemZ(IRenderable item, int zIndex)
+        {
+            // Move all items that are higher or equal to the zIndex up by one 
+            for (int i = 0; i < _mapItems.Count; i++)
+            {
+                if (_mapItems[i].ZIndex >= zIndex)
+                    _mapItems[i].ZIndex += 1;
+            }
+
+            // Update item
+            IRenderable itemFound = _mapItems.Where(X => X == item).FirstOrDefault();
+            itemFound.ZIndex = zIndex;            
+        }
+
+        /// <summary>
+        /// Brings an items Z-Index forward by one
+        /// </summary>
+        /// <param name="item">The item to bring forward</param>
+        /// <returns>True on success</returns>
+        public bool IncrementItemZ(IRenderable item)
+        {
+            for (int i = 0; i < _mapItems.Count; i++)
+            {
+                if (_mapItems[i].Layer == item.Layer && _mapItems[i].ZIndex == (item.ZIndex + 1))
+                {
+                    _mapItems[i].ZIndex = item.ZIndex;
+                    item.ZIndex += 1;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Moves an items Z-Index backwards by one
+        /// </summary>
+        /// <param name="item">The item to move backward</param>
+        /// <returns>True on success</returns>
+        public bool DecrementItemZ(IRenderable item)
+        {
+            // If we're at the bottom we break
+            if (item.ZIndex == 0)
+                return false;
+
+            for (int i = 0; i < _mapItems.Count; i++)
+            {
+                if (_mapItems[i].Layer == item.Layer && _mapItems[i].ZIndex == (item.ZIndex - 1))
+                {
+                    _mapItems[i].ZIndex = item.ZIndex;
+                    item.ZIndex -= 1;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Gets the highest ZIndex from the objects on a given layer
+        /// </summary>
+        /// <param name="layer">The layer to check from</param>
+        /// <returns>The highest index found or -1 when nothing is found</returns>
+        public int GetHighestZ(int layer)
+        {
+            if (layer < _layers.Count)
+            {
+                if (_mapItems.Count > 0)
+                {
+                    IRenderable mapItem = _mapItems.Where(x => x.Layer == layer).OrderByDescending(x => x.ZIndex).FirstOrDefault();
+                    if (mapItem != null)
+                    {
+                        return mapItem.ZIndex;
+                    }
+                    else
+                    {
+                        // If there are no items on this layer we need to check the one below
+                        if (layer >= 0)
+                        {
+                            return GetHighestZ(layer - 1);
+                        }
+                    }
+                }
+            }
+
+            return -1;
+        }
+        #endregion
+
         #endregion
 
     }
