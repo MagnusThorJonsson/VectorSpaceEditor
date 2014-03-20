@@ -60,7 +60,7 @@ namespace VectorSpace.Dialogs
         {
             if (LayerName.Text.Length > 0)
             {
-                _layer = new Layer(_nextLayerId.ToString(), LayerName.Text);
+                _layer = new Layer(_nextLayerId, LayerName.Text);
 
                 DialogResult = true;
                 this.Close();

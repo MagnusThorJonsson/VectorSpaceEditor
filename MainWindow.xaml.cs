@@ -55,7 +55,7 @@ namespace VectorSpace
 
         private int _selectedLibrary;
         private int _selectedLibraryItem;
-        private int _selectedLayer;
+        private int _selectedLayerIndex;
 
         private Image _currentlySelectedImage;
         private Point _lastMousePosition;
@@ -75,7 +75,7 @@ namespace VectorSpace
             _isGridShowing = false;
             _selectedLibrary = 0;
             _selectedLibraryItem = 0;
-            _selectedLayer = 0;
+            _selectedLayerIndex = 0;
 
             _currentlySelectedImage = null;
             _lastMousePosition = new Point();
@@ -469,7 +469,7 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LayerListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _selectedLayer = ((ListBox)sender).SelectedIndex;
+            _selectedLayerIndex = ((ListBox)sender).SelectedIndex;
         }
         #endregion
 
@@ -580,7 +580,7 @@ namespace VectorSpace
                     {
                         // If item is on the currently selected layer we allow the move
                         TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                        if (item.Layer == _selectedLayer)
+                        if (item.Layer == _selectedLayerIndex)
                         {
                             item.Move(
                                 (int)(mousePos.X - _lastMousePosition.X),
@@ -623,12 +623,12 @@ namespace VectorSpace
                 Texture item = (Texture)((WeakReference)e.Data.GetData("Texture")).Target;
 
                 if (canvasControl != null && item != null && 
-                    _selectedLayer >= 0 && _selectedLayer < _currentMap.Layers.Count && 
+                    _selectedLayerIndex >= 0 && _selectedLayerIndex < _currentMap.Layers.Count && 
                     e.AllowedEffects.HasFlag(DragDropEffects.Copy))
                 {
                     Point mousePos = e.GetPosition(LevelCanvas);
                     _currentMap.CreateItem(
-                        _selectedLayer,
+                        _selectedLayerIndex,
                         item.Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
                         item,
                         new WorldPosition(new System.Drawing.Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new System.Drawing.Point(), 1f, 1f, 0f)
@@ -649,7 +649,7 @@ namespace VectorSpace
         {
             // If the item we're trying to select isn't on the same layer we don't allow selection
             TextureItem selectedItem = image.DataContext as TextureItem;
-            if (selectedItem != null && selectedItem.Layer == _selectedLayer)
+            if (selectedItem != null && selectedItem.Layer == _selectedLayerIndex)
             {
                 assingPropertyGrid((IHasProperties)image.DataContext);
                 AdornerLayer.GetAdornerLayer(image).Add(new MapItemSelectionAdorner(image, LevelCanvas));
@@ -768,7 +768,7 @@ namespace VectorSpace
             if (_currentlySelectedImage != null)
             {
                 TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                if (item.Layer == _selectedLayer)
+                if (item.Layer == _selectedLayerIndex)
                     _currentMap.BringToFront(item);
             }
 
@@ -785,7 +785,7 @@ namespace VectorSpace
             if (_currentlySelectedImage != null)
             {
                 TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                if (item.Layer == _selectedLayer)
+                if (item.Layer == _selectedLayerIndex)
                 {
                     _currentMap.IncrementItemZ(item);
                 }
@@ -804,7 +804,7 @@ namespace VectorSpace
             if (_currentlySelectedImage != null)
             {
                 TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                if (item.Layer == _selectedLayer)
+                if (item.Layer == _selectedLayerIndex)
                     _currentMap.SendToBack(item);
             }
 
@@ -821,7 +821,7 @@ namespace VectorSpace
             if (_currentlySelectedImage != null)
             {
                 TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                if (item.Layer == _selectedLayer)
+                if (item.Layer == _selectedLayerIndex)
                 {
                     _currentMap.DecrementItemZ(item);
                 }
@@ -858,7 +858,7 @@ namespace VectorSpace
                         removeAdorner(_currentlySelectedImage);
                         // Cancel the context menu if we're not on the same layer
                         TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                        if (item == null || item.Layer != _selectedLayer)
+                        if (item == null || item.Layer != _selectedLayerIndex)
                         {
                             e.Handled = true;
                             return;

@@ -18,8 +18,8 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Layer id (unique)
         /// </summary>
-        public string Id { get { return id; } }
-        protected string id;
+        public int Id { get { return id; } }
+        protected int id;
 
         /// <summary>
         /// Layer name
@@ -56,7 +56,7 @@ namespace VectorSpace.MapData
         /// Creates a layer
         /// </summary>
         /// <param name="id">Layer id</param>
-        public Layer(string id)
+        public Layer(int id)
         {
             this.id = id;
             this.name = "Layer " + id.ToString();
@@ -69,7 +69,7 @@ namespace VectorSpace.MapData
         /// </summary>
         /// <param name="id">Layer id</param>
         /// <param name="name">Layer name</param>
-        public Layer(string id, string name)
+        public Layer(int id, string name)
         {
             this.id = id;
             this.name = name;

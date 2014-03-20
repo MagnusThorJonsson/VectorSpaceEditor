@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -242,7 +243,7 @@ namespace VectorSpace.MapData
         {
             // TODO: Generate unique id
             _layers.Add(
-                new Layer(_nextLayerId.ToString())
+                new Layer(_nextLayerId)
             );
             _nextLayerId++;
         }
@@ -256,7 +257,7 @@ namespace VectorSpace.MapData
         {
             // TODO: Generate unique id
             _layers.Add(
-                new Layer(_nextLayerId.ToString(), name)
+                new Layer(_nextLayerId, name)
             );
             _nextLayerId++;
         }
@@ -290,6 +291,9 @@ namespace VectorSpace.MapData
                 // Clear all items from the layer
                 layer.Items.Clear();
                 _layers.Remove(layer);
+
+                // Close any ZIndex gaps that might have been made
+                closeGapsZ();
                 return true;
             }
 
@@ -312,6 +316,9 @@ namespace VectorSpace.MapData
                 // Clear all items from the layer
                 _layers[index].Items.Clear();
                 _layers.RemoveAt(index);
+
+                // Close any ZIndex gaps that might have been made
+                closeGapsZ();
                 return true;
             }
 
@@ -326,7 +333,7 @@ namespace VectorSpace.MapData
         {
             for (int i = 0; i < Layers.Count; i++)
             {
-                Layers[i].Items.SortDesc(x => x.ZIndex);
+                Layers[i].Items.Sort(x => x.ZIndex, ListSortDirection.Descending);
             }
         }
         #endregion
@@ -391,7 +398,20 @@ namespace VectorSpace.MapData
         #region Z Index Helpers
         protected void closeGapsZ()
         {
+            List<IRenderable> sortedItems = _mapItems.OrderBy(x => x.ZIndex).ToList();
 
+            int lastZ = -1;
+            for (int i = 0; i < sortedItems.Count; i++)
+            {
+                // Adjust ZIndex until the gap is closed
+                while (sortedItems[i].ZIndex > (lastZ + 1))
+                    sortedItems[i].ZIndex -= 1;
+
+                // Save the last ZIndex
+                lastZ = sortedItems[i].ZIndex;
+            }
+
+            _sortLayerItems();
         }
 
         /// <summary>
