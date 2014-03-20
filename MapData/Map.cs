@@ -345,20 +345,21 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Adds an item to the specified layer
         /// </summary>
-        /// <param name="layer">The layer index</param>
+        /// <param name="layerId">The layer index</param>
         /// <param name="item">The item to add to the layer</param>
-        public void AddItem(int layer, IRenderable item)
+        public void AddItem(int layerId, IRenderable item)
         {
             // We need to get the zIndex before the item is added
-            int zIndex = GetHighestZ(layer) + 1;
+            int zIndex = GetHighestZ(layerId) + 1;
 
-            if (layer < _layers.Count)
+            Layer layer = _layers.Where(x => x.Id == layerId).FirstOrDefault();
+            if (layer != null)
             {
                 // Do we need this cross-coupling?
-                item.Layer = layer;
+                item.Layer = layerId;
 
                 // Add to both the specified layer and mapitem list
-                _layers[layer].AddItem(item);
+                layer.AddItem(item);
                 _mapItems.Add(item);
             }
 
@@ -374,22 +375,22 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Creates a new Texture Item on the Canvas map
         /// </summary>
-        /// <param name="layer">The layer put the object on</param>
+        /// <param name="layerId">The layer put the object on</param>
         /// <param name="name">The name of the object</param>
         /// <param name="texture">The texture for the item</param>
         /// <param name="position">The position</param>
         /// <returns>The created item</returns>
-        public IRenderable CreateItem(int layer, string name, Texture texture, WorldPosition position)
+        public IRenderable CreateItem(int layerId, string name, Texture texture, WorldPosition position)
         {
             // TODO: Make the layer id a string lookup
             TextureItem textureItem = TextureItem.Create(
-                layer, 
+                layerId, 
                 name, 
                 texture, 
                 position,
                 0
             );
-            this.AddItem(layer, textureItem);
+            this.AddItem(layerId, textureItem);
 
             return textureItem;
         }
@@ -517,25 +518,27 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Gets the highest ZIndex from the objects on a given layer
         /// </summary>
-        /// <param name="layer">The layer to check from</param>
+        /// <param name="layerId">The layer to check from</param>
         /// <returns>The highest index found or -1 when nothing is found</returns>
-        public int GetHighestZ(int layer)
+        public int GetHighestZ(int layerId)
         {
-            if (layer < _layers.Count)
+            Layer layer = _layers.Where(x => x.Id == layerId).FirstOrDefault();
+            if (layer != null)
             {
                 if (_mapItems.Count > 0)
                 {
-                    IRenderable mapItem = _mapItems.Where(x => x.Layer == layer).OrderByDescending(x => x.ZIndex).FirstOrDefault();
+                    IRenderable mapItem = _mapItems.Where(x => x.Layer == layerId).OrderByDescending(x => x.ZIndex).FirstOrDefault();
                     if (mapItem != null)
                     {
                         return mapItem.ZIndex;
                     }
                     else
                     {
+                        int index = _layers.IndexOf(layer);
                         // If there are no items on this layer we need to check the one below
-                        if (layer >= 0)
+                        if (index > 0)
                         {
-                            return GetHighestZ(layer - 1);
+                            return GetHighestZ(_layers[index - 1].Id);
                         }
                     }
                 }
