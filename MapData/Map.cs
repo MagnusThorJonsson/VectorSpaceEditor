@@ -317,6 +317,18 @@ namespace VectorSpace.MapData
 
             return false;
         }
+
+        // TODO: This is a pretty bad way to handle this stuff, will get exponentially slower by the amount of items in the Layers
+        /// <summary>
+        /// Sorts the layer items by ZIndex in descending order
+        /// </summary>
+        private void _sortLayerItems()
+        {
+            for (int i = 0; i < Layers.Count; i++)
+            {
+                Layers[i].Items.SortDesc(x => x.ZIndex);
+            }
+        }
         #endregion
 
 
@@ -348,6 +360,8 @@ namespace VectorSpace.MapData
                 item,
                 zIndex
             );
+
+            _sortLayerItems();
         }
 
         /// <summary>
@@ -375,6 +389,11 @@ namespace VectorSpace.MapData
         #endregion
 
         #region Z Index Helpers
+        protected void closeGapsZ()
+        {
+
+        }
+
         /// <summary>
         /// Sets the items Z Index 
         /// </summary>
@@ -390,16 +409,19 @@ namespace VectorSpace.MapData
             }
 
             // Update item
-            IRenderable itemFound = _mapItems.Where(X => X == item).FirstOrDefault();
-            itemFound.ZIndex = zIndex;            
+            //IRenderable itemFound = _mapItems.Where(X => X == item).FirstOrDefault();
+            item.ZIndex = zIndex;
+
+            _sortLayerItems();
         }
 
         /// <summary>
         /// Brings an items Z-Index forward by one
         /// </summary>
         /// <param name="item">The item to bring forward</param>
+        /// <param name="doSort">Flags whether to do layer sort (defaults to true)</param>
         /// <returns>True on success</returns>
-        public bool IncrementItemZ(IRenderable item)
+        public bool IncrementItemZ(IRenderable item, bool doSort = true)
         {
             for (int i = 0; i < _mapItems.Count; i++)
             {
@@ -407,6 +429,10 @@ namespace VectorSpace.MapData
                 {
                     _mapItems[i].ZIndex = item.ZIndex;
                     item.ZIndex += 1;
+                    
+                    if (doSort)
+                        _sortLayerItems();
+    
                     return true;
                 }
             }
@@ -417,8 +443,9 @@ namespace VectorSpace.MapData
         /// Moves an items Z-Index backwards by one
         /// </summary>
         /// <param name="item">The item to move backward</param>
+        /// <param name="doSort">Flags whether to do layer sort (defaults to true)</param>
         /// <returns>True on success</returns>
-        public bool DecrementItemZ(IRenderable item)
+        public bool DecrementItemZ(IRenderable item, bool doSort = true)
         {
             // If we're at the bottom we break
             if (item.ZIndex == 0)
@@ -430,6 +457,10 @@ namespace VectorSpace.MapData
                 {
                     _mapItems[i].ZIndex = item.ZIndex;
                     item.ZIndex -= 1;
+
+                    if (doSort)
+                        _sortLayerItems();
+                    
                     return true;
                 }
             }
@@ -437,6 +468,31 @@ namespace VectorSpace.MapData
             return false;
         }
 
+        /// <summary>
+        /// Brings an item to the Front
+        /// </summary>
+        /// <param name="item">The item to bring to front</param>
+        public void BringToFront(IRenderable item)
+        {
+            bool doAgain = true;
+            while (doAgain)
+                doAgain = IncrementItemZ(item, false);
+
+            _sortLayerItems();
+        }
+
+        /// <summary>
+        /// Sends an item to the Back
+        /// </summary>
+        /// <param name="item">The item to send to back</param>
+        public void SendToBack(IRenderable item)
+        {
+            bool doAgain = true;
+            while (doAgain)
+                doAgain = DecrementItemZ(item, false);
+
+            _sortLayerItems();
+        }
 
         /// <summary>
         /// Gets the highest ZIndex from the objects on a given layer

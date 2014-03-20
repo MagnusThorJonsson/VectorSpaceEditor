@@ -66,6 +66,7 @@
     <Compile Include="Dialogs\TextureManagerWindow.xaml.cs">
       <DependentUpon>TextureManagerWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions.cs" />
     <Compile Include="MapData\Components\ItemProperty.cs" />
     <Compile Include="MapData\Interfaces\IHasProperties.cs" />
     <Compile Include="MapData\Interfaces\IRenderable.cs" />

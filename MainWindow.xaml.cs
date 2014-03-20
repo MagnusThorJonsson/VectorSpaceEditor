@@ -22,10 +22,10 @@ using System.Windows.Controls.Primitives;
 using System.Collections;
 using System.Windows.Media.Media3D;
 using VectorSpace.Adorners;
+using System.Collections.ObjectModel;
 
 namespace VectorSpace
 {
-
     public enum ApplicationEditState
     { 
         Select,
@@ -752,7 +752,12 @@ namespace VectorSpace
         }
         #endregion 
 
+        #endregion
+
+
         #region Canvas Item Context Menu Handlers
+
+        #region Item Order Handlers
         /// <summary>
         /// Moves the Canvas Item to the top of the layer it is on
         /// </summary>
@@ -764,11 +769,7 @@ namespace VectorSpace
             {
                 TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
                 if (item.Layer == _selectedLayer)
-                {
-                    bool doAgain = true;
-                    while (doAgain)
-                        doAgain = _currentMap.IncrementItemZ(item);
-                }
+                    _currentMap.BringToFront(item);
             }
 
             e.Handled = true;
@@ -804,11 +805,7 @@ namespace VectorSpace
             {
                 TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
                 if (item.Layer == _selectedLayer)
-                {
-                    bool doAgain = true;
-                    while (doAgain)
-                        doAgain = _currentMap.DecrementItemZ(item);
-                }
+                    _currentMap.SendToBack(item);
             }
 
             e.Handled = true;
