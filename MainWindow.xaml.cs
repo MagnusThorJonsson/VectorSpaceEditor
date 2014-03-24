@@ -474,6 +474,26 @@ namespace VectorSpace
             // Remove adorners
             removeAdorner(_currentlySelectedImage);
         }
+
+        /// <summary>
+        /// Updates the selected layer item
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LayerItemListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListBoxItem lbItem = ((ListBox)sender).SelectedItem as ListBoxItem;
+            if (lbItem != null)
+            {
+                TextureItem item = lbItem.DataContext as TextureItem;
+                if (item != null)
+                {
+                }
+            }
+
+            // Remove adorners
+            removeAdorner(_currentlySelectedImage);
+        }
         #endregion
 
         #region Layer Button Event Handlers
@@ -492,7 +512,14 @@ namespace VectorSpace
 
                 if (layerWindow.DialogResult.HasValue && layerWindow.DialogResult.Value == true)
                 {
+                    // Remove adorners
+                    removeAdorner(_currentlySelectedImage);
+
+                    // Add layer and auto select
                     _currentMap.AddLayer(layerWindow.Layer);
+                    _selectedLayerIndex = LayersListBox.Items.Count - 1;
+                    LayersListBox.SelectedIndex = _selectedLayerIndex;
+                    _currentlySelectedImage = null;
                 }
             }
         }
@@ -548,8 +575,13 @@ namespace VectorSpace
                 case ApplicationEditState.Select:
                     // Remove adorner from the cached item
                     if (_currentlySelectedImage != null)
+                    {
                         removeAdorner(_currentlySelectedImage);
-                    
+                        TextureItem item = _currentlySelectedImage.DataContext as TextureItem;
+                        if (item != null)
+                            item.IsSelected = false;
+                    }
+
                     // Add an adorner if an image was clicked
                     _currentlySelectedImage = e.OriginalSource as Image;
                     if (_currentlySelectedImage != null)
@@ -668,12 +700,12 @@ namespace VectorSpace
         /// <param name="image">The texture item being selected</param>
         private void selectMapTextureItem(Image image)
         {
-
             // If the item we're trying to select isn't on the same layer we don't allow selection
             TextureItem selectedItem = image.DataContext as TextureItem;
             Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
             if (selectedItem != null && layer != null && selectedItem.Layer == layer.Id)
             {
+                selectedItem.IsSelected = true;
                 assingPropertyGrid((IHasProperties)image.DataContext);
                 AdornerLayer.GetAdornerLayer(image).Add(new MapItemSelectionAdorner(image, LevelCanvas));
             }
@@ -744,7 +776,7 @@ namespace VectorSpace
         private void LibraryItem_MouseMove(object sender, MouseEventArgs e)
         {
             Image image = (Image)sender;
-            if (image != null && e.LeftButton == MouseButtonState.Pressed)
+            if (_currentMap.Layers.Count > 0 && image != null && e.LeftButton == MouseButtonState.Pressed)
             {
                 // Package the data.
                 DataObject data = new DataObject(

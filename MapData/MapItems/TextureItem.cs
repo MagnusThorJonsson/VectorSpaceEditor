@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 
@@ -13,7 +14,7 @@ namespace VectorSpace.MapData.MapItems
     public class TextureItem : IRenderable, IHasProperties
     {
         #region Variables & Properties
-        protected int layer;
+        protected string layer;
         protected string name;
 
         public Texture Texture { get { return texture; } }
@@ -26,6 +27,20 @@ namespace VectorSpace.MapData.MapItems
         /// </summary>
         public ObservableCollection<ItemProperty> Properties { get { return properties; } }
         protected ObservableCollection<ItemProperty> properties;
+
+        /// <summary>
+        /// Is Selected property
+        /// </summary>
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set 
+            {
+                isSelected = value;
+                OnPropertyChanged("IsSelected");
+            }
+        }
+        protected bool isSelected;
 
         /// <summary>
         /// Current width based on scale
@@ -105,16 +120,18 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Item layer id
         /// </summary>
-        public int Layer
+        public string Layer
         {
             get { return layer; }
             set
             {
+                /*
                 if (value < 0)
                     layer = 0;
                 else
                     layer = value;
-
+                */
+                layer = value;
                 OnPropertyChanged("Layer");
             }
         }
@@ -222,7 +239,7 @@ namespace VectorSpace.MapData.MapItems
         /// <param name="texture">Item texture</param>
         /// <param name="position">Item world position</param>
         /// <param name="zIndex">Item depth index</param>
-        public TextureItem(int layer, string name, Texture texture, WorldPosition position, int zIndex)
+        public TextureItem(string layer, string name, Texture texture, WorldPosition position, int zIndex)
         {
             this.layer = layer;
             this.name = name;
@@ -230,13 +247,15 @@ namespace VectorSpace.MapData.MapItems
             this.position = position;
             this.zIndex = zIndex;
 
+            this.isSelected = false;
+
             this.properties = new ObservableCollection<ItemProperty>();
         }
         #endregion
 
 
         #region Factory Methods
-        public static TextureItem Create(int layer, string name, Texture texture, WorldPosition position, int zIndex = 0)
+        public static TextureItem Create(string layer, string name, Texture texture, WorldPosition position, int zIndex = 0)
         {
             return new TextureItem(layer, name, texture, position, zIndex);
         }

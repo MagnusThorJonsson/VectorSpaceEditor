@@ -243,7 +243,7 @@ namespace VectorSpace.MapData
         {
             // TODO: Generate unique id
             _layers.Add(
-                new Layer(_nextLayerId)
+                new Layer(_nextLayerId.ToString())
             );
             _nextLayerId++;
         }
@@ -257,7 +257,7 @@ namespace VectorSpace.MapData
         {
             // TODO: Generate unique id
             _layers.Add(
-                new Layer(_nextLayerId, name)
+                new Layer(_nextLayerId.ToString(), name)
             );
             _nextLayerId++;
         }
@@ -347,7 +347,7 @@ namespace VectorSpace.MapData
         /// </summary>
         /// <param name="layerId">The layer index</param>
         /// <param name="item">The item to add to the layer</param>
-        public void AddItem(int layerId, IRenderable item)
+        public void AddItem(string layerId, IRenderable item)
         {
             // We need to get the zIndex before the item is added
             int zIndex = GetHighestZ(layerId) + 1;
@@ -380,7 +380,7 @@ namespace VectorSpace.MapData
         /// <param name="texture">The texture for the item</param>
         /// <param name="position">The position</param>
         /// <returns>The created item</returns>
-        public IRenderable CreateItem(int layerId, string name, Texture texture, WorldPosition position)
+        public IRenderable CreateItem(string layerId, string name, Texture texture, WorldPosition position)
         {
             // TODO: Make the layer id a string lookup
             TextureItem textureItem = TextureItem.Create(
@@ -520,7 +520,7 @@ namespace VectorSpace.MapData
         /// </summary>
         /// <param name="layerId">The layer to check from</param>
         /// <returns>The highest index found or -1 when nothing is found</returns>
-        public int GetHighestZ(int layerId)
+        public int GetHighestZ(string layerId)
         {
             Layer layer = _layers.Where(x => x.Id == layerId).FirstOrDefault();
             if (layer != null)

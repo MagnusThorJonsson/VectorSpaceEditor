@@ -43,6 +43,8 @@ namespace VectorSpace.Dialogs
             _nextLayerId = nextLayerId;
             LayerName.Text = "Layer " + _nextLayerId;
             CreateBtn.IsEnabled = true;
+
+            CreateBtn.Focus();
         }
         #endregion
 
@@ -60,7 +62,8 @@ namespace VectorSpace.Dialogs
         {
             if (LayerName.Text.Length > 0)
             {
-                _layer = new Layer(_nextLayerId, LayerName.Text);
+                // TODO: fix layer id generation
+                _layer = new Layer(_nextLayerId.ToString(), LayerName.Text);
 
                 DialogResult = true;
                 this.Close();

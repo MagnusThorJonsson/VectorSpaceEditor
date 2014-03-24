@@ -14,7 +14,7 @@ namespace VectorSpace.MapData.Interfaces
         /// <summary>
         /// Property layer id
         /// </summary>
-        int Layer { get; set; }
+        string Layer { get; set; }
 
         /// <summary>
         /// Property holder name

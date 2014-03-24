@@ -24,6 +24,7 @@
     
     <Window.Resources>
         <Style x:Key="LayerItemContainerStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
             <Setter Property="Background" Value="White" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
@@ -639,7 +640,7 @@
                                                             </Expander.Template>
                                                             
                                                             <ListBox Name="LayerItemListBox" behaviour:LayerItemSelectionBehaviour.ClickSelection="True" ItemContainerStyle="{StaticResource LayerItemContainerStyle}" 
-                                                                     ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch" SelectionMode="Single">
+                                                                     ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch" SelectionMode="Single" SelectionChanged="LayerItemListBox_SelectionChanged">
                                                                 <ListBox.ItemTemplate>
                                                                     <DataTemplate>
                                                                         <Label Content="{Binding Name}" />
