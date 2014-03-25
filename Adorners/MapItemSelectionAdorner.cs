@@ -115,8 +115,8 @@ namespace VectorSpace.Adorners
                     // Calculate center of the item being rotated (origin + canvas pos)
                     this.centerPoint = adornedElement.TranslatePoint(
                         new Point(
-                            adornedElement.Width * adornedElement.RenderTransformOrigin.X,
-                            adornedElement.Height * adornedElement.RenderTransformOrigin.Y
+                            adornedElement.ActualWidth * 0.5,//adornedElement.RenderTransformOrigin.X,
+                            adornedElement.ActualHeight * 0.5//adornedElement.RenderTransformOrigin.Y
                         ),
                         parentCanvas
                     );

@@ -38,6 +38,7 @@ namespace VectorSpace.MapData.MapItems
             {
                 isSelected = value;
                 OnPropertyChanged("IsSelected");
+                OnIsSelectedChanged(EventArgs.Empty);
             }
         }
         protected bool isSelected;
@@ -223,10 +224,32 @@ namespace VectorSpace.MapData.MapItems
         /// <param name="propertyName">The name of the property that was updated</param>
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            var handler = PropertyChanged;
-            if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
         }
+
+        /// <summary>
+        /// Handles property change updates
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        /// <summary>
+        /// Handles changes to the IsSelected flag
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnIsSelectedChanged(EventArgs e)
+        {
+            EventHandler handler = IsSelectedChanged;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        public event EventHandler IsSelectedChanged;
         #endregion
 
 

@@ -1,4 +1,20 @@
-﻿using System;
+﻿/*******************************************************************************
+ *  Yes yes, I know. 
+ *  The way this app is structured is absolutely horrendous.
+ *  MVVM would've been the way to go instead of the "whatever works" approach
+ *  but the goal is to get something working quickly and then refactor when
+ *  it all makes a bit more sense.
+ *  
+ *  So, yeah. 
+ *  
+ *  Excuse the mess.
+ *  
+ *  Cheers,
+ *  Magnus
+ * 
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -57,7 +73,7 @@ namespace VectorSpace
         private int _selectedLibraryItem;
         private int _selectedLayerIndex;
 
-        private Image _currentlySelectedImage;
+        private ContentPresenter _currentlySelectedImage;
         private Point _lastMousePosition;
         
         private bool _isContextOpen = false;
@@ -470,9 +486,6 @@ namespace VectorSpace
         private void LayerListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _selectedLayerIndex = ((ListBox)sender).SelectedIndex;
-
-            // Remove adorners
-            removeAdorner(_currentlySelectedImage);
         }
 
         /// <summary>
@@ -482,17 +495,31 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LayerItemListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ListBoxItem lbItem = ((ListBox)sender).SelectedItem as ListBoxItem;
-            if (lbItem != null)
+            // Remove adorners from the currently cached image
+            //removeAdorner(_currentlySelectedImage);
+
+            // If the item in the layer list is a texture item and it's flagged as selected
+            TextureItem item = ((ListBox)sender).SelectedItem as TextureItem;
+            if (item != null && item.IsSelected)
             {
-                TextureItem item = lbItem.DataContext as TextureItem;
-                if (item != null)
+                // We loop through the items in the canvas and see if we find a hit
+                for (int i = 0; i < LevelCanvas.Items.Count; i++)
                 {
+                    ContentPresenter canvasItem = LevelCanvas.ItemContainerGenerator.ContainerFromIndex(i) as ContentPresenter;
+                    if (canvasItem != null)
+                    {
+                        // If we find a hit we cache it as selected and add the adorner
+                        TextureItem imgItem = canvasItem.DataContext as TextureItem;
+                        if (imgItem == item)
+                        {
+                            // Cache and add adorner
+                            _currentlySelectedImage = canvasItem;
+                            selectMapTextureItem(canvasItem);
+                            break;
+                        }
+                    }
                 }
             }
-
-            // Remove adorners
-            removeAdorner(_currentlySelectedImage);
         }
         #endregion
 
@@ -512,6 +539,8 @@ namespace VectorSpace
 
                 if (layerWindow.DialogResult.HasValue && layerWindow.DialogResult.Value == true)
                 {
+
+                    // TODO: Not needed?
                     // Remove adorners
                     removeAdorner(_currentlySelectedImage);
 
@@ -533,6 +562,7 @@ namespace VectorSpace
         {
             if (_currentMap != null)
             {
+                // TODO: Not needed?
                 // Remove adorners
                 removeAdorner(_currentlySelectedImage);
 
@@ -573,23 +603,29 @@ namespace VectorSpace
             switch (EditState)
             {
                 case ApplicationEditState.Select:
-                    // Remove adorner from the cached item
                     if (_currentlySelectedImage != null)
                     {
+                        // Remove adorner from the cached item before we cache the new one
                         removeAdorner(_currentlySelectedImage);
                         TextureItem item = _currentlySelectedImage.DataContext as TextureItem;
                         if (item != null)
                             item.IsSelected = false;
                     }
 
+                    // TODO: Cache more than just the Image ref
                     // Add an adorner if an image was clicked
-                    _currentlySelectedImage = e.OriginalSource as Image;
-                    if (_currentlySelectedImage != null)
+                    Image selectedImage = e.OriginalSource as Image;
+                    if (selectedImage != null)
                     {
-                        selectMapTextureItem(_currentlySelectedImage);
+                        TextureItem texItem = selectedImage.DataContext as TextureItem;
+                        if (texItem != null)
+                            texItem.IsSelected = true;
                     }
                     else
+                    {
+                        _currentlySelectedImage = null;
                         assingPropertyGrid(_currentMap);
+                    }
                     break;
             }
         }
@@ -694,6 +730,7 @@ namespace VectorSpace
         #endregion
 
         #region Canvas Selection Helpers
+        /*
         /// <summary>
         /// Handles the selection of map texture items
         /// </summary>
@@ -705,13 +742,33 @@ namespace VectorSpace
             Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
             if (selectedItem != null && layer != null && selectedItem.Layer == layer.Id)
             {
-                selectedItem.IsSelected = true;
+                //selectedItem.IsSelected = true;
                 assingPropertyGrid((IHasProperties)image.DataContext);
                 AdornerLayer.GetAdornerLayer(image).Add(new MapItemSelectionAdorner(image, LevelCanvas));
             }
             else
                 assingPropertyGrid(_currentMap);
         }
+        */
+
+        /// <summary>
+        /// Handles the selection of map texture items
+        /// </summary>
+        /// <param name="image">The item being selected</param>
+        private void selectMapTextureItem(ContentPresenter image)
+        {
+            // If the item we're trying to select isn't on the same layer we don't allow selection
+            TextureItem selectedItem = image.DataContext as TextureItem;
+            Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
+            if (selectedItem != null && layer != null && selectedItem.Layer == layer.Id)
+            {
+                assingPropertyGrid((IHasProperties)image.DataContext);
+                AdornerLayer.GetAdornerLayer(image).Add(new MapItemSelectionAdorner(image, LevelCanvas));
+            }
+            else
+                assingPropertyGrid(_currentMap);
+        }
+
 
         /// <summary>
         /// Removes an adorner from an element
@@ -933,10 +990,13 @@ namespace VectorSpace
                     }
 
                     // Add an adorner if an image was clicked
-                    _currentlySelectedImage = e.OriginalSource as Image;
-                    if (_currentlySelectedImage != null)
+                    Image selectedImage = e.OriginalSource as Image;
+                    if (selectedImage != null)
                     {
-                        selectMapTextureItem(_currentlySelectedImage);
+                        TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                        if (item != null)
+                            item.IsSelected = false;
+                        //selectMapTextureItem(_currentlySelectedImage);
                     }
                     else
                     {

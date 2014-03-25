@@ -119,9 +119,18 @@ namespace VectorSpace.MapData
         /// <param name="propertyName">The name of the property that was updated</param>
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            var handler = PropertyChanged;
+            OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Handles property change updates
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnPropertyChanged(PropertyChangedEventArgs e)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
-                handler(this, new PropertyChangedEventArgs(propertyName));
+                handler(this, e);
         }
         #endregion
 

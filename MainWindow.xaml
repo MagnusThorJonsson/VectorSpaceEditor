@@ -23,42 +23,12 @@
     </Window.InputBindings>
     
     <Window.Resources>
-        <Style x:Key="LayerItemContainerStyle" TargetType="{x:Type ListBoxItem}">
-            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-            <Setter Property="Background" Value="White" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
-
-                        <StackPanel Name="ItemPanel" Orientation="Vertical">
-                                <ContentPresenter x:Name="ContentHost" 
-                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                            <Separator Margin="0" />
-                        </StackPanel>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="Selector.IsSelected" Value="True">
-                                <Setter TargetName="ItemPanel" Property="Background">
-                                    <Setter.Value>
-                                        LightBlue
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="Selector.IsSelected" Value="False">
-                                <Setter TargetName="ItemPanel" Property="Background">
-                                    <Setter.Value>
-                                        White
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles\LayerItemContainerStyle.xaml" />
+                <ResourceDictionary Source="Styles\LayerExpanderStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
@@ -67,8 +37,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-
         
+        <!-- Main (File) Menu Bar -->
         <Menu IsMainMenu="True" Grid.Row="0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
             <MenuItem Header="_File">
                 <MenuItem Header="_New Level..." Command="New" />
@@ -121,6 +91,7 @@
                 <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
 
+            <!-- Left Side Toolbar -->
             <StackPanel Grid.Column="0" Height="{Binding ElementName=MainWindowGrid, Path=ActualHeight}" Orientation="Vertical">
                 <Label FontSize="10" HorizontalAlignment="Center">Tools</Label>
                 <Separator />
@@ -151,6 +122,7 @@
                     <RowDefinition Height="140" />
                 </Grid.RowDefinitions>
                 
+                <!-- Canvas -->
                 <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1">
                     <DockPanel Name="MainCanvasPanel" Visibility="Hidden">
                         <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
@@ -178,12 +150,9 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true"
+                                            <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true" 
                                                    ContextMenuOpening="CanvasItem_ContextMenuOpening"
                                                    ContextMenuClosing="CanvasItem_ContextMenuClosing">
-                                                <Image.RenderTransformOrigin>
-                                                    <Point X="0.5" Y="0.5" />
-                                                </Image.RenderTransformOrigin>
                                                 <Image.ContextMenu>
                                                     <ContextMenu>
                                                         <MenuItem Header="Hide" />
@@ -207,6 +176,7 @@
                     </DockPanel>
                 </Border>
 
+                <!-- Library Tabs -->
                 <TabControl Name="CanvasItemsTab" Grid.Row="1" Margin="0, 5, 0, 0" SelectionChanged="LibraryTabControl_SelectionChanged">
                     <TabControl.ItemContainerStyle>
                         <Style TargetType="{x:Type TabItem}">
@@ -257,7 +227,7 @@
                     <RowDefinition Height="40*" />
                 </Grid.RowDefinitions>
 
-
+                <!-- Layer Window -->
                 <Border Grid.Row="0" BorderBrush="#999999" BorderThickness="0,0,1,1" Margin="5, 0, 5, 0">
                     <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
 
@@ -272,7 +242,6 @@
                                         <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
-                                    
                                     <Border Grid.Row="0" BorderBrush="#EEE" BorderThickness="0,0,1,1" Margin="2, 0, 2, 0">
                                         <Border BorderBrush="#999" BorderThickness="1,1,0,0">
 
@@ -292,353 +261,13 @@
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
                                                         
-                                                        <Expander IsExpanded="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}">
+                                                        <Expander IsExpanded="{Binding Path=IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Style="{StaticResource LayerExpanderStyle}">
                                                             <Expander.Header>
                                                                 <StackPanel Orientation="Horizontal">
                                                                     <Label Content="{Binding Name}" />
                                                                 </StackPanel>
                                                             </Expander.Header>
-                                                            
-                                                            <!-- TODO: Make feel nice (used for making the expander toggle button the toggle trigger rather than the whole header -->
-                                                            <Expander.Template>
-                                                                <ControlTemplate TargetType="Expander">
-                                                                    <Border BorderThickness="{TemplateBinding Border.BorderThickness}" CornerRadius="3,3,3,3" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
-                                                                        <DockPanel>
-                                                                            <DockPanel DockPanel.Dock="Top" Name="HeaderSite">
-                                                                                <ToggleButton 
-                                                                                    DockPanel.Dock="Left"
-                                                                                    IsChecked="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsExpanded}"
-                                                                                    Foreground="{TemplateBinding TextElement.Foreground}" 
-                                                                                    FontFamily="{TemplateBinding TextElement.FontFamily}" 
-                                                                                    FontSize="{TemplateBinding TextElement.FontSize}" 
-                                                                                    FontStretch="{TemplateBinding TextElement.FontStretch}" 
-                                                                                    FontStyle="{TemplateBinding TextElement.FontStyle}" 
-                                                                                    FontWeight="{TemplateBinding TextElement.FontWeight}" 
-                                                                                    HorizontalContentAlignment="{TemplateBinding Control.HorizontalContentAlignment}" 
-                                                                                    VerticalContentAlignment="{TemplateBinding Control.VerticalContentAlignment}" 
-                                                                                    Padding="{TemplateBinding Control.Padding}" 
-                                                                                    MinWidth="0" 
-                                                                                    MinHeight="0" 
-                                                                                    Margin="1,1,1,1" 
-                                                                                    >
-                                                                                    <ToggleButton.Style>
-                                                                                        <Style TargetType="ToggleButton">
-                                                                                            <Setter Property="Control.Template">
-                                                                                                <Setter.Value>
-                                                                                                    <ControlTemplate TargetType="ToggleButton">
-                                                                                                        <Border Padding="{TemplateBinding Control.Padding}">
-                                                                                                            <Grid Background="#00FFFFFF" SnapsToDevicePixels="False">
-                                                                                                                <Grid.ColumnDefinitions>
-                                                                                                                    <ColumnDefinition Width="19" />
-                                                                                                                    <ColumnDefinition Width="*" />
-                                                                                                                </Grid.ColumnDefinitions>
-                                                                                                                <Ellipse Stroke="#FFA9A9A9" Name="circle" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                                                                                <Ellipse Name="shadow" Width="17" Height="17" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" />
-                                                                                                                <Path Data="M1,1.5L4.5,5 8,1.5" Stroke="#FF666666" StrokeThickness="2" Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="False" />
-                                                                                                            </Grid>
-                                                                                                        </Border>
-                                                                                                        <ControlTemplate.Triggers>
-                                                                                                            <Trigger Property="ToggleButton.IsChecked" Value="True" >
-                                                                                                                <Setter Property="Path.Data" TargetName="arrow">
-                                                                                                                    <Setter.Value>
-                                                                                                                        <StreamGeometry>M1,4.5L4.5,1 8,4.5</StreamGeometry>
-                                                                                                                    </Setter.Value>
-                                                                                                                </Setter>
-                                                                                                            </Trigger>
-                                                                                                            <Trigger Property="UIElement.IsMouseOver" Value="True">
-                                                                                                                <Setter Property="Shape.Stroke" TargetName="circle">
-                                                                                                                    <Setter.Value>
-                                                                                                                        <SolidColorBrush>#FF666666</SolidColorBrush>
-                                                                                                                    </Setter.Value>
-                                                                                                                </Setter>
-                                                                                                                <Setter Property="Shape.Stroke" TargetName="arrow">
-                                                                                                                    <Setter.Value>
-                                                                                                                        <SolidColorBrush>#FF222222</SolidColorBrush>
-                                                                                                                    </Setter.Value>
-                                                                                                                </Setter>
-                                                                                                                <Setter Property="UIElement.Visibility" TargetName="shadow">
-                                                                                                                    <Setter.Value>
-                                                                                                                        <x:Static Member="Visibility.Visible" />
-                                                                                                                    </Setter.Value>
-                                                                                                                </Setter>
-                                                                                                            </Trigger>
-                                                                                                        </ControlTemplate.Triggers>
-                                                                                                    </ControlTemplate>
-                                                                                                </Setter.Value>
-                                                                                            </Setter>
-                                                                                        </Style>
-                                                                                    </ToggleButton.Style>
-                                                                                    <ToggleButton.FocusVisualStyle>
-                                                                                        <Style TargetType="IFrameworkInputElement">
-                                                                                            <Setter Property="Control.Template">
-                                                                                                <Setter.Value>
-                                                                                                    <ControlTemplate>
-                                                                                                        <Border>
-                                                                                                            <Rectangle Stroke="#FF000000" StrokeThickness="1" StrokeDashArray="1 2" Margin="0,0,0,0" SnapsToDevicePixels="True" />
-                                                                                                        </Border>
-                                                                                                    </ControlTemplate>
-                                                                                                </Setter.Value>
-                                                                                            </Setter>
-                                                                                        </Style>
-                                                                                    </ToggleButton.FocusVisualStyle>
-                                                                                </ToggleButton>
-                                                                                <ContentPresenter
-                                                                                    RecognizesAccessKey="True"
-                                                                                    Content="{TemplateBinding HeaderedContentControl.Header}" 
-                                                                                    ContentTemplate="{TemplateBinding HeaderedContentControl.HeaderTemplate}"
-                                                                                    ContentStringFormat="{TemplateBinding HeaderedContentControl.HeaderStringFormat}"
-                                                                                    Margin="4,0,0,0"
-                                                                                    HorizontalAlignment="Left"
-                                                                                    VerticalAlignment="Center"
-                                                                                    SnapsToDevicePixels="True"
-                                                                                    />
-                                                                            </DockPanel>
-                                                                            <ContentPresenter Content="{TemplateBinding ContentControl.Content}" ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}" Name="ExpandSite" Margin="{TemplateBinding Control.Padding}" HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}" Visibility="Collapsed" Focusable="False" DockPanel.Dock="Bottom" />
-                                                                        </DockPanel>
-                                                                    </Border>
-                                                                    <ControlTemplate.Triggers>
-                                                                        <Trigger Property="Expander.IsExpanded" Value="True">
-                                                                            <Setter Property="UIElement.Visibility" TargetName="ExpandSite">
-                                                                                <Setter.Value>
-                                                                                    <x:Static Member="Visibility.Visible" />
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                        </Trigger>
-                                                                        <Trigger Property="Expander.ExpandDirection" Value="Right">
-                                                                            <Setter Property="DockPanel.Dock" TargetName="ExpandSite" Value="Right"/>
-                                                                            <Setter Property="DockPanel.Dock" TargetName="HeaderSite" Value="Left"/>
-                                                                            <Setter Property="FrameworkElement.Style" TargetName="HeaderSite">
-                                                                                <Setter.Value>
-                                                                                    <Style TargetType="ToggleButton">
-                                                                                        <Setter Property="Control.Template">
-                                                                                            <Setter.Value>
-                                                                                                <ControlTemplate TargetType="ToggleButton">
-                                                                                                    <Border Padding="{TemplateBinding Control.Padding}">
-                                                                                                        <Grid Background="#00FFFFFF" SnapsToDevicePixels="False">
-                                                                                                            <Grid.RowDefinitions>
-                                                                                                                <RowDefinition Height="19" />
-                                                                                                                <RowDefinition Height="*" />
-                                                                                                            </Grid.RowDefinitions>
-                                                                                                            <Grid>
-                                                                                                                <Grid.LayoutTransform>
-                                                                                                                    <TransformGroup>
-                                                                                                                        <TransformGroup.Children>
-                                                                                                                            <RotateTransform Angle="-90" />
-                                                                                                                        </TransformGroup.Children>
-                                                                                                                    </TransformGroup>
-                                                                                                                </Grid.LayoutTransform>
-                                                                                                                <Ellipse Stroke="#FFA9A9A9" Name="circle" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                                                                                <Ellipse Name="shadow" Width="17" Height="17" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" />
-                                                                                                                <Path Data="M1,1.5L4.5,5 8,1.5" Stroke="#FF666666" StrokeThickness="2" Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="False" />
-                                                                                                            </Grid>
-                                                                                                            <ContentPresenter RecognizesAccessKey="True" Content="{TemplateBinding ContentControl.Content}" ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}" Margin="0,4,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" SnapsToDevicePixels="True" Grid.Row="1" />
-                                                                                                        </Grid>
-                                                                                                    </Border>
-                                                                                                    <ControlTemplate.Triggers>
-                                                                                                        <Trigger Property="ToggleButton.IsChecked">
-                                                                                                            <Setter Property="Path.Data" TargetName="arrow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <StreamGeometry>M1,4.5L4.5,1 8,4.5</StreamGeometry>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Trigger.Value>
-                                                                                                                <s:Boolean>True</s:Boolean>
-                                                                                                            </Trigger.Value>
-                                                                                                        </Trigger>
-                                                                                                        <Trigger Property="UIElement.IsMouseOver">
-                                                                                                            <Setter Property="Shape.Stroke" TargetName="circle">
-                                                                                                                <Setter.Value>
-                                                                                                                    <SolidColorBrush>#FF666666</SolidColorBrush>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Setter Property="Shape.Stroke" TargetName="arrow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <SolidColorBrush>#FF222222</SolidColorBrush>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Setter Property="UIElement.Visibility" TargetName="shadow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <x:Static Member="Visibility.Visible" />
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Trigger.Value>
-                                                                                                                <s:Boolean>True</s:Boolean>
-                                                                                                            </Trigger.Value>
-                                                                                                        </Trigger>
-                                                                                                    </ControlTemplate.Triggers>
-                                                                                                </ControlTemplate>
-                                                                                            </Setter.Value>
-                                                                                        </Setter>
-                                                                                    </Style>
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                        </Trigger>
-                                                                        <Trigger Property="Expander.ExpandDirection">
-                                                                            <Setter Property="DockPanel.Dock" TargetName="ExpandSite" Value="Top"/>
-                                                                            <Setter Property="DockPanel.Dock" TargetName="HeaderSite" Value="Bottom"/>
-                                                                            <Setter Property="FrameworkElement.Style" TargetName="HeaderSite">
-                                                                                <Setter.Value>
-                                                                                    <Style TargetType="ToggleButton">
-                                                                                        <Setter Property="Control.Template">
-                                                                                            <Setter.Value>
-                                                                                                <ControlTemplate TargetType="ToggleButton">
-                                                                                                    <Border Padding="{TemplateBinding Control.Padding}">
-                                                                                                        <Grid Background="#00FFFFFF" SnapsToDevicePixels="False">
-                                                                                                            <Grid.ColumnDefinitions>
-                                                                                                                <ColumnDefinition Width="19" />
-                                                                                                                <ColumnDefinition Width="*" />
-                                                                                                            </Grid.ColumnDefinitions>
-                                                                                                            <Grid>
-                                                                                                                <Grid.LayoutTransform>
-                                                                                                                    <TransformGroup>
-                                                                                                                        <TransformGroup.Children>
-                                                                                                                            <RotateTransform Angle="180" />
-                                                                                                                        </TransformGroup.Children>
-                                                                                                                    </TransformGroup>
-                                                                                                                </Grid.LayoutTransform>
-                                                                                                                <Ellipse Stroke="#FFA9A9A9" Name="circle" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                                                                                <Ellipse Name="shadow" Width="17" Height="17" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" />
-                                                                                                                <Path Data="M1,1.5L4.5,5 8,1.5" Stroke="#FF666666" StrokeThickness="2" Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="False" />
-                                                                                                            </Grid>
-                                                                                                            <ContentPresenter RecognizesAccessKey="True" Content="{TemplateBinding ContentControl.Content}" ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}" Margin="4,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" SnapsToDevicePixels="True" Grid.Column="1" />
-                                                                                                        </Grid>
-                                                                                                    </Border>
-                                                                                                    <ControlTemplate.Triggers>
-                                                                                                        <Trigger Property="ToggleButton.IsChecked">
-                                                                                                            <Setter Property="Path.Data" TargetName="arrow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <StreamGeometry>M1,4.5L4.5,1 8,4.5</StreamGeometry>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Trigger.Value>
-                                                                                                                <s:Boolean>True</s:Boolean>
-                                                                                                            </Trigger.Value>
-                                                                                                        </Trigger>
-                                                                                                        <Trigger Property="UIElement.IsMouseOver">
-                                                                                                            <Setter Property="Shape.Stroke" TargetName="circle">
-                                                                                                                <Setter.Value>
-                                                                                                                    <SolidColorBrush>#FF666666</SolidColorBrush>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Setter Property="Shape.Stroke" TargetName="arrow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <SolidColorBrush>#FF222222</SolidColorBrush>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Setter Property="UIElement.Visibility" TargetName="shadow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <x:Static Member="Visibility.Visible" />
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Trigger.Value>
-                                                                                                                <s:Boolean>True</s:Boolean>
-                                                                                                            </Trigger.Value>
-                                                                                                        </Trigger>
-                                                                                                    </ControlTemplate.Triggers>
-                                                                                                </ControlTemplate>
-                                                                                            </Setter.Value>
-                                                                                        </Setter>
-                                                                                    </Style>
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                            <Trigger.Value>
-                                                                                <x:Static Member="ExpandDirection.Up" />
-                                                                            </Trigger.Value>
-                                                                        </Trigger>
-                                                                        <Trigger Property="Expander.ExpandDirection">
-                                                                            <Setter Property="DockPanel.Dock" TargetName="ExpandSite">
-                                                                                <Setter.Value>
-                                                                                    <x:Static Member="Dock.Left" />
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                            <Setter Property="DockPanel.Dock" TargetName="HeaderSite">
-                                                                                <Setter.Value>
-                                                                                    <x:Static Member="Dock.Right" />
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                            <Setter Property="FrameworkElement.Style" TargetName="HeaderSite">
-                                                                                <Setter.Value>
-                                                                                    <Style TargetType="ToggleButton">
-                                                                                        <Setter Property="Control.Template">
-                                                                                            <Setter.Value>
-                                                                                                <ControlTemplate TargetType="ToggleButton">
-                                                                                                    <Border Padding="{TemplateBinding Control.Padding}">
-                                                                                                        <Grid Background="#00FFFFFF" SnapsToDevicePixels="False">
-                                                                                                            <Grid.RowDefinitions>
-                                                                                                                <RowDefinition Height="19" />
-                                                                                                                <RowDefinition Height="*" />
-                                                                                                            </Grid.RowDefinitions>
-                                                                                                            <Grid>
-                                                                                                                <Grid.LayoutTransform>
-                                                                                                                    <TransformGroup>
-                                                                                                                        <TransformGroup.Children>
-                                                                                                                            <RotateTransform Angle="90" />
-                                                                                                                        </TransformGroup.Children>
-                                                                                                                    </TransformGroup>
-                                                                                                                </Grid.LayoutTransform>
-                                                                                                                <Ellipse Stroke="#FFA9A9A9" Name="circle" Width="19" Height="19" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                                                                                                <Ellipse Name="shadow" Width="17" Height="17" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden" />
-                                                                                                                <Path Data="M1,1.5L4.5,5 8,1.5" Stroke="#FF666666" StrokeThickness="2" Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" SnapsToDevicePixels="False" />
-                                                                                                            </Grid>
-                                                                                                            <ContentPresenter RecognizesAccessKey="True" Content="{TemplateBinding ContentControl.Content}" ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}" Margin="0,4,0,0" HorizontalAlignment="Center" VerticalAlignment="Top" SnapsToDevicePixels="True" Grid.Row="1" />
-                                                                                                        </Grid>
-                                                                                                    </Border>
-                                                                                                    <ControlTemplate.Triggers>
-                                                                                                        <Trigger Property="ToggleButton.IsChecked">
-                                                                                                            <Setter Property="Path.Data" TargetName="arrow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <StreamGeometry>M1,4.5L4.5,1 8,4.5</StreamGeometry>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Trigger.Value>
-                                                                                                                <s:Boolean>True</s:Boolean>
-                                                                                                            </Trigger.Value>
-                                                                                                        </Trigger>
-                                                                                                        <Trigger Property="UIElement.IsMouseOver">
-                                                                                                            <Setter Property="Shape.Stroke" TargetName="circle">
-                                                                                                                <Setter.Value>
-                                                                                                                    <SolidColorBrush>#FF666666</SolidColorBrush>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Setter Property="Shape.Stroke" TargetName="arrow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <SolidColorBrush>#FF222222</SolidColorBrush>
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Setter Property="UIElement.Visibility" TargetName="shadow">
-                                                                                                                <Setter.Value>
-                                                                                                                    <x:Static Member="Visibility.Visible" />
-                                                                                                                </Setter.Value>
-                                                                                                            </Setter>
-                                                                                                            <Trigger.Value>
-                                                                                                                <s:Boolean>True</s:Boolean>
-                                                                                                            </Trigger.Value>
-                                                                                                        </Trigger>
-                                                                                                    </ControlTemplate.Triggers>
-                                                                                                </ControlTemplate>
-                                                                                            </Setter.Value>
-                                                                                        </Setter>
-                                                                                    </Style>
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                            <Trigger.Value>
-                                                                                <x:Static Member="ExpandDirection.Left" />
-                                                                            </Trigger.Value>
-                                                                        </Trigger>
-                                                                        <Trigger Property="UIElement.IsEnabled">
-                                                                            <Setter Property="TextElement.Foreground">
-                                                                                <Setter.Value>
-                                                                                    <DynamicResource ResourceKey="{x:Static SystemColors.GrayTextBrushKey}" />
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                            <Trigger.Value>
-                                                                                <s:Boolean>False</s:Boolean>
-                                                                            </Trigger.Value>
-                                                                        </Trigger>
-                                                                    </ControlTemplate.Triggers>
-                                                                </ControlTemplate>
-                                                            </Expander.Template>
-                                                            
+
                                                             <ListBox Name="LayerItemListBox" behaviour:LayerItemSelectionBehaviour.ClickSelection="True" ItemContainerStyle="{StaticResource LayerItemContainerStyle}" 
                                                                      ItemsSource="{Binding Items}" HorizontalContentAlignment="Stretch" SelectionMode="Single" SelectionChanged="LayerItemListBox_SelectionChanged">
                                                                 <ListBox.ItemTemplate>
@@ -675,6 +304,7 @@
                 </Border>
 
 
+                <!-- User Defined Properties Display -->
                 <Border Grid.Row="1" BorderBrush="#999999" BorderThickness="0,0,1,1" Margin="5, 5, 5, 0">
                     <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
 
@@ -721,6 +351,7 @@
             </Grid>
         </Grid>
 
+        <!-- Status Panel -->
         <DockPanel Grid.Row="2">
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBar.ItemsPanel>
