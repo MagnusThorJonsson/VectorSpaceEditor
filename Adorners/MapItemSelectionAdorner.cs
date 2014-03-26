@@ -112,12 +112,14 @@ namespace VectorSpace.Adorners
             {
                 if (this.parentCanvas != null)
                 {
-                    // Calculate center of the item being rotated (origin + canvas pos)
-                    this.centerPoint = adornedElement.TranslatePoint(
-                        new Point(
+                    Point origin = new Point(
                             adornedElement.ActualWidth * 0.5,//adornedElement.RenderTransformOrigin.X,
                             adornedElement.ActualHeight * 0.5//adornedElement.RenderTransformOrigin.Y
-                        ),
+                    );
+
+                    // Calculate center of the item being rotated (origin + canvas pos)
+                    this.centerPoint = adornedElement.TranslatePoint(
+                        origin,
                         parentCanvas
                     );
 
@@ -131,7 +133,7 @@ namespace VectorSpace.Adorners
                     this.rotateTransform = adornedElement.RenderTransform as RotateTransform;
                     if (this.rotateTransform == null)
                     {
-                        adornedElement.RenderTransform = new RotateTransform(0);
+                        adornedElement.RenderTransform = new RotateTransform(0, origin.X, origin.Y);
                         this.initialAngle = 0;
                     }
                     else
