@@ -496,7 +496,7 @@ namespace VectorSpace
         private void LayerItemListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Remove adorners from the currently cached image
-            //removeAdorner(_currentlySelectedImage);
+            removeAdorner(_currentlySelectedImage);
 
             // If the item in the layer list is a texture item and it's flagged as selected
             TextureItem item = ((ListBox)sender).SelectedItem as TextureItem;
@@ -664,7 +664,6 @@ namespace VectorSpace
                 case ApplicationEditState.Select:
                     if (e.LeftButton == MouseButtonState.Pressed && _currentlySelectedImage != null)
                     {
-
                         // If item is on the currently selected layer we allow the move
                         Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
                         TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
@@ -730,27 +729,6 @@ namespace VectorSpace
         #endregion
 
         #region Canvas Selection Helpers
-        /*
-        /// <summary>
-        /// Handles the selection of map texture items
-        /// </summary>
-        /// <param name="image">The texture item being selected</param>
-        private void selectMapTextureItem(Image image)
-        {
-            // If the item we're trying to select isn't on the same layer we don't allow selection
-            TextureItem selectedItem = image.DataContext as TextureItem;
-            Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-            if (selectedItem != null && layer != null && selectedItem.Layer == layer.Id)
-            {
-                //selectedItem.IsSelected = true;
-                assingPropertyGrid((IHasProperties)image.DataContext);
-                AdornerLayer.GetAdornerLayer(image).Add(new MapItemSelectionAdorner(image, LevelCanvas));
-            }
-            else
-                assingPropertyGrid(_currentMap);
-        }
-        */
-
         /// <summary>
         /// Handles the selection of map texture items
         /// </summary>
@@ -803,12 +781,12 @@ namespace VectorSpace
             if (_currentMap != null && _selectedLibrary >= 0)
             {
                 _selectedLibraryItem = ((ListBox)sender).SelectedIndex;
-
+                // Assign the default user properties to the property grid
                 if (_selectedLibraryItem < _currentMap.TextureLibraries[_selectedLibrary].Textures.Count)
                     assingPropertyGrid(_currentMap.TextureLibraries[_selectedLibrary].Textures[_selectedLibraryItem]);
             }
             else
-                assingPropertyGrid(null);
+                assingPropertyGrid(_currentMap);
         }
 
         /// <summary>
@@ -820,7 +798,7 @@ namespace VectorSpace
         {
             _selectedLibrary = ((TabControl)sender).SelectedIndex;
 
-            assingPropertyGrid(null);
+            //assingPropertyGrid(_currentMap);
         }
         #endregion
 
@@ -835,7 +813,7 @@ namespace VectorSpace
             Image image = (Image)sender;
             if (_currentMap.Layers.Count > 0 && image != null && e.LeftButton == MouseButtonState.Pressed)
             {
-                // Package the data.
+                // Package the TextureItem data
                 DataObject data = new DataObject(
                     "Texture",
                     new WeakReference(_currentMap.TextureLibraries[_selectedLibrary].Textures[_selectedLibraryItem])
