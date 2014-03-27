@@ -22,7 +22,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture file name
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 0)]
         public string Name 
         { 
             get { return filename; }
@@ -33,7 +33,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture file path
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 1)]
         public string Path 
         { 
             get { return filepath; }
@@ -50,7 +50,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture size
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 2)]
         public Point Size 
         { 
             get { return _size; }
@@ -61,7 +61,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture origin point
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 3)]
         public Point Origin 
         { 
             get { return _origin; }
@@ -72,7 +72,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture user properties
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 4)]
         public ObservableCollection<ItemProperty> Properties 
         { 
             get { return properties; }

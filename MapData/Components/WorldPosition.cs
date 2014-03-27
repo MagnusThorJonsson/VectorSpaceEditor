@@ -18,7 +18,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The items position in world coordinates
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 0)]
         public Point Position
         {
             get { return _position; }
@@ -40,7 +40,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The items rotational origin position
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 1)]
         public Point Origin
         {
             get { return _origin; }
@@ -51,7 +51,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The items width scale 
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 2)]
         public float ScaleX
         {
             get { return _scaleX; }
@@ -62,7 +62,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The items height scale
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 3)]
         public float ScaleY
         {
             get { return _scaleY; }
@@ -73,7 +73,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The items rotation in degrees
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 4)]
         public float Rotation
         {
             get { return _rotation; }

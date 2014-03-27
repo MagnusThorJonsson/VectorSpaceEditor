@@ -20,7 +20,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Layer id (unique)
         /// </summary>
-        [DataMember]        
+        [DataMember(Order = 0)]        
         public string Id 
         { 
             get { return id; }
@@ -31,7 +31,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Layer name
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 1)]
         public string Name
         {
             get { return name; }
@@ -46,7 +46,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Items contained within this layer
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 2)]
         public ObservableCollection<IRenderable> Items 
         { 
             get { return items; }

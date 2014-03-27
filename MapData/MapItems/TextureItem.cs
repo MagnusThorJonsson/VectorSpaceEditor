@@ -27,7 +27,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// TextureItem user properties
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 5)]
         public ObservableCollection<ItemProperty> Properties 
         { 
             get { return properties; }
@@ -38,7 +38,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Is Selected property
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 4)]
         public bool IsSelected
         {
             get { return isSelected; }
@@ -129,7 +129,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Item layer id
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 1)]
         public string Layer
         {
             get { return layer; }
@@ -149,7 +149,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Item name
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 0)]
         public string Name 
         { 
             get { return name; }
@@ -159,7 +159,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// The map position and transform 
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 3)]
         public WorldPosition Position
         {
             get { return position; }
@@ -173,7 +173,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Depth index
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 2)]
         public int ZIndex 
         { 
             get { return zIndex; }

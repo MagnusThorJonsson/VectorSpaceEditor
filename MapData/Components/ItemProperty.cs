@@ -16,7 +16,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The property key
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 0)]
         public string Key
         {
             get { return key; }
@@ -28,7 +28,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The property value
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 1)]
         public string Value
         {
             get { return value; }

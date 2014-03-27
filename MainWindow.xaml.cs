@@ -212,22 +212,20 @@ namespace VectorSpace
         {
             if (_currentMap != null)
             {
-                /*
-                using (StringWriter output = new StringWriter())
+                using (MemoryStream stream = new MemoryStream())
                 {
-                    JSON.Serialize(_currentMap, output, new Options(true, true, false, Jil.DateTimeFormat.ISO8601, true, ));
-                    Console.WriteLine(output.ToString());
+                    // Settings (flag to remove that damned __type property
+                    DataContractJsonSerializerSettings dataSettings = new DataContractJsonSerializerSettings();
+                    dataSettings.EmitTypeInformation = System.Runtime.Serialization.EmitTypeInformation.Never;
+                    
+                    // Serializer
+                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Map), dataSettings);
+                    serializer.WriteObject(stream, _currentMap);
+                    string json = Encoding.UTF8.GetString(stream.ToArray());
+
+                    // TODO: Move file ending into a config constant
+                    File.WriteAllText(_currentMap.FilePath + "\\" + _currentMap.Name.SanitizeFilename() + ".vsmd", json.IndentJson());
                 }
-                */
-                MemoryStream stream1 = new MemoryStream();
-                DataContractJsonSerializerSettings dataSettings = new DataContractJsonSerializerSettings();
-                dataSettings.EmitTypeInformation = System.Runtime.Serialization.EmitTypeInformation.Never;
-                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Map), dataSettings);
-                ser.WriteObject(stream1, _currentMap);
-                stream1.Position = 0;
-                StreamReader sr = new StreamReader(stream1);
-                Console.Write("JSON form of the Map object: ");
-                Console.WriteLine(sr.ReadToEnd());
             }
         }
         #endregion
@@ -310,6 +308,7 @@ namespace VectorSpace
 
         private void MenuItem_Tools_TextureManager(object sender, ExecutedRoutedEventArgs e)
         {
+
             TextureManagerWindow txtManagerWindow = new TextureManagerWindow();
             txtManagerWindow.Owner = this;
             txtManagerWindow.ShowDialog();

@@ -22,7 +22,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Map name
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 0)]
         public string Name 
         { 
             get { return _name; }
@@ -33,7 +33,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The path to the map root directory
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 1)]
         public string FilePath 
         { 
             get { return _filepath; }
@@ -44,7 +44,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The map width & height
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 2)]
         public Point Size 
         { 
             get { return _size; }
@@ -55,7 +55,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Map layers
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 6)]
         public ObservableCollection<Layer> Layers
         { 
             get { return _layers; }
@@ -67,7 +67,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The next layer id that is available
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 5)]
         public int NextLayerId 
         { 
             get { return _nextLayerId; }
@@ -78,7 +78,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// User properties for the map
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 3)]
         public ObservableCollection<ItemProperty> Properties 
         { 
             get { return _properties; }
@@ -89,7 +89,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture libraries in use by the map
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 4)]
         public ObservableCollection<TextureLibrary> TextureLibraries 
         { 
             get { return _textureLibraries; }
@@ -100,7 +100,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The list of items placed on the map
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 7)]
         public ObservableCollection<IRenderable> MapItems 
         { 
             get { return _mapItems; }

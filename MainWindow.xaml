@@ -77,7 +77,7 @@
                 <MenuItem Header="_Settings" Click="MenuItem_Edit_Settings" />
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Name="ToolMenuItem_TextureManager" Header="_Texture Manager" InputGestureText="Ctrl+T" />
+                <MenuItem Name="ToolMenuItem_TextureManager" Header="_Texture Manager" InputGestureText="Ctrl+T" Command="{x:Static local:MainWindow.TextureManagerShortcutCommand}" />
             </MenuItem>
             <MenuItem Header="_View">
                 <Separator />
