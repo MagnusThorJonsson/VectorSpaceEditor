@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace VectorSpace.MapData.Components
 {
@@ -19,6 +20,7 @@ namespace VectorSpace.MapData.Components
         /// The items position in world coordinates
         /// </summary>
         [DataMember(Order = 0)]
+        [JsonProperty(Order = 1)]
         public Point Position
         {
             get { return _position; }
@@ -29,11 +31,13 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The items position on the X axis
         /// </summary>
+        [JsonIgnore]
         public int X { get { return Position.X; } }
         
         /// <summary>
         /// The items position on the Y axis
         /// </summary>
+        [JsonIgnore]
         public int Y { get { return Position.Y; } }
 
         
@@ -41,6 +45,7 @@ namespace VectorSpace.MapData.Components
         /// The items rotational origin position
         /// </summary>
         [DataMember(Order = 1)]
+        [JsonProperty(Order = 2)]
         public Point Origin
         {
             get { return _origin; }
@@ -52,6 +57,7 @@ namespace VectorSpace.MapData.Components
         /// The items width scale 
         /// </summary>
         [DataMember(Order = 2)]
+        [JsonProperty(Order = 3)]
         public float ScaleX
         {
             get { return _scaleX; }
@@ -63,6 +69,7 @@ namespace VectorSpace.MapData.Components
         /// The items height scale
         /// </summary>
         [DataMember(Order = 3)]
+        [JsonProperty(Order = 4)]
         public float ScaleY
         {
             get { return _scaleY; }
@@ -74,6 +81,7 @@ namespace VectorSpace.MapData.Components
         /// The items rotation in degrees
         /// </summary>
         [DataMember(Order = 4)]
+        [JsonProperty(Order = 5)]
         public float Rotation
         {
             get { return _rotation; }
@@ -108,6 +116,7 @@ namespace VectorSpace.MapData.Components
         /// <param name="scaleX">The width scale</param>
         /// <param name="scaleY">The height scale</param>
         /// <param name="rotation">The rotation in degrees</param>
+        [JsonConstructor]
         public WorldPosition(Point position, Point origin, float scaleX, float scaleY, float rotation)
         {
             _position = position;

@@ -41,6 +41,8 @@ using VectorSpace.Adorners;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization.Json;
+using Newtonsoft.Json;
+using VectorSpace.JsonConverters;
 
 namespace VectorSpace
 {
@@ -159,32 +161,14 @@ namespace VectorSpace
             {
                 // Attach map and enable menu items
                 _currentMap = levelWindow.Map;
-                ToolMenuItem_TextureManager.IsEnabled = true;
-                assingPropertyGrid(_currentMap);
 
-                // Set canvas size and display it
-                MainCanvasPanel.Visibility = System.Windows.Visibility.Visible;
-                LevelCanvas.ItemsSource = _currentMap.MapItems;
-                LevelCanvas.IsEnabled = true;
-                LevelCanvas.Width = _currentMap.Size.X;
-                LevelCanvas.Height = _currentMap.Size.Y;
-
-                // Bind the texture libraries to the Canvas Tab Item Control
-                CanvasItemsTab.ItemsSource = _currentMap.TextureLibraries;
-
-                // Layers panel
-                RemoveLayerBtn.IsEnabled = true;
-                AddLayerBtn.IsEnabled = true;
-                LayersListBox.ItemsSource = _currentMap.Layers; 
-                LayersListBox.SelectedIndex = 0;
-
-                // Set the application edit state to select mode, enable tools and toggle the Select tool as in use
-                _currentEditState = ApplicationEditState.Select;
+                enableCanvas();
                 enableTools(true);
                 toggleToolButton(SelectToolBtn);
             }
         }
         #endregion
+
 
         #region File Open Command Handlers
         private void MenuItem_File_Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -194,6 +178,37 @@ namespace VectorSpace
 
         private void MenuItem_File_Open_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.FileName = "Map.vsmd";
+            dlg.DefaultExt = ".vsmd"; 
+            dlg.Filter = "VectorSpace Map Data (.vsmd)|*.vsmd";
+
+            Nullable<bool> result = dlg.ShowDialog();
+            if (result == true)
+            {
+                // Load the new map
+                using (StreamReader file = File.OpenText(dlg.FileName))
+                {
+                    // Close the currently open map
+                    CloseMap();
+
+                    // Try to deserialize
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Converters.Add(new IRenderableConverter());
+                    _currentMap = (Map)serializer.Deserialize(file, typeof(Map));
+
+                    if (_currentMap != null)
+                    {
+                        // Initialize the map
+                        _currentMap.Initialize();
+
+                        // Enable canvas and tools
+                        enableCanvas();
+                        enableTools(true);
+                        toggleToolButton(SelectToolBtn);
+                    }
+                }
+            }
         }
         #endregion
 
@@ -212,19 +227,11 @@ namespace VectorSpace
         {
             if (_currentMap != null)
             {
-                using (MemoryStream stream = new MemoryStream())
+                using (StreamWriter file = File.CreateText(_currentMap.FilePath + "\\" + _currentMap.Name.SanitizeFilename() + ".vsmd"))
                 {
-                    // Settings (flag to remove that damned __type property
-                    DataContractJsonSerializerSettings dataSettings = new DataContractJsonSerializerSettings();
-                    dataSettings.EmitTypeInformation = System.Runtime.Serialization.EmitTypeInformation.Never;
-                    
-                    // Serializer
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Map), dataSettings);
-                    serializer.WriteObject(stream, _currentMap);
-                    string json = Encoding.UTF8.GetString(stream.ToArray());
-
-                    // TODO: Move file ending into a config constant
-                    File.WriteAllText(_currentMap.FilePath + "\\" + _currentMap.Name.SanitizeFilename() + ".vsmd", json.IndentJson());
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Formatting = Formatting.Indented;
+                    serializer.Serialize(file, _currentMap);
                 }
             }
         }
@@ -243,13 +250,22 @@ namespace VectorSpace
 
         private void MenuItem_File_Close_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            // Close the currently open map
+            CloseMap();
+        }
+        #endregion
+
+        /// <summary>
+        /// Closes the currently open map
+        /// </summary>
+        private void CloseMap()
+        {
             enableTools(false);
             MainCanvasPanel.Visibility = System.Windows.Visibility.Hidden;
             LevelCanvas.IsEnabled = false;
             // TODO: Probably need to handle this in a better way
             _currentMap = null;
         }
-        #endregion
 
         /// <summary>
         /// Exit application
@@ -308,7 +324,6 @@ namespace VectorSpace
 
         private void MenuItem_Tools_TextureManager(object sender, ExecutedRoutedEventArgs e)
         {
-
             TextureManagerWindow txtManagerWindow = new TextureManagerWindow();
             txtManagerWindow.Owner = this;
             txtManagerWindow.ShowDialog();
@@ -388,6 +403,35 @@ namespace VectorSpace
         #endregion
 
         #region Toolbar Private Helper Methods
+        /// <summary>
+        /// Enables canvas on load
+        /// </summary>
+        private void enableCanvas()
+        {
+            assingPropertyGrid(_currentMap);
+
+            // Set canvas size and display it
+            MainCanvasPanel.Visibility = System.Windows.Visibility.Visible;
+            LevelCanvas.ItemsSource = _currentMap.MapItems;
+            LevelCanvas.IsEnabled = true;
+            LevelCanvas.Width = _currentMap.Size.X;
+            LevelCanvas.Height = _currentMap.Size.Y;
+
+            // Bind the texture libraries to the Canvas Tab Item Control
+            CanvasItemsTab.ItemsSource = _currentMap.TextureLibraries;
+
+            // Layers panel
+            RemoveLayerBtn.IsEnabled = true;
+            AddLayerBtn.IsEnabled = true;
+            LayersListBox.ItemsSource = _currentMap.Layers;
+            LayersListBox.SelectedIndex = 0;
+
+            // Set the application edit state to select mode, enable tools and toggle the Select tool as in use
+            _currentEditState = ApplicationEditState.Select;
+        }
+
+
+
         /// <summary>
         /// Enables or disables the toolbar buttons
         /// </summary>

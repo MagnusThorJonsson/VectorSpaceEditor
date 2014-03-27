@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -20,7 +21,8 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Layer id (unique)
         /// </summary>
-        [DataMember(Order = 0)]        
+        [DataMember(Order = 0)]
+        [JsonProperty(Order = 1)]
         public string Id 
         { 
             get { return id; }
@@ -32,6 +34,7 @@ namespace VectorSpace.MapData
         /// Layer name
         /// </summary>
         [DataMember(Order = 1)]
+        [JsonProperty(Order = 2)]
         public string Name
         {
             get { return name; }
@@ -47,6 +50,7 @@ namespace VectorSpace.MapData
         /// Items contained within this layer
         /// </summary>
         [DataMember(Order = 2)]
+        [JsonProperty(Order = 3)]
         public ObservableCollection<IRenderable> Items 
         { 
             get { return items; }
@@ -78,6 +82,7 @@ namespace VectorSpace.MapData
         /// </summary>
         /// <param name="id">Layer id</param>
         /// <param name="name">Layer name</param>
+        [JsonConstructor]
         public Layer(string id, string name)
         {
             this.id = id;

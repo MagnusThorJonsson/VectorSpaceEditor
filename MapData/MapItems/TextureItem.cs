@@ -1,33 +1,47 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using VectorSpace.JsonConverters;
 using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 
 namespace VectorSpace.MapData.MapItems
 {
-    [DataContract, KnownType(typeof(TextureItem))]
+    /// <summary>
+    /// Map Item that is a Texture/Sprite
+    /// </summary>
     public class TextureItem : IRenderable, IHasProperties
     {
         #region Variables & Properties
+        protected string type;
+
         protected string layer;
         protected string name;
 
-        public Texture Texture { get { return texture; } }
+        /// <summary>
+        /// The texture this item uses
+        /// </summary>
+        [JsonIgnore]
+        public Texture Texture 
+        { 
+            get { return texture; }
+            set { texture = value; }
+        }
         protected Texture texture;
+
         protected WorldPosition position;
         protected int zIndex;
 
         /// <summary>
         /// TextureItem user properties
         /// </summary>
-        [DataMember(Order = 5)]
+        [JsonProperty(Order = 7)]
         public ObservableCollection<ItemProperty> Properties 
         { 
             get { return properties; }
@@ -38,7 +52,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Is Selected property
         /// </summary>
-        [DataMember(Order = 4)]
+        [JsonProperty(Order = 8)]
         public bool IsSelected
         {
             get { return isSelected; }
@@ -54,6 +68,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Current width based on scale
         /// </summary>
+        [JsonIgnore]
         public float Width
         {
             get
@@ -75,6 +90,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Current height based on scale
         /// </summary>
+        [JsonIgnore]
         public float Height
         {
             get
@@ -96,6 +112,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Current angle in degrees
         /// </summary>
+        [JsonIgnore]
         public float Angle
         {
             get
@@ -127,39 +144,66 @@ namespace VectorSpace.MapData.MapItems
 
         #region Interface Properties
         /// <summary>
+        /// Item type
+        /// </summary>
+        [JsonProperty(Order = 1)]
+        public string Type
+        {
+            get { return type; }
+            protected set { type = value; }
+        }
+
+        /// <summary>
+        /// Item name
+        /// </summary>
+        [JsonProperty(Order = 2)]
+        public string Name
+        {
+            get { return name; }
+            protected set { name = value; }
+        }
+
+        /// <summary>
+        /// The name of the texture used by this item
+        /// </summary>
+        [JsonProperty(Order = 3)]
+        public string TextureName
+        {
+            get 
+            { 
+                if (texture != null)
+                    return texture.Name;
+
+                return _textureName;
+            }
+            protected set 
+            {
+                if (texture == null)
+                    _textureName = value;
+                else
+                    _textureName = texture.Name;
+            }
+        }
+        private string _textureName;
+
+        /// <summary>
         /// Item layer id
         /// </summary>
-        [DataMember(Order = 1)]
+        [JsonProperty(Order = 4)]
         public string Layer
         {
             get { return layer; }
             set
             {
-                /*
-                if (value < 0)
-                    layer = 0;
-                else
-                    layer = value;
-                */
                 layer = value;
                 OnPropertyChanged("Layer");
             }
         }
 
         /// <summary>
-        /// Item name
-        /// </summary>
-        [DataMember(Order = 0)]
-        public string Name 
-        { 
-            get { return name; }
-            protected set { name = value; }
-        }
-
-        /// <summary>
         /// The map position and transform 
         /// </summary>
-        [DataMember(Order = 3)]
+        [JsonProperty(Order = 6)]
         public WorldPosition Position
         {
             get { return position; }
@@ -173,7 +217,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Depth index
         /// </summary>
-        [DataMember(Order = 2)]
+        [JsonProperty(Order = 5)]
         public int ZIndex 
         { 
             get { return zIndex; }
@@ -182,6 +226,86 @@ namespace VectorSpace.MapData.MapItems
                 zIndex = value;
                 OnPropertyChanged("ZIndex");
             }
+        }
+        #endregion
+
+
+        #region Constructor
+        /// <summary>
+        /// Item constructor
+        /// </summary>
+        /// <param name="layer">The item layer id</param>
+        /// <param name="name">The item name</param>
+        /// <param name="textureName">The name of the texture this item uses</param>
+        public TextureItem(string layer, string name, string textureName)
+        {
+            // Set class type
+            this.type = typeof(TextureItem).Name;
+
+            this.layer = layer;
+            this.name = name;
+            this.texture = null;
+            this._textureName = textureName;
+            this.position = new WorldPosition();
+            this.zIndex = 0;
+
+            this.isSelected = false;
+
+            this.properties = new ObservableCollection<ItemProperty>();
+        }
+
+        /// <summary>
+        /// Item constructor
+        /// </summary>
+        /// <param name="layer">The item layer id</param>
+        /// <param name="name">The item name</param>
+        /// <param name="texture">Item texture</param>
+        /// <param name="position">Item world position</param>
+        /// <param name="zIndex">Item depth index</param>
+        public TextureItem(string layer, string name, Texture texture, WorldPosition position, int zIndex)
+        {
+            // Set class type
+            this.type = typeof(TextureItem).Name;
+
+            this.layer = layer;
+            this.name = name;
+            this.texture = texture;
+            this._textureName = texture.Name;
+            this.position = position;
+            this.zIndex = zIndex;
+
+            this.isSelected = false;
+
+            this.properties = new ObservableCollection<ItemProperty>();
+        }
+        #endregion
+
+
+        #region Initialization
+        /// <summary>
+        /// Initializes the TextureItem after loading
+        /// </summary>
+        /// <param name="texture">The texture used by this item</param>
+        public void Initialize(Texture texture)
+        {
+            this.texture = texture;
+        }
+        #endregion
+
+
+        #region Factory Methods
+        /// <summary>
+        /// Creates a TextureItem
+        /// </summary>
+        /// <param name="layer">The layer the item is on</param>
+        /// <param name="name">The name of the item</param>
+        /// <param name="texture">The texture it uses</param>
+        /// <param name="position">The item position</param>
+        /// <param name="zIndex">The Z index depth of the item</param>
+        /// <returns></returns>
+        public static TextureItem Create(string layer, string name, Texture texture, WorldPosition position, int zIndex = 0)
+        {
+            return new TextureItem(layer, name, texture, position, zIndex);
         }
         #endregion
 
@@ -269,38 +393,6 @@ namespace VectorSpace.MapData.MapItems
         #endregion
 
 
-        #region Constructor
-        /// <summary>
-        /// Item constructor
-        /// </summary>
-        /// <param name="layer">Item layer id</param>
-        /// <param name="name">Item name</param>
-        /// <param name="texture">Item texture</param>
-        /// <param name="position">Item world position</param>
-        /// <param name="zIndex">Item depth index</param>
-        public TextureItem(string layer, string name, Texture texture, WorldPosition position, int zIndex)
-        {
-            this.layer = layer;
-            this.name = name;
-            this.texture = texture;
-            this.position = position;
-            this.zIndex = zIndex;
-
-            this.isSelected = false;
-
-            this.properties = new ObservableCollection<ItemProperty>();
-        }
-        #endregion
-
-
-        #region Factory Methods
-        public static TextureItem Create(string layer, string name, Texture texture, WorldPosition position, int zIndex = 0)
-        {
-            return new TextureItem(layer, name, texture, position, zIndex);
-        }
-        #endregion
-
-
         #region Helper Methods
         /// <summary>
         /// Moves the texture item by the given amount
@@ -376,50 +468,7 @@ namespace VectorSpace.MapData.MapItems
             OnPropertyChanged("Position");
             OnPropertyChanged("Height");
         }
-        /*
-        /// <summary>
-        /// Sets the texture items rotation in radians
-        /// </summary>
-        /// <param name="radians">rotation in radians</param>
-        public void SetRotation(float radians)
-        {
-
-            position.Rotation = radians;
-
-            OnPropertyChanged("Angle");
-        }
-
-        /// <summary>
-        /// Adds to the texture items rotation
-        /// </summary>
-        /// <param name="radians">rotation to add in radians</param>
-        public void AddRotation(float radians)
-        {
-            //position.Rotation += WrapRotation(radians);
-            position.Rotation += radians;
-
-            OnPropertyChanged("Angle");
-        }
-        */
         #endregion
 
-        /// <summary>
-        /// Wraps radian rotation 
-        /// </summary>
-        /// <param name="radians">Radian to wrap</param>
-        /// <returns>Wrapped radian</returns>
-        protected float wrapRotation(float radians)
-        {
-            while (radians < -Math.PI)
-            {
-                radians += (float)(Math.PI * 2.0);
-            }
-            while (radians > Math.PI)
-            {
-                radians -= (float)(Math.PI * 2.0);
-            }
-
-            return radians;
-        }
     }
 }

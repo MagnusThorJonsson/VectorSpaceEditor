@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -16,6 +17,7 @@ using VectorSpace.MapData.MapItems;
 namespace VectorSpace.MapData
 {
     [DataContract]
+    [KnownType(typeof(TextureItem))]
     public class Map : IHasProperties
     {
         #region Variables & Properties
@@ -23,6 +25,7 @@ namespace VectorSpace.MapData
         /// Map name
         /// </summary>
         [DataMember(Order = 0)]
+        [JsonProperty(Order = 1)]
         public string Name 
         { 
             get { return _name; }
@@ -34,6 +37,7 @@ namespace VectorSpace.MapData
         /// The path to the map root directory
         /// </summary>
         [DataMember(Order = 1)]
+        [JsonProperty(Order = 2)]
         public string FilePath 
         { 
             get { return _filepath; }
@@ -45,6 +49,7 @@ namespace VectorSpace.MapData
         /// The map width & height
         /// </summary>
         [DataMember(Order = 2)]
+        [JsonProperty(Order = 3)]
         public Point Size 
         { 
             get { return _size; }
@@ -56,6 +61,7 @@ namespace VectorSpace.MapData
         /// Map layers
         /// </summary>
         [DataMember(Order = 6)]
+        [JsonProperty(Order = 7)]
         public ObservableCollection<Layer> Layers
         { 
             get { return _layers; }
@@ -68,6 +74,7 @@ namespace VectorSpace.MapData
         /// The next layer id that is available
         /// </summary>
         [DataMember(Order = 5)]
+        [JsonProperty(Order = 6)]
         public int NextLayerId 
         { 
             get { return _nextLayerId; }
@@ -79,6 +86,7 @@ namespace VectorSpace.MapData
         /// User properties for the map
         /// </summary>
         [DataMember(Order = 3)]
+        [JsonProperty(Order = 4)]
         public ObservableCollection<ItemProperty> Properties 
         { 
             get { return _properties; }
@@ -90,6 +98,7 @@ namespace VectorSpace.MapData
         /// Texture libraries in use by the map
         /// </summary>
         [DataMember(Order = 4)]
+        [JsonProperty(Order = 5)]
         public ObservableCollection<TextureLibrary> TextureLibraries 
         { 
             get { return _textureLibraries; }
@@ -100,7 +109,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The list of items placed on the map
         /// </summary>
-        [DataMember(Order = 7)]
+        [JsonIgnore]
         public ObservableCollection<IRenderable> MapItems 
         { 
             get { return _mapItems; }
@@ -135,6 +144,7 @@ namespace VectorSpace.MapData
         /// </summary>
         /// <param name="name">The map name</param>
         /// <param name="path">The root directory path</param>
+        [JsonConstructor]
         public Map(string name, string path)
         {
             _name = name;
@@ -153,7 +163,48 @@ namespace VectorSpace.MapData
         #endregion
 
 
-        #region Initialization Methods
+        #region Initialization
+        /// <summary>
+        /// Initializes the Map after loading.
+        /// Assigns textures to textureitems and populates the cache and such.
+        /// </summary>
+        public void Initialize()
+        {
+            // Clear the currently cached MapItems
+            MapItems.Clear();
+
+            // Iterate through all layer items, initialize them and add to the MapItems container
+            for (int i = 0; i < _layers.Count; i++)
+            {
+                for (int j = 0; j < _layers[i].Items.Count; j++)
+                {
+                    // If an item is a TextureItem we look for the correct texture and add it to the item
+                    if (_layers[i].Items[j] is TextureItem)
+                    {
+                        // Search for a texture in the texture libraries and assign the texture to the item 
+                        TextureItem textureItem = (TextureItem)_layers[i].Items[j];
+                        Texture texture = FindTexture(textureItem.TextureName);
+                        if (texture != null)
+                        {
+                            textureItem.Texture = texture;
+                        }
+                        else
+                            throw new InvalidOperationException(
+                                string.Format("No texture named '{0}' was found for TextureItem '{1}'.",
+                                textureItem.TextureName,
+                                textureItem.Name)
+                            );
+
+                    }
+                    // Add the layer item to the MapItems list
+                    MapItems.Add(_layers[i].Items[j]);
+                }
+            }
+        }
+        #endregion
+
+
+        #region Setter Methods
         /// <summary>
         /// Sets the map name
         /// </summary>
@@ -232,6 +283,25 @@ namespace VectorSpace.MapData
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Finds a specific texture in the texture library list
+        /// </summary>
+        /// <param name="name">The texture to find</param>
+        /// <returns>The texture found or null if nothing is found</returns>
+        public Texture FindTexture(string name)
+        {
+            for (int i = 0; i < _textureLibraries.Count; i++)
+            {
+                for (int j = 0; j < _textureLibraries[i].Textures.Count; j++)
+                {
+                    if (_textureLibraries[i].Textures[j].Name.Equals(name))
+                        return _textureLibraries[i].Textures[j];
+                }
+            }
+
+            return null;
         }
         #endregion
 

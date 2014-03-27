@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -15,6 +16,9 @@ using VectorSpace.MapData.MapItems;
 
 namespace VectorSpace.MapData
 {
+    /// <summary>
+    /// Texture container class
+    /// </summary>
     [DataContract]
     public class Texture : IHasProperties
     {
@@ -23,6 +27,7 @@ namespace VectorSpace.MapData
         /// Texture file name
         /// </summary>
         [DataMember(Order = 0)]
+        [JsonProperty(Order = 1)]
         public string Name 
         { 
             get { return filename; }
@@ -34,6 +39,7 @@ namespace VectorSpace.MapData
         /// Texture file path
         /// </summary>
         [DataMember(Order = 1)]
+        [JsonProperty(Order = 2)]
         public string Path 
         { 
             get { return filepath; }
@@ -44,6 +50,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture source image
         /// </summary>
+        [JsonIgnore]
         public BitmapImage Source { get { return _source; } }
         private BitmapImage _source;
 
@@ -51,6 +58,7 @@ namespace VectorSpace.MapData
         /// Texture size
         /// </summary>
         [DataMember(Order = 2)]
+        [JsonProperty(Order = 3)]
         public Point Size 
         { 
             get { return _size; }
@@ -62,6 +70,7 @@ namespace VectorSpace.MapData
         /// Texture origin point
         /// </summary>
         [DataMember(Order = 3)]
+        [JsonProperty(Order = 4)]
         public Point Origin 
         { 
             get { return _origin; }
@@ -73,6 +82,7 @@ namespace VectorSpace.MapData
         /// Texture user properties
         /// </summary>
         [DataMember(Order = 4)]
+        [JsonProperty(Order = 5)]
         public ObservableCollection<ItemProperty> Properties 
         { 
             get { return properties; }
@@ -112,6 +122,7 @@ namespace VectorSpace.MapData
         /// </summary>
         /// <param name="name">The file name</param>
         /// <param name="path">The file path</param>
+        [JsonConstructor]
         public Texture(string name, string path)
         {
             filename = name;

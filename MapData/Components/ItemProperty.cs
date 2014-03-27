@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -17,6 +18,7 @@ namespace VectorSpace.MapData.Components
         /// The property key
         /// </summary>
         [DataMember(Order = 0)]
+        [JsonProperty(Order = 1)]
         public string Key
         {
             get { return key; }
@@ -29,6 +31,7 @@ namespace VectorSpace.MapData.Components
         /// The property value
         /// </summary>
         [DataMember(Order = 1)]
+        [JsonProperty(Order = 2)]
         public string Value
         {
             get { return value; }

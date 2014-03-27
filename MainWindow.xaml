@@ -9,6 +9,7 @@
     <Window.CommandBindings>
         <!-- File Menu bar commands -->
         <CommandBinding Command="New" CanExecute="MenuItem_File_New_CanExecute" Executed="MenuItem_File_New_Executed" />
+        <CommandBinding Command="Open" CanExecute="MenuItem_File_Open_CanExecute" Executed="MenuItem_File_Open_Executed" />
         <CommandBinding Command="Save" CanExecute="MenuItem_File_Save_CanExecute" Executed="MenuItem_File_Save_Executed" />
         <CommandBinding Command="Close" CanExecute="MenuItem_File_Close_CanExecute" Executed="MenuItem_File_Close_Executed" />
         <!-- Tools Menu bar commands -->
@@ -23,7 +24,7 @@
         <KeyBinding Command="{x:Static local:MainWindow.TextureManagerShortcutCommand}" Key="T" Modifiers="Control" />
         
         <!-- Toolbar Shortcuts -->
-        <KeyBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" Key="V" Modifiers="Shift" />
+        <KeyBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" Key="S" Modifiers="Control+Alt" />
     </Window.InputBindings>
     
     <Window.Resources>

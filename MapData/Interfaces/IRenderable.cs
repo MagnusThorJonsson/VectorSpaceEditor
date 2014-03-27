@@ -8,9 +8,17 @@ using VectorSpace.MapData.Components;
 
 namespace VectorSpace.MapData.Interfaces
 {
+    /// <summary>
+    /// Interface for items that are rendered on the map canvas
+    /// </summary>
     public interface IRenderable : INotifyPropertyChanged
     {
         #region Properties
+        /// <summary>
+        /// Object Type
+        /// </summary>
+        string Type { get; }
+
         /// <summary>
         /// Property layer id
         /// </summary>

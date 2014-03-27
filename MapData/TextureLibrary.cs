@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -17,7 +18,8 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The library name
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 0)]
+        [JsonProperty(Order = 1)]
         public string Name
         {
             get { return name; }
@@ -28,7 +30,8 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture collection this library contains
         /// </summary>
-        [DataMember]
+        [DataMember(Order = 1)]
+        [JsonProperty(Order = 2)]
         public List<Texture> Textures 
         { 
             get { return textures; }
