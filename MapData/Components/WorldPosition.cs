@@ -4,19 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Runtime.Serialization;
 
 namespace VectorSpace.MapData.Components
 {
     /// <summary>
     /// Used to position and transform any item that is rendered on the canvas.
     /// </summary>
+    [DataContract]
     public struct WorldPosition
     {
         #region Variables & Properties
         /// <summary>
         /// The items position in world coordinates
         /// </summary>
-        public Point Position;
+        [DataMember]
+        public Point Position
+        {
+            get { return _position; }
+            set { _position = value; }
+        }
+        private Point _position;
 
         /// <summary>
         /// The items position on the X axis
@@ -32,22 +40,46 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The items rotational origin position
         /// </summary>
-        public Point Origin;
+        [DataMember]
+        public Point Origin
+        {
+            get { return _origin; }
+            set { _origin = value; }
+        }
+        private Point _origin;
 
         /// <summary>
         /// The items width scale 
         /// </summary>
-        public float ScaleX;
+        [DataMember]
+        public float ScaleX
+        {
+            get { return _scaleX; }
+            set { _scaleX = value; }
+        }
+        private float _scaleX;
 
         /// <summary>
         /// The items height scale
         /// </summary>
-        public float ScaleY;
+        [DataMember]
+        public float ScaleY
+        {
+            get { return _scaleY; }
+            set { _scaleY = value; }
+        }
+        private float _scaleY;
 
         /// <summary>
-        /// The items rotation in radians
+        /// The items rotation in degrees
         /// </summary>
-        public float Rotation;
+        [DataMember]
+        public float Rotation
+        {
+            get { return _rotation; }
+            set { _rotation = value; }
+        }
+        private float _rotation;
         #endregion
 
 
@@ -58,14 +90,14 @@ namespace VectorSpace.MapData.Components
         /// <param name="origin">The rotational origin</param>
         /// <param name="scaleX">The width scale</param>
         /// <param name="scaleY">The height scale</param>
-        /// <param name="rotation">The rotation in radians</param>
+        /// <param name="rotation">The rotation in degrees</param>
         public WorldPosition(Point origin, float scaleX, float scaleY, float rotation)
         {
-            Position = new Point();
-            Origin = origin;
-            ScaleX = scaleX;
-            ScaleY = scaleY;
-            Rotation = rotation;
+            _position = new Point();
+            _origin = origin;
+            _scaleX = scaleX;
+            _scaleY = scaleY;
+            _rotation = rotation;
         }
         
         /// <summary>
@@ -75,14 +107,14 @@ namespace VectorSpace.MapData.Components
         /// <param name="origin">The rotational origin</param>
         /// <param name="scaleX">The width scale</param>
         /// <param name="scaleY">The height scale</param>
-        /// <param name="rotation">The rotation in radians</param>
+        /// <param name="rotation">The rotation in degrees</param>
         public WorldPosition(Point position, Point origin, float scaleX, float scaleY, float rotation)
         {
-            Position = position;
-            Origin = origin;
-            ScaleX = scaleX;
-            ScaleY = scaleY;
-            Rotation = rotation;
+            _position = position;
+            _origin = origin;
+            _scaleX = scaleX;
+            _scaleY = scaleY;
+            _rotation = rotation;
         }
         #endregion
 

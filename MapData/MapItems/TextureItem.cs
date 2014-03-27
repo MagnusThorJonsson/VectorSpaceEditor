@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,7 @@ using VectorSpace.MapData.Interfaces;
 
 namespace VectorSpace.MapData.MapItems
 {
+    [DataContract, KnownType(typeof(TextureItem))]
     public class TextureItem : IRenderable, IHasProperties
     {
         #region Variables & Properties
@@ -25,12 +27,18 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// TextureItem user properties
         /// </summary>
-        public ObservableCollection<ItemProperty> Properties { get { return properties; } }
+        [DataMember]
+        public ObservableCollection<ItemProperty> Properties 
+        { 
+            get { return properties; }
+            protected set { properties = value; }
+        }
         protected ObservableCollection<ItemProperty> properties;
 
         /// <summary>
         /// Is Selected property
         /// </summary>
+        [DataMember]
         public bool IsSelected
         {
             get { return isSelected; }
@@ -121,6 +129,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Item layer id
         /// </summary>
+        [DataMember]
         public string Layer
         {
             get { return layer; }
@@ -138,13 +147,19 @@ namespace VectorSpace.MapData.MapItems
         }
 
         /// <summary>
-        /// Item identifier
+        /// Item name
         /// </summary>
-        public string Name { get { return name; } }
+        [DataMember]
+        public string Name 
+        { 
+            get { return name; }
+            protected set { name = value; }
+        }
 
         /// <summary>
         /// The map position and transform 
         /// </summary>
+        [DataMember]
         public WorldPosition Position
         {
             get { return position; }
@@ -158,6 +173,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Depth index
         /// </summary>
+        [DataMember]
         public int ZIndex 
         { 
             get { return zIndex; }

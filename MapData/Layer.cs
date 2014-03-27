@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using VectorSpace.MapData.Interfaces;
@@ -12,18 +13,25 @@ namespace VectorSpace.MapData
     /// <summary>
     /// Map layers
     /// </summary>
+    [DataContract]
     public class Layer : INotifyPropertyChanged
     {
         #region Variables & Properties
         /// <summary>
         /// Layer id (unique)
         /// </summary>
-        public string Id { get { return id; } }
+        [DataMember]        
+        public string Id 
+        { 
+            get { return id; }
+            protected set { id = value; }
+        }
         protected string id;
 
         /// <summary>
         /// Layer name
         /// </summary>
+        [DataMember]
         public string Name
         {
             get { return name; }
@@ -38,6 +46,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Items contained within this layer
         /// </summary>
+        [DataMember]
         public ObservableCollection<IRenderable> Items 
         { 
             get { return items; }

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -14,19 +15,30 @@ using VectorSpace.MapData.MapItems;
 
 namespace VectorSpace.MapData
 {
+    [DataContract]
     public class Texture : IHasProperties
     {
         #region Variables & Properties
         /// <summary>
         /// Texture file name
         /// </summary>
-        public string Name { get { return filename; } }
+        [DataMember]
+        public string Name 
+        { 
+            get { return filename; }
+            protected set { filename = value; }
+        }
         protected string filename;
 
         /// <summary>
         /// Texture file path
         /// </summary>
-        public string Path { get { return filepath; } }
+        [DataMember]
+        public string Path 
+        { 
+            get { return filepath; }
+            protected set { filepath = value; }
+        }
         protected string filepath;
         
         /// <summary>
@@ -38,12 +50,18 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture size
         /// </summary>
-        public Point Size { get { return _size; } }
+        [DataMember]
+        public Point Size 
+        { 
+            get { return _size; }
+            protected set { _size = value; }
+        }
         private Point _size;
 
         /// <summary>
         /// Texture origin point
         /// </summary>
+        [DataMember]
         public Point Origin 
         { 
             get { return _origin; }
@@ -54,7 +72,12 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture user properties
         /// </summary>
-        public ObservableCollection<ItemProperty> Properties { get { return properties; } }
+        [DataMember]
+        public ObservableCollection<ItemProperty> Properties 
+        { 
+            get { return properties; }
+            protected set { properties = value; }
+        }
         protected ObservableCollection<ItemProperty> properties;
         #endregion
 

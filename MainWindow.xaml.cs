@@ -39,6 +39,8 @@ using System.Collections;
 using System.Windows.Media.Media3D;
 using VectorSpace.Adorners;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Runtime.Serialization.Json;
 
 namespace VectorSpace
 {
@@ -195,6 +197,41 @@ namespace VectorSpace
         }
         #endregion
 
+        #region File Save Command Handlers
+        private void MenuItem_File_Save_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (_currentMap != null)
+            {
+                e.CanExecute = true;
+            }
+            else
+                e.CanExecute = false;
+        }
+
+        private void MenuItem_File_Save_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (_currentMap != null)
+            {
+                /*
+                using (StringWriter output = new StringWriter())
+                {
+                    JSON.Serialize(_currentMap, output, new Options(true, true, false, Jil.DateTimeFormat.ISO8601, true, ));
+                    Console.WriteLine(output.ToString());
+                }
+                */
+                MemoryStream stream1 = new MemoryStream();
+                DataContractJsonSerializerSettings dataSettings = new DataContractJsonSerializerSettings();
+                dataSettings.EmitTypeInformation = System.Runtime.Serialization.EmitTypeInformation.Never;
+                DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Map), dataSettings);
+                ser.WriteObject(stream1, _currentMap);
+                stream1.Position = 0;
+                StreamReader sr = new StreamReader(stream1);
+                Console.Write("JSON form of the Map object: ");
+                Console.WriteLine(sr.ReadToEnd());
+            }
+        }
+        #endregion
+
         #region File Close Command Handlers
         private void MenuItem_File_Close_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -225,7 +262,6 @@ namespace VectorSpace
         }
         #endregion
 
-
         #region MenuItem Edit Handlers
         private void MenuItem_Edit_Settings(object sender, RoutedEventArgs e)
         {
@@ -246,7 +282,6 @@ namespace VectorSpace
         }
         #endregion
 
-
         #region MenuItem View Handlers
         private void MenuItem_View_ShowGridChecked(object sender, RoutedEventArgs e)
         {
@@ -263,7 +298,17 @@ namespace VectorSpace
         
 
         #region MenuItem Tools Handlers
-        private void MenuItem_Tools_TextureManager(object sender, RoutedEventArgs e)
+        private void MenuItem_Tools_TextureManager_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (_currentMap != null)
+            {
+                e.CanExecute = true;
+            }
+            else
+                e.CanExecute = false;
+        }
+
+        private void MenuItem_Tools_TextureManager(object sender, ExecutedRoutedEventArgs e)
         {
             TextureManagerWindow txtManagerWindow = new TextureManagerWindow();
             txtManagerWindow.Owner = this;
@@ -276,6 +321,7 @@ namespace VectorSpace
                 CanvasItemsTab.SelectedIndex = CanvasItemsTab.Items.Count - 1;
             }
         }
+        public static RoutedCommand TextureManagerShortcutCommand = new RoutedCommand();
         #endregion
 
 
@@ -302,7 +348,7 @@ namespace VectorSpace
 
         #region Shortcut Key Commands
         /// <summary>
-        /// Select Tool Shortcut Command (Ctrl + V)
+        /// Select Tool Shortcut Command (Shift + V)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -314,42 +360,10 @@ namespace VectorSpace
         public static RoutedCommand SelectToolShortcutCommand = new RoutedCommand();
 
         /// <summary>
-        /// Paint Tool Shortcut Command (Ctrl + P)
+        /// Flags whether shortcut commands for the Toolbar can be executed
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void ExecutedPaintToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
-        {
-            _currentEditState = ApplicationEditState.Create;
-            toggleToolButton(PaintToolBtn);
-        }
-        public static RoutedCommand PaintToolShortcutCommand = new RoutedCommand();
-
-        /// <summary>
-        /// Transform Tool Shortcut Command (Ctrl + V)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void ExecutedTransformToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
-        {
-            _currentEditState = ApplicationEditState.Transform;
-            toggleToolButton(TransformToolBtn);
-        }
-        public static RoutedCommand TransformToolShortcutCommand = new RoutedCommand();
-
-        /// <summary>
-        /// Edit Tool Shortcut Command (Ctrl + E)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void ExecutedEditToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
-        {
-            _currentEditState = ApplicationEditState.Edit;
-            toggleToolButton(EditToolBtn);
-        }
-        public static RoutedCommand EditToolShortcutCommand = new RoutedCommand();
-
-
         public void CanExecuteToolShortcutCommands(object sender, CanExecuteRoutedEventArgs e)
         {
             if (_currentMap != null)
@@ -362,27 +376,14 @@ namespace VectorSpace
         #endregion
 
         #region Toolbar Event Handlers
+        /// <summary>
+        /// Handles the Select Tool button click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SelectToolBtn_Click(object sender, RoutedEventArgs e)
         {
             _currentEditState = ApplicationEditState.Select;
-            toggleToolButton((ToggleButton)sender);
-        }
-
-        private void PaintToolBtn_Click(object sender, RoutedEventArgs e)
-        {
-            _currentEditState = ApplicationEditState.Create;
-            toggleToolButton((ToggleButton)sender);
-        }
-
-        private void TransformToolBtn_Click(object sender, RoutedEventArgs e)
-        {
-            _currentEditState = ApplicationEditState.Transform;
-            toggleToolButton((ToggleButton)sender);
-        }
-
-        private void EditToolBtn_Click(object sender, RoutedEventArgs e)
-        {
-            _currentEditState = ApplicationEditState.Edit;
             toggleToolButton((ToggleButton)sender);
         }
         #endregion
@@ -395,9 +396,6 @@ namespace VectorSpace
         private void enableTools(bool isEnabled)
         {
             SelectToolBtn.IsEnabled = isEnabled;
-            PaintToolBtn.IsEnabled = isEnabled;
-            TransformToolBtn.IsEnabled = isEnabled;
-            EditToolBtn.IsEnabled = isEnabled;
         }
 
         /// <summary>
@@ -407,9 +405,6 @@ namespace VectorSpace
         private void toggleToolButton(ToggleButton enabledButton = null)
         {
             SelectToolBtn.IsChecked = false;
-            PaintToolBtn.IsChecked = false;
-            TransformToolBtn.IsChecked = false;
-            EditToolBtn.IsChecked = false;
 
             if (enabledButton != null)
                 enabledButton.IsChecked = true;

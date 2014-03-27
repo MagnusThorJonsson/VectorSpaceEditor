@@ -7,19 +7,23 @@
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         Title="VectorSpace v0.1a" Height="720" Width="1280">
     <Window.CommandBindings>
+        <!-- File Menu bar commands -->
         <CommandBinding Command="New" CanExecute="MenuItem_File_New_CanExecute" Executed="MenuItem_File_New_Executed" />
+        <CommandBinding Command="Save" CanExecute="MenuItem_File_Save_CanExecute" Executed="MenuItem_File_Save_Executed" />
         <CommandBinding Command="Close" CanExecute="MenuItem_File_Close_CanExecute" Executed="MenuItem_File_Close_Executed" />
+        <!-- Tools Menu bar commands -->
+        <CommandBinding Command="{x:Static local:MainWindow.TextureManagerShortcutCommand}" CanExecute="MenuItem_Tools_TextureManager_CanExecute" Executed="MenuItem_Tools_TextureManager" />
+        
+        <!-- Left Toolbar commands -->
         <CommandBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedSelectToolShortcutCommand" />
-        <CommandBinding Command="{x:Static local:MainWindow.PaintToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedPaintToolShortcutCommand" />
-        <CommandBinding Command="{x:Static local:MainWindow.TransformToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedTransformToolShortcutCommand" />
-        <CommandBinding Command="{x:Static local:MainWindow.EditToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedEditToolShortcutCommand" />
     </Window.CommandBindings>
     
     <Window.InputBindings>
-        <KeyBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" Key="V" Modifiers="Control" />
-        <KeyBinding Command="{x:Static local:MainWindow.PaintToolShortcutCommand}" Key="P" Modifiers="Control" />
-        <KeyBinding Command="{x:Static local:MainWindow.TransformToolShortcutCommand}" Key="T" Modifiers="Control" />
-        <KeyBinding Command="{x:Static local:MainWindow.EditToolShortcutCommand}" Key="E" Modifiers="Control" />
+        <!-- Menubar Shortcuts -->
+        <KeyBinding Command="{x:Static local:MainWindow.TextureManagerShortcutCommand}" Key="T" Modifiers="Control" />
+        
+        <!-- Toolbar Shortcuts -->
+        <KeyBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" Key="V" Modifiers="Shift" />
     </Window.InputBindings>
     
     <Window.Resources>
@@ -48,18 +52,18 @@
                 <MenuItem Header="_Save Level As..." Command="SaveAs" />
                 <MenuItem Header="_Close" Command="Close"/>
                 <Separator />
-                <MenuItem Header="_Exit" Click="MenuItem_File_Exit" />
+                <MenuItem Header="E_xit" Click="MenuItem_File_Exit" />
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="_Undo" Command="Undo" />
-                <MenuItem Header="_Redo" Command="Redo" />
+                <MenuItem Header="Undo" Command="Undo" />
+                <MenuItem Header="Redo" Command="Redo" />
                 <Separator />
-                <MenuItem Header="_Cut" Command="Cut">
+                <MenuItem Header="Cut" Command="Cut">
                     <MenuItem.Icon>
                         <Image Source="Resources/Menu/menu-icon-cut.png" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="_Copy" Command="Copy">
+                <MenuItem Header="Copy" Command="Copy">
                     <MenuItem.Icon>
                         <Image Source="Resources/Menu/menu-icon-copy.png" />
                     </MenuItem.Icon>
@@ -73,7 +77,7 @@
                 <MenuItem Header="_Settings" Click="MenuItem_Edit_Settings" />
             </MenuItem>
             <MenuItem Header="_Tools">
-                <MenuItem Name="ToolMenuItem_TextureManager" Header="_Texture Manager" IsEnabled="False" Click="MenuItem_Tools_TextureManager" />
+                <MenuItem Name="ToolMenuItem_TextureManager" Header="_Texture Manager" InputGestureText="Ctrl+T" />
             </MenuItem>
             <MenuItem Header="_View">
                 <Separator />
@@ -100,20 +104,7 @@
                     <Image Source="Resources/Tools/icon-select.png"  Stretch="None" />
                 </ToggleButton>
 
-                <ToggleButton Name="PaintToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Paint tool" IsEnabled="False" Click="PaintToolBtn_Click">
-                    <Image Source="Resources/Tools/icon-paint.png"  Stretch="None" />
-                </ToggleButton>
-
-                <ToggleButton Name="TransformToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Transform tool" IsEnabled="False" Margin="0, 5, 0, 5" Click="TransformToolBtn_Click">
-                    <Image Source="Resources/Tools/icon-transform.png"  Stretch="None" />
-                </ToggleButton>
-
-                <ToggleButton Name="EditToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Edit tool" IsEnabled="False" Margin="0, 0, 0, 5" Click="EditToolBtn_Click">
-                    <Image Source="Resources/Tools/icon-edit.png"  Stretch="None" />
-                </ToggleButton>
-
                 <Separator />
-
             </StackPanel>
 
             <Grid Grid.Column="1">

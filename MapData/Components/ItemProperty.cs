@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,11 +10,13 @@ namespace VectorSpace.MapData.Components
     /// <summary>
     /// User Item Property container
     /// </summary>
+    [DataContract]
     public class ItemProperty
     {
         /// <summary>
         /// The property key
         /// </summary>
+        [DataMember]
         public string Key
         {
             get { return key; }
@@ -25,6 +28,7 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// The property value
         /// </summary>
+        [DataMember]
         public string Value
         {
             get { return value; }

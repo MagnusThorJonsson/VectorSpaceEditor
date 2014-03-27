@@ -4,64 +4,108 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 
+
 namespace VectorSpace.MapData
 {
+    [DataContract]
     public class Map : IHasProperties
     {
         #region Variables & Properties
         /// <summary>
         /// Map name
         /// </summary>
-        public string Name { get { return _name; } }
+        [DataMember]
+        public string Name 
+        { 
+            get { return _name; }
+            protected set { _name = value; }
+        }
         private string _name;
 
         /// <summary>
         /// The path to the map root directory
         /// </summary>
-        public string FilePath { get { return _filepath; } }
+        [DataMember]
+        public string FilePath 
+        { 
+            get { return _filepath; }
+            protected set { _filepath = value; }
+        }
         private string _filepath;
 
         /// <summary>
         /// The map width & height
         /// </summary>
-        public Point Size { get { return _size; } }
+        [DataMember]
+        public Point Size 
+        { 
+            get { return _size; }
+            protected set { _size = value; }
+        }
         private Point _size;
 
         /// <summary>
         /// Map layers
         /// </summary>
-        public ObservableCollection<Layer> Layers { get { return _layers; } }
+        [DataMember]
+        public ObservableCollection<Layer> Layers
+        { 
+            get { return _layers; }
+            protected set { _layers = value; }
+        }
         private ObservableCollection<Layer> _layers;
  
         // TODO: Shitty way, make custom observablecollection for this shiz
         /// <summary>
         /// The next layer id that is available
         /// </summary>
-        public int NextLayerId { get { return _nextLayerId; } }
+        [DataMember]
+        public int NextLayerId 
+        { 
+            get { return _nextLayerId; }
+            protected set { _nextLayerId = value; }
+        }
         private int _nextLayerId;
 
         /// <summary>
         /// User properties for the map
         /// </summary>
-        public ObservableCollection<ItemProperty> Properties { get { return _properties; } }
+        [DataMember]
+        public ObservableCollection<ItemProperty> Properties 
+        { 
+            get { return _properties; }
+            protected set { _properties = value; }
+        }
         private ObservableCollection<ItemProperty> _properties;
 
         /// <summary>
         /// Texture libraries in use by the map
         /// </summary>
-        public ObservableCollection<TextureLibrary> TextureLibraries { get { return _textureLibraries; } }
+        [DataMember]
+        public ObservableCollection<TextureLibrary> TextureLibraries 
+        { 
+            get { return _textureLibraries; }
+            protected set { _textureLibraries = value; }
+        }
         private ObservableCollection<TextureLibrary> _textureLibraries;
 
         /// <summary>
         /// The list of items placed on the map
         /// </summary>
-        public ObservableCollection<IRenderable> MapItems { get { return _mapItems; } }
+        [DataMember]
+        public ObservableCollection<IRenderable> MapItems 
+        { 
+            get { return _mapItems; }
+            protected set { _mapItems = value; }
+        }
         private ObservableCollection<IRenderable> _mapItems;
         #endregion
 
