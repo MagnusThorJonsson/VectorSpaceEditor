@@ -28,6 +28,16 @@ namespace VectorSpace.MapData.Interfaces
         /// Property holder name
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// The width of the renderable item
+        /// </summary>
+        float Width { get; }
+
+        /// <summary>
+        /// The height of the renderable item
+        /// </summary>
+        float Height { get; }
         
         /// <summary>
         /// Objects world position

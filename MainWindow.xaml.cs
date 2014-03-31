@@ -43,6 +43,7 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using VectorSpace.JsonConverters;
+using System.Collections.Specialized;
 
 namespace VectorSpace
 {
@@ -169,7 +170,6 @@ namespace VectorSpace
         }
         #endregion
 
-
         #region File Open Command Handlers
         private void MenuItem_File_Open_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -206,6 +206,33 @@ namespace VectorSpace
                         enableCanvas();
                         enableTools(true);
                         toggleToolButton(SelectToolBtn);
+
+                        // Select the first Texture Library item
+                        if (CanvasItemsTab.Items.Count > 0)
+                            CanvasItemsTab.SelectedIndex = 0;
+
+                        // Apply rotation on load (hacky shit, need to make a better MVVM
+                        for (int i = 0; i < LevelCanvas.Items.Count; i++)
+                        {
+                            IRenderable item = LevelCanvas.Items[i] as IRenderable;
+                            ContentPresenter presenter = LevelCanvas.ItemContainerGenerator.ContainerFromItem(LevelCanvas.Items[i]) as ContentPresenter;
+
+                            // TODO: Use item origin point 
+                            Point origin = new Point(
+                                    item.Width * 0.5,//adornedElement.RenderTransformOrigin.X,
+                                    item.Height * 0.5//adornedElement.RenderTransformOrigin.Y
+                            );
+
+                            // Initialize rotate transform
+                            RotateTransform rotateTransform = presenter.RenderTransform as RotateTransform;
+                            if (rotateTransform == null)
+                            {
+                                presenter.RenderTransform = new RotateTransform(item.Position.Rotation, origin.X, origin.Y);
+                                presenter.InvalidateMeasure();
+                            }
+                            
+                        }
+
                     }
                 }
             }
@@ -259,10 +286,18 @@ namespace VectorSpace
         /// Closes the currently open map
         /// </summary>
         private void CloseMap()
-        {
-            enableTools(false);
+        {            
             MainCanvasPanel.Visibility = System.Windows.Visibility.Hidden;
+
             LevelCanvas.IsEnabled = false;
+            LevelCanvas.ItemsSource = null;
+            LayersListBox.ItemsSource = null;
+            CanvasItemsTab.ItemsSource = null;
+            _currentlySelectedImage = null;
+            
+            assingPropertyGrid(null);
+            enableTools(false);
+
             // TODO: Probably need to handle this in a better way
             _currentMap = null;
         }
@@ -310,7 +345,6 @@ namespace VectorSpace
         }
         #endregion
         
-
         #region MenuItem Tools Handlers
         private void MenuItem_Tools_TextureManager_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -337,7 +371,6 @@ namespace VectorSpace
         }
         public static RoutedCommand TextureManagerShortcutCommand = new RoutedCommand();
         #endregion
-
 
         #region MenuItem View Helpers
         /// <summary>
@@ -704,7 +737,7 @@ namespace VectorSpace
                     {
                         // If item is on the currently selected layer we allow the move
                         Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-                        TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                        TextureItem item = _currentlySelectedImage.DataContext as TextureItem;
                         if (item != null && layer != null && item.Layer == layer.Id)
                         {
                             item.Move(
@@ -820,7 +853,7 @@ namespace VectorSpace
             {
                 _selectedLibraryItem = ((ListBox)sender).SelectedIndex;
                 // Assign the default user properties to the property grid
-                if (_selectedLibraryItem < _currentMap.TextureLibraries[_selectedLibrary].Textures.Count)
+                if (_selectedLibraryItem >= 0 && _selectedLibraryItem < _currentMap.TextureLibraries[_selectedLibrary].Textures.Count)
                     assingPropertyGrid(_currentMap.TextureLibraries[_selectedLibrary].Textures[_selectedLibraryItem]);
             }
             else

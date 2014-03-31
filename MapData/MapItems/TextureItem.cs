@@ -52,7 +52,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// Is Selected property
         /// </summary>
-        [JsonProperty(Order = 8)]
+        [JsonIgnore]
         public bool IsSelected
         {
             get { return isSelected; }
