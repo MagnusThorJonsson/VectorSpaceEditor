@@ -31,6 +31,33 @@ namespace VectorSpace.Dialogs
         public NewLevelWindow()
         {
             InitializeComponent();
+
+            this.Title = "Create a new map";
+            CreateBtn.Content = "Create";
+            LevelName.Focus();
+        }
+
+        public NewLevelWindow(Map map)
+        {
+            this.Map = map;
+            InitializeComponent();
+
+            this.Title = "Edit map settings";
+            LevelName.Text = map.Name;
+            LevelLocation.Text = map.FilePath;
+            LevelLocation.IsReadOnly = true;
+            PropertiesDataGrid.ItemsSource = Map.Properties;
+
+            AddPropertyBtn.IsEnabled = true;
+            RemovePropertyBtn.IsEnabled = true;
+            FileBrowseBtn.IsEnabled = false;
+
+            CreateBtn.Content = "Save";
+            if (LevelName.Text.Length > 0)
+                CreateBtn.IsEnabled = true;
+            else
+                CreateBtn.IsEnabled = false;
+
             LevelName.Focus();
         }
         #endregion

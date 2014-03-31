@@ -76,7 +76,7 @@
     <Compile Include="MapData\MapItems\TextureItem.cs" />
     <Compile Include="MapData\Texture.cs" />
     <Compile Include="MapData\TextureLibrary.cs" />
-    <Page Include="Dialogs\ApplicationSettingsWindow.xaml">
+    <Page Include="Dialogs\ToolSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -100,8 +100,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Dialogs\ApplicationSettingsWindow.xaml.cs">
-      <DependentUpon>ApplicationSettingsWindow.xaml</DependentUpon>
+    <Compile Include="Dialogs\ToolSettingsWindow.xaml.cs">
+      <DependentUpon>ToolSettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

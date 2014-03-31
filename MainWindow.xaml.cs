@@ -312,9 +312,25 @@ namespace VectorSpace
         #endregion
 
         #region MenuItem Edit Handlers
-        private void MenuItem_Edit_Settings(object sender, RoutedEventArgs e)
+        private void MenuItem_Edit_MapSettings(object sender, RoutedEventArgs e)
         {
-            ApplicationSettingsWindow settingsDlg = new ApplicationSettingsWindow();
+            NewLevelWindow settingsDlg = new NewLevelWindow(_currentMap);
+            settingsDlg.Owner = this;
+            settingsDlg.ShowDialog();
+
+            if (settingsDlg.DialogResult.HasValue)
+            {
+                // If the OK button was pressed
+                if (settingsDlg.DialogResult.Value)
+                {
+                    enableCanvas();
+                }
+            }
+        }
+        
+        private void MenuItem_Edit_ToolSettings(object sender, RoutedEventArgs e)
+        {
+            ToolSettingsWindow settingsDlg = new ToolSettingsWindow();
             settingsDlg.Owner = this;
             settingsDlg.ShowDialog();
 

@@ -17,14 +17,14 @@ namespace VectorSpace.Dialogs
     /// <summary>
     /// Interaction logic for ApplicationSettingsWindow.xaml
     /// </summary>
-    public partial class ApplicationSettingsWindow : Window
+    public partial class ToolSettingsWindow : Window
     {
         private Color _canvasBackgroundColor;
 
         private Color _canvasGridColor;
         private Point _canvasGridSize;
 
-        public ApplicationSettingsWindow()
+        public ToolSettingsWindow()
         {
             InitializeComponent();
 
