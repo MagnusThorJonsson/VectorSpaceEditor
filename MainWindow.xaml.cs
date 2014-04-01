@@ -78,7 +78,7 @@ namespace VectorSpace
         private int _selectedLibraryItem;
         private int _selectedLayerIndex;
 
-        private ContentPresenter _currentlySelectedImage;
+        private ContentPresenter _currentlySelectedCanvasItem;
         private Point _lastMousePosition;
         
         private bool _isContextOpen = false;
@@ -98,7 +98,7 @@ namespace VectorSpace
             _selectedLibraryItem = 0;
             _selectedLayerIndex = 0;
 
-            _currentlySelectedImage = null;
+            _currentlySelectedCanvasItem = null;
             _lastMousePosition = new Point();
 
             InitializeComponent();
@@ -232,24 +232,6 @@ namespace VectorSpace
                             }
                         }
 
-                        List<Point> polygon = new List<Point>();
-                        polygon.Add(new Point(100, 100));
-                        polygon.Add(new Point(150, 100));
-                        polygon.Add(new Point(150, 150));
-                        polygon.Add(new Point(100, 150));
-
-                        _currentMap.CreateItem(
-                            "0",
-                            "pointTest",
-                            polygon,
-                            new WorldPosition(
-                                new System.Drawing.Point(100, 100),
-                                new System.Drawing.Point(0, 0), 
-                                1f, 
-                                1f, 
-                                0f
-                            )
-                        );
                     }
                 }
             }
@@ -310,7 +292,7 @@ namespace VectorSpace
             LevelCanvas.ItemsSource = null;
             LayersListBox.ItemsSource = null;
             CanvasItemsTab.ItemsSource = null;
-            _currentlySelectedImage = null;
+            _currentlySelectedCanvasItem = null;
             
             assingPropertyGrid(null);
             enableTools(false);
@@ -598,10 +580,10 @@ namespace VectorSpace
         private void LayerItemListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Remove adorners from the currently cached image
-            removeAdorner(_currentlySelectedImage);
+            removeAdorner(_currentlySelectedCanvasItem);
 
-            // If the item in the layer list is a texture item and it's flagged as selected
-            TextureItem item = ((ListBox)sender).SelectedItem as TextureItem;
+            // If the item in the layer list is a renderable item and it's flagged as selected
+            IRenderable item = ((ListBox)sender).SelectedItem as IRenderable;
             if (item != null && item.IsSelected)
             {
                 // We loop through the items in the canvas and see if we find a hit
@@ -611,12 +593,12 @@ namespace VectorSpace
                     if (canvasItem != null)
                     {
                         // If we find a hit we cache it as selected and add the adorner
-                        TextureItem imgItem = canvasItem.DataContext as TextureItem;
-                        if (imgItem == item)
+                        IRenderable internalItem = canvasItem.DataContext as IRenderable;
+                        if (internalItem == item)
                         {
                             // Cache and add adorner
-                            _currentlySelectedImage = canvasItem;
-                            selectMapTextureItem(canvasItem);
+                            _currentlySelectedCanvasItem = canvasItem;
+                            selectCanvasItem(canvasItem);
                             break;
                         }
                     }
@@ -644,13 +626,13 @@ namespace VectorSpace
 
                     // TODO: Not needed?
                     // Remove adorners
-                    removeAdorner(_currentlySelectedImage);
+                    removeAdorner(_currentlySelectedCanvasItem);
 
                     // Add layer and auto select
                     _currentMap.AddLayer(layerWindow.Layer);
                     _selectedLayerIndex = LayersListBox.Items.Count - 1;
                     LayersListBox.SelectedIndex = _selectedLayerIndex;
-                    _currentlySelectedImage = null;
+                    _currentlySelectedCanvasItem = null;
                 }
             }
         }
@@ -666,7 +648,7 @@ namespace VectorSpace
             {
                 // TODO: Not needed?
                 // Remove adorners
-                removeAdorner(_currentlySelectedImage);
+                removeAdorner(_currentlySelectedCanvasItem);
 
                 int currentIndex = _selectedLayerIndex;
                 if (_currentMap.RemoveLayer((Layer)LayersListBox.SelectedItem))
@@ -679,7 +661,7 @@ namespace VectorSpace
 
                     _selectedLayerIndex = currentIndex;
                     LayersListBox.SelectedIndex = currentIndex;
-                    _currentlySelectedImage = null;
+                    _currentlySelectedCanvasItem = null;
                 }
             }
         }
@@ -705,27 +687,26 @@ namespace VectorSpace
             switch (EditState)
             {
                 case ApplicationEditState.Select:
-                    if (_currentlySelectedImage != null)
+                    if (_currentlySelectedCanvasItem != null)
                     {
                         // Remove adorner from the cached item before we cache the new one
-                        removeAdorner(_currentlySelectedImage);
-                        TextureItem item = _currentlySelectedImage.DataContext as TextureItem;
+                        removeAdorner(_currentlySelectedCanvasItem);
+                        IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
                         if (item != null)
                             item.IsSelected = false;
                     }
 
-                    // TODO: Cache more than just the Image ref
                     // Add an adorner if an image was clicked
-                    Image selectedImage = e.OriginalSource as Image;
-                    if (selectedImage != null)
+                    FrameworkElement selectedItem = e.OriginalSource as FrameworkElement;
+                    if (selectedItem != null)
                     {
-                        TextureItem texItem = selectedImage.DataContext as TextureItem;
+                        IRenderable texItem = selectedItem.DataContext as IRenderable;
                         if (texItem != null)
                             texItem.IsSelected = true;
                     }
                     else
                     {
-                        _currentlySelectedImage = null;
+                        _currentlySelectedCanvasItem = null;
                         assingPropertyGrid(_currentMap);
                     }
                     break;
@@ -764,11 +745,11 @@ namespace VectorSpace
             switch (EditState)
             {
                 case ApplicationEditState.Select:
-                    if (e.LeftButton == MouseButtonState.Pressed && _currentlySelectedImage != null)
+                    if (e.LeftButton == MouseButtonState.Pressed && _currentlySelectedCanvasItem != null)
                     {
                         // If item is on the currently selected layer we allow the move
                         Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-                        TextureItem item = _currentlySelectedImage.DataContext as TextureItem;
+                        IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
                         if (item != null && layer != null && item.Layer == layer.Id)
                         {
                             item.Move(
@@ -832,18 +813,22 @@ namespace VectorSpace
 
         #region Canvas Selection Helpers
         /// <summary>
-        /// Handles the selection of map texture items
+        /// Handles the selection of canvas items
         /// </summary>
         /// <param name="image">The item being selected</param>
-        private void selectMapTextureItem(ContentPresenter image)
+        private void selectCanvasItem(ContentPresenter item)
         {
             // If the item we're trying to select isn't on the same layer we don't allow selection
-            TextureItem selectedItem = image.DataContext as TextureItem;
+            IRenderable selectedItem = item.DataContext as IRenderable;
             Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
             if (selectedItem != null && layer != null && selectedItem.Layer == layer.Id)
             {
-                assingPropertyGrid((IHasProperties)image.DataContext);
-                AdornerLayer.GetAdornerLayer(image).Add(new MapItemSelectionAdorner(image, LevelCanvas));
+                assingPropertyGrid((IHasProperties)item.DataContext);
+
+                if (selectedItem is TextureItem)
+                    AdornerLayer.GetAdornerLayer(item).Add(new CanvasTextureSelectionAdorner(item, LevelCanvas));
+                else if (selectedItem is ShapeItem)
+                    AdornerLayer.GetAdornerLayer(item).Add(new CanvasShapeSelectionAdorner(item));
             }
             else
                 assingPropertyGrid(_currentMap);
@@ -964,10 +949,10 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItemContext_BringToFront(object sender, RoutedEventArgs e)
         {
-            if (_currentlySelectedImage != null)
+            if (_currentlySelectedCanvasItem != null)
             {
                 Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                IRenderable item = (IRenderable)_currentlySelectedCanvasItem.DataContext;
                 if (item != null && layer != null && item.Layer == layer.Id)
                     _currentMap.BringToFront(item);
             }
@@ -982,10 +967,10 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItemContext_BringForward(object sender, RoutedEventArgs e)
         {
-            if (_currentlySelectedImage != null)
+            if (_currentlySelectedCanvasItem != null)
             {
                 Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                IRenderable item = (IRenderable)_currentlySelectedCanvasItem.DataContext;
                 if (item != null && layer != null && item.Layer == layer.Id)
                 {
                     _currentMap.IncrementItemZ(item);
@@ -1002,10 +987,10 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItemContext_SendToBack(object sender, RoutedEventArgs e)
         {
-            if (_currentlySelectedImage != null)
+            if (_currentlySelectedCanvasItem != null)
             {
                 Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                IRenderable item = (IRenderable)_currentlySelectedCanvasItem.DataContext;
                 if (item != null && layer != null && item.Layer == layer.Id)
                     _currentMap.SendToBack(item);
             }
@@ -1020,10 +1005,10 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItemContext_SendBackward(object sender, RoutedEventArgs e)
         {
-            if (_currentlySelectedImage != null)
+            if (_currentlySelectedCanvasItem != null)
             {
                 Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-                TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
+                IRenderable item = (IRenderable)_currentlySelectedCanvasItem.DataContext;
                 if (item != null && layer != null && item.Layer == layer.Id)
                 {
                     _currentMap.DecrementItemZ(item);
@@ -1043,6 +1028,7 @@ namespace VectorSpace
         private void CanvasItem_ContextMenuClosing(object sender, ContextMenuEventArgs e)
         {
             _isContextOpen = false;
+            e.Handled = true;
         }
 
         /// <summary>
@@ -1052,37 +1038,36 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void CanvasItem_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            _isContextOpen = true;
             switch (EditState)
             {
                 case ApplicationEditState.Select:
-                    if (_currentlySelectedImage != null)
+                    if (sender is Image)
                     {
-                        removeAdorner(_currentlySelectedImage);
+                        _isContextOpen = true;
+
                         // Cancel the context menu if we're not on the same layer
+                        TextureItem item = (TextureItem)((Image)sender).DataContext;
                         Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
-                        TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
                         if (item != null && layer != null && item.Layer != layer.Id)
                         {
+                            _isContextOpen = false;
                             e.Handled = true;
                             return;
                         }
-                    }
 
-                    // Add an adorner if an image was clicked
-                    Image selectedImage = e.OriginalSource as Image;
-                    if (selectedImage != null)
-                    {
-                        TextureItem item = (TextureItem)_currentlySelectedImage.DataContext;
-                        if (item != null)
-                            item.IsSelected = false;
-                        //selectMapTextureItem(_currentlySelectedImage);
-                    }
-                    else
-                    {
-                        // Cancel the context menu if no image was selected
-                        assingPropertyGrid(_currentMap);
-                        e.Handled = true;
+                        // Add an adorner if an image was clicked
+                        Image selectedImage = e.OriginalSource as Image;
+                        if (selectedImage != null)
+                        {
+                            TextureItem selectedItem = (TextureItem)selectedImage.DataContext;
+                            if (selectedItem != null)
+                                selectedItem.IsSelected = true;
+                        }
+                        else
+                        {
+                            // Cancel the context menu if no image was selected
+                            e.Handled = true;
+                        }
                     }
                     break;
             }

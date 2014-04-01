@@ -32,12 +32,12 @@ namespace VectorSpace.MapData.Interfaces
         /// <summary>
         /// The width of the renderable item
         /// </summary>
-        float Width { get; }
+        float Width { get; set; }
 
         /// <summary>
         /// The height of the renderable item
         /// </summary>
-        float Height { get; }
+        float Height { get; set; }
         
         /// <summary>
         /// Objects world position
@@ -48,6 +48,11 @@ namespace VectorSpace.MapData.Interfaces
         /// The ZIndex depth for the object (controlled by the layer placement)
         /// </summary>
         int ZIndex { get; set; }
+
+        /// <summary>
+        /// Current angle in degrees
+        /// </summary>
+        float Angle { get; set; }
         #endregion
 
 
@@ -61,6 +66,23 @@ namespace VectorSpace.MapData.Interfaces
         /// Flags whether an item is visible on the map canvas
         /// </summary>
         bool IsVisible { get; set; }
+        #endregion
+
+
+        #region Methods
+        /// <summary>
+        /// Moves the path by the given amount
+        /// </summary>
+        /// <param name="x">Amount to move on the X axis</param>
+        /// <param name="y">Amount to move on the Y axis</param>
+        void Move(int x, int y);
+        
+        /// <summary>
+        /// Sets the texture item to the given position
+        /// </summary>
+        /// <param name="x">Position on the X axis</param>
+        /// <param name="y">Position on the Y axis</param>
+        void SetPosition(int x, int y);
         #endregion
     }
 }

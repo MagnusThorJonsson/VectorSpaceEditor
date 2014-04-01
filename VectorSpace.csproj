@@ -56,9 +56,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="MapData\Components\ShapePoint.cs" />
+    <Compile Include="MapData\Components\ShapePoints.cs" />
     <Compile Include="MapData\MapItems\ShapeItem.cs" />
-    <Compile Include="UI\Adorners\MapItemSelectionAdorner.cs" />
+    <Compile Include="UI\Adorners\CanvasShapeSelectionAdorner.cs" />
+    <Compile Include="UI\Adorners\CanvasTextureSelectionAdorner.cs" />
     <Compile Include="UI\Behaviours\LayerItemSelectionBehaviour.cs" />
     <Compile Include="Dialogs\NewLayerWindow.xaml.cs">
       <DependentUpon>NewLayerWindow.xaml</DependentUpon>
@@ -76,7 +77,7 @@
     <Compile Include="MapData\Interfaces\IHasProperties.cs" />
     <Compile Include="MapData\Interfaces\IRenderable.cs" />
     <Compile Include="MapData\MapItems\TextureItem.cs" />
-    <Compile Include="MapData\Texture.cs" />
+    <Compile Include="MapData\Components\Texture.cs" />
     <Compile Include="MapData\TextureLibrary.cs" />
     <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="UI\Converters\PointsToPathConverter.cs" />
@@ -122,7 +123,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MapData\Interfaces\IVectorObject.cs" />
     <Compile Include="MapData\Layer.cs" />
     <Compile Include="MapData\Map.cs" />
     <Compile Include="MapData\Components\WorldPosition.cs" />

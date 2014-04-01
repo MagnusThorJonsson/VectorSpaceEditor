@@ -9,6 +9,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 
 namespace VectorSpace.UI.Adorners
@@ -17,7 +18,7 @@ namespace VectorSpace.UI.Adorners
     /// Map Item Selection Adorner.
     /// Handles selection, dragging, resizing and rotation for items in the Level Canvas.
     /// </summary>
-    public class MapItemSelectionAdorner : Adorner
+    public class CanvasTextureSelectionAdorner : Adorner
     {
         #region Variables & Properties
         // Resizing adorner uses Thumbs for visual elements.  
@@ -48,7 +49,7 @@ namespace VectorSpace.UI.Adorners
         /// </summary>
         /// <param name="adornedElement">The item to adorn</param>
         /// <param name="control">The parent canvas control</param>
-        public MapItemSelectionAdorner(UIElement adornedElement, ItemsControl control) : base(adornedElement)
+        public CanvasTextureSelectionAdorner(UIElement adornedElement, ItemsControl control) : base(adornedElement)
         {
             // TODO: This most likely induces a memory leak (change this into a weakreferenced object)
             parentCanvas = control;
@@ -106,7 +107,6 @@ namespace VectorSpace.UI.Adorners
         public void HandleRotate_DragStarted(object sender, DragStartedEventArgs args)
         {
             FrameworkElement adornedElement = this.AdornedElement as FrameworkElement;
-            //TextureItem designerItem = (TextureItem)adornedElement.DataContext;
 
             if (adornedElement != null)
             {
@@ -145,27 +145,14 @@ namespace VectorSpace.UI.Adorners
         }
 
         public void HandleRotate_DragCompleted(object sender, DragCompletedEventArgs args)
-        {/*
-            FrameworkElement adornedElement = this.AdornedElement as FrameworkElement;
-            if (adornedElement != null)
-            {
-                TextureItem designerItem = (TextureItem)adornedElement.DataContext;
-                if (designerItem != null)
-                {
-                    RotateTransform rotateTransform = adornedElement.RenderTransform as RotateTransform;
-                    designerItem.Angle = (float)rotateTransform.Angle;
-                    //rotateTransform.Angle = 0f;
-                    adornedElement.InvalidateMeasure();
-                }
-            }
-          */
+        {
             args.Handled = true;
         }
 
         public void HandleRotate_DragDelta(object sender, DragDeltaEventArgs args)
         {
             FrameworkElement adornedElement = this.AdornedElement as FrameworkElement;
-            TextureItem canvasItem = (TextureItem)adornedElement.DataContext;
+            IRenderable canvasItem = (IRenderable)adornedElement.DataContext;
 
             if (canvasItem != null && adornedElement != null && this.parentCanvas != null)
             {
@@ -195,7 +182,7 @@ namespace VectorSpace.UI.Adorners
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
-            TextureItem item = (TextureItem)adornedElement.DataContext;
+            IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
                 // Change the size by the amount the user drags the mouse, as long as it’s larger 
@@ -226,7 +213,7 @@ namespace VectorSpace.UI.Adorners
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
-            TextureItem item = (TextureItem)adornedElement.DataContext;
+            IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
                 // Change the size by the amount the user drags the mouse, as long as it’s larger 
@@ -247,7 +234,7 @@ namespace VectorSpace.UI.Adorners
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
-            TextureItem item = (TextureItem)adornedElement.DataContext;
+            IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
                 float width_old = item.Width;
@@ -277,7 +264,7 @@ namespace VectorSpace.UI.Adorners
             // Ensure that the Width and Height are properly initialized after the resize.
             EnforceSize(adornedElement);
 
-            TextureItem item = (TextureItem)adornedElement.DataContext;
+            IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
                 // Change the size by the amount the user drags the mouse, as long as it’s larger 
@@ -350,7 +337,7 @@ namespace VectorSpace.UI.Adorners
         // need to be set first.  It also sets the maximum size of the adorned element.
         public void EnforceSize(FrameworkElement adornedElement)
         {
-            TextureItem item = (TextureItem)adornedElement.DataContext;
+            IRenderable item = (IRenderable)adornedElement.DataContext;
 
             if (item.Width.Equals(Double.NaN))
                 item.Width = (float)adornedElement.DesiredSize.Width;

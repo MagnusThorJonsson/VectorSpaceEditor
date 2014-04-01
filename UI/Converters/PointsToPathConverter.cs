@@ -8,6 +8,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows;
 using VectorSpace.MapData.MapItems;
+using VectorSpace.MapData.Components;
 
 namespace VectorSpace.UI.Converters
 {
@@ -27,14 +28,14 @@ namespace VectorSpace.UI.Converters
         /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            ShapeItem item = value as ShapeItem;
-            if (item != null && item.Points.Count > 0)
+            ShapePoints item = value as ShapePoints;
+            if (item != null && item.Count > 0)
             {
-                Point start = item.Points[0];
+                Point start = item[0];
                 List<LineSegment> segments = new List<LineSegment>();
-                for (int i = 1; i < item.Points.Count; i++)
+                for (int i = 1; i < item.Count; i++)
                 {
-                    segments.Add(new LineSegment(item.Points[i], true));
+                    segments.Add(new LineSegment(item[i], true));
                 }
 
                 PathFigure figure = new PathFigure(start, segments, item.IsPolygon);

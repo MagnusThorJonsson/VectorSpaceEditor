@@ -26,7 +26,7 @@ namespace VectorSpace.MapData.MapItems
         protected WorldPosition position;
         protected int zIndex;
 
-        protected ObservableCollection<Point> points;
+        protected ShapePoints points;
         #endregion
 
 
@@ -159,20 +159,19 @@ namespace VectorSpace.MapData.MapItems
         [JsonProperty(Order = 10)]
         public bool IsPolygon
         {
-            get { return isPolygon; }
+            get { return points.IsPolygon; }
             set
             {
-                isPolygon = value;
+                points.IsPolygon = value;
                 OnPropertyChanged("IsPolygon");
             }
         }
-        protected bool isPolygon;
 
         /// <summary>
         /// The shape point list
         /// </summary>
         [JsonProperty(Order = 11)]
-        public ObservableCollection<Point> Points
+        public ShapePoints Points
         {
             get { return points; }
             protected set
@@ -258,19 +257,37 @@ namespace VectorSpace.MapData.MapItems
                 }
             }
         }
+
+        /// <summary>
+        /// Current angle in degrees
+        /// </summary>
+        [JsonIgnore]
+        public float Angle
+        {
+            get
+            {
+                return position.Rotation;
+            }
+            set
+            {
+                position.Rotation = value;
+
+                OnPropertyChanged("Angle");
+            }
+        }
         #endregion
 
 
         #region Constructors
-        public ShapeItem(string layer, string name, WorldPosition position, int zIndex, bool isPolygon = true)
+        public ShapeItem(string layer, string name, bool isPolygon)
         {
             // Set class type
             this.type = typeof(ShapeItem).Name;
 
             this.layer = layer;
             this.name = name;
-            this.position = position;
-            this.zIndex = zIndex;
+            this.position = new WorldPosition();
+            this.zIndex = 0;
 
             this.size = new Point();
 
@@ -281,10 +298,9 @@ namespace VectorSpace.MapData.MapItems
             this.fill.Opacity = 0.5;
             this.stroke = new SolidColorBrush(Colors.Red);
             this.strokeThickness = 1;
-            this.isPolygon = isPolygon;
 
             this.properties = new ObservableCollection<ItemProperty>();
-            this.points = new ObservableCollection<Point>();
+            this.points = new ShapePoints(isPolygon);
         }
 
         public ShapeItem(string layer, string name, List<Point> points, WorldPosition position, int zIndex, bool isPolygon = true)
@@ -306,10 +322,9 @@ namespace VectorSpace.MapData.MapItems
             this.fill.Opacity = 0.5;
             this.stroke = new SolidColorBrush(Colors.Red);
             this.strokeThickness = 1;
-            this.isPolygon = isPolygon;
 
             this.properties = new ObservableCollection<ItemProperty>();
-            this.points = new ObservableCollection<Point>(points);
+            this.points = new ShapePoints(isPolygon, points);
         }
         #endregion
 
@@ -351,6 +366,31 @@ namespace VectorSpace.MapData.MapItems
         {
             points.Add(new Point(x, y));
             OnPropertyChanged("Points");
+        }
+
+        /// <summary>
+        /// Edits a point in the list
+        /// </summary>
+        /// <param name="index">The index of the point to edit</param>
+        /// <param name="point">The new values</param>
+        public void EditPoint(int index, Point point)
+        {
+            if (index < points.Count)
+            {
+                points[index] = point;
+                OnPropertyChanged("Points");
+            }
+        }
+
+        /// <summary>
+        /// Edits a point in the list
+        /// </summary>
+        /// <param name="index">The index of the point to edit</param>
+        /// <param name="x">The X axis</param>
+        /// <param name="y">The Y axis</param>
+        public void EditPoint(int index, float x, float y)
+        {
+            EditPoint(index, new Point(x, y));
         }
 
         /// <summary>
@@ -476,5 +516,34 @@ namespace VectorSpace.MapData.MapItems
         public event EventHandler IsSelectedChanged;
         #endregion
 
+
+        #region IRenderable Methods
+        /// <summary>
+        /// Moves the path by the given amount
+        /// </summary>
+        /// <param name="x">Amount to move on the X axis</param>
+        /// <param name="y">Amount to move on the Y axis</param>
+        public void Move(int x, int y)
+        {
+            position.Position = new System.Drawing.Point(
+                x + position.Position.X,
+                y + position.Position.Y
+            );
+
+            OnPropertyChanged("Position");
+        }
+
+        /// <summary>
+        /// Sets the texture item to the given position
+        /// </summary>
+        /// <param name="x">Position on the X axis</param>
+        /// <param name="y">Position on the Y axis</param>
+        public void SetPosition(int x, int y)
+        {
+            position.Position = new System.Drawing.Point(x, y);
+
+            OnPropertyChanged("Position");
+        }
+        #endregion
     }
 }

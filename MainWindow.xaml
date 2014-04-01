@@ -38,6 +38,20 @@
                 <ResourceDictionary Source="UI\Styles\LayerExpanderStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- Canvas Item Context Menu -->
+            <ContextMenu x:Key="CanvasItemContextMenu">
+                <MenuItem Header="Hide" />
+                <Separator />
+                <MenuItem Header="Order">
+                    <MenuItem Header="Bring to Front" Click="CanvasItemContext_BringToFront" />
+                    <MenuItem Header="Bring Forward" Click="CanvasItemContext_BringForward" />
+                    <MenuItem Header="Send Backward" Click="CanvasItemContext_SendBackward" />
+                    <MenuItem Header="Send to Back" Click="CanvasItemContext_SendToBack" />
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Remove" />
+            </ContextMenu>
+
             <!-- Converters -->
             <converters:PointsToPathConverter x:Key="PointsToPathConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -46,34 +60,23 @@
             <!-- TextureItem -->
             <DataTemplate x:Key="TextureTemplate">
                 <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true" 
-                                                   ContextMenuOpening="CanvasItem_ContextMenuOpening"
-                                                   ContextMenuClosing="CanvasItem_ContextMenuClosing"
-                                                   Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
-                    <Image.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Hide" />
-                            <Separator />
-                            <MenuItem Header="Order">
-                                <MenuItem Header="Bring to Front" Click="CanvasItemContext_BringToFront" />
-                                <MenuItem Header="Bring Forward" Click="CanvasItemContext_BringForward" />
-                                <MenuItem Header="Send Backward" Click="CanvasItemContext_SendBackward" />
-                                <MenuItem Header="Send to Back" Click="CanvasItemContext_SendToBack" />
-                            </MenuItem>
-                            <Separator />
-                            <MenuItem Header="Remove" />
-                        </ContextMenu>
-                    </Image.ContextMenu>
+                       ContextMenu="{StaticResource CanvasItemContextMenu}"
+                       ContextMenuOpening="CanvasItem_ContextMenuOpening"
+                       ContextMenuClosing="CanvasItem_ContextMenuClosing"
+                       Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
                 </Image>
             </DataTemplate>
 
             <!-- Shape & Path Template -->
             <DataTemplate x:Key="ShapeTemplate">
-                <Path Data="{Binding Converter={StaticResource ResourceKey=PointsToPathConverter}}"
+                <Path Data="{Binding Points, Converter={StaticResource ResourceKey=PointsToPathConverter}}"
+                      ContextMenu="{StaticResource CanvasItemContextMenu}"
+                      ContextMenuOpening="CanvasItem_ContextMenuOpening"
+                      ContextMenuClosing="CanvasItem_ContextMenuClosing"
                       Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"
                       Fill="{Binding Fill}" 
                       Stroke="{Binding Stroke}" 
-                      StrokeThickness="{Binding StrokeThickness}" 
-                       />
+                      StrokeThickness="{Binding StrokeThickness}" />
             </DataTemplate>
 
             <!-- Template Selectors -->

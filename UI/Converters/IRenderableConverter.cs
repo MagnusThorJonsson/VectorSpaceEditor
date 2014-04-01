@@ -25,6 +25,13 @@ namespace VectorSpace.UI.Converters
                             (string)jObject["TextureName"]
                         );
 
+                    case "ShapeItem":
+                        return new ShapeItem(
+                            (string)jObject["Layer"],
+                            (string)jObject["Name"],
+                            (bool)jObject["IsPolygon"]
+                        );
+                    
                     default:
                         throw new InvalidOperationException(string.Format("Type {0} is not supported.", (string)jObject["Type"]));
                 }

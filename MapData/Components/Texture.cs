@@ -14,7 +14,7 @@ using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 
-namespace VectorSpace.MapData
+namespace VectorSpace.MapData.Components
 {
     /// <summary>
     /// Texture container class
