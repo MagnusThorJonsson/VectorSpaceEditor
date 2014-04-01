@@ -56,6 +56,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MapData\Components\ShapePoint.cs" />
+    <Compile Include="MapData\MapItems\ShapeItem.cs" />
     <Compile Include="UI\Adorners\MapItemSelectionAdorner.cs" />
     <Compile Include="UI\Behaviours\LayerItemSelectionBehaviour.cs" />
     <Compile Include="Dialogs\NewLayerWindow.xaml.cs">
@@ -68,8 +70,8 @@
       <DependentUpon>TextureManagerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
-    <Compile Include="JsonConverters\IRenderableConverter.cs" />
-    <Compile Include="JsonConverters\JsonCreateConverter.cs" />
+    <Compile Include="UI\Converters\IRenderableConverter.cs" />
+    <Compile Include="UI\Converters\JsonCreateConverter.cs" />
     <Compile Include="MapData\Components\ItemProperty.cs" />
     <Compile Include="MapData\Interfaces\IHasProperties.cs" />
     <Compile Include="MapData\Interfaces\IRenderable.cs" />
@@ -77,6 +79,8 @@
     <Compile Include="MapData\Texture.cs" />
     <Compile Include="MapData\TextureLibrary.cs" />
     <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="UI\Converters\PointsToPathConverter.cs" />
+    <Compile Include="UI\Selectors\CanvasItemTemplateSelector.cs" />
     <Page Include="Dialogs\ToolSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

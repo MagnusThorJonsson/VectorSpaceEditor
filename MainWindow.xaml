@@ -1,11 +1,13 @@
 ﻿<Window x:Name="VectorSpaceMainWindow" x:Class="VectorSpace.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:behaviour="clr-namespace:VectorSpace.UI.Behaviours"
         xmlns:local="clr-namespace:VectorSpace"
+        xmlns:behaviour="clr-namespace:VectorSpace.UI.Behaviours"
         xmlns:converters="clr-namespace:VectorSpace.UI.Converters"
-        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        xmlns:selectors="clr-namespace:VectorSpace.UI.Selectors"
+        xmlns:mapitems="clr-namespace:VectorSpace.MapData.MapItems"
         Title="VectorSpace v0.1a" Height="720" Width="1280">
     <Window.CommandBindings>
         <!-- File Menu bar commands -->
@@ -30,11 +32,47 @@
     
     <Window.Resources>
         <ResourceDictionary>
+            <!-- XAML resources -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="UI\Styles\LayerItemContainerStyle.xaml" />
                 <ResourceDictionary Source="UI\Styles\LayerExpanderStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Converters -->
+            <converters:PointsToPathConverter x:Key="PointsToPathConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+            <!-- DataTemplates -->
+            <!-- TextureItem -->
+            <DataTemplate x:Key="TextureTemplate">
+                <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}"  Stretch="Fill" SnapsToDevicePixels="true" 
+                                                   ContextMenuOpening="CanvasItem_ContextMenuOpening"
+                                                   ContextMenuClosing="CanvasItem_ContextMenuClosing"
+                                                   Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
+                    <Image.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Hide" />
+                            <Separator />
+                            <MenuItem Header="Order">
+                                <MenuItem Header="Bring to Front" Click="CanvasItemContext_BringToFront" />
+                                <MenuItem Header="Bring Forward" Click="CanvasItemContext_BringForward" />
+                                <MenuItem Header="Send Backward" Click="CanvasItemContext_SendBackward" />
+                                <MenuItem Header="Send to Back" Click="CanvasItemContext_SendToBack" />
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem Header="Remove" />
+                        </ContextMenu>
+                    </Image.ContextMenu>
+                </Image>
+            </DataTemplate>
+
+            <!-- Shape & Path Template -->
+            <DataTemplate x:Key="ShapeTemplate">
+            </DataTemplate>
+
+            <!-- Template Selectors -->
+            <selectors:CanvasItemTemplateSelector x:Key="CanvasItemTemplateSelector" TextureTemplate="{StaticResource TextureTemplate}" ShapeTemplate="{StaticResource ShapeTemplate}" />
+
         </ResourceDictionary>
     </Window.Resources>
     
@@ -129,7 +167,8 @@
                                                 MouseMove="LevelCanvas_MouseMove"
                                                                                              
                                                 DragOver="LevelCanvas_DragOver"
-                                                Drop="LevelCanvas_Drop">
+                                                Drop="LevelCanvas_Drop"
+                                                ItemTemplateSelector="{StaticResource CanvasItemTemplateSelector}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <!--vcsp:DragCanvas Background="Transparent" /-->
@@ -143,29 +182,6 @@
                                             <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}" />
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}"  Stretch="Fill" SnapsToDevicePixels="true" 
-                                                   ContextMenuOpening="CanvasItem_ContextMenuOpening"
-                                                   ContextMenuClosing="CanvasItem_ContextMenuClosing"
-                                                   Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
-                                                <Image.ContextMenu>
-                                                    <ContextMenu>
-                                                        <MenuItem Header="Hide" />
-                                                        <Separator />
-                                                        <MenuItem Header="Order">
-                                                            <MenuItem Header="Bring to Front" Click="CanvasItemContext_BringToFront" />
-                                                            <MenuItem Header="Bring Forward" Click="CanvasItemContext_BringForward" />
-                                                            <MenuItem Header="Send Backward" Click="CanvasItemContext_SendBackward" />
-                                                            <MenuItem Header="Send to Back" Click="CanvasItemContext_SendToBack" />
-                                                        </MenuItem>
-                                                        <Separator />
-                                                        <MenuItem Header="Remove" />
-                                                    </ContextMenu>
-                                                </Image.ContextMenu>
-                                            </Image>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </Border>
                         </ScrollViewer>

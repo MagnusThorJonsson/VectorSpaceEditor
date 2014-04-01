@@ -24,6 +24,9 @@ namespace VectorSpace.MapData.MapItems
         protected string layer;
         protected string name;
 
+        protected WorldPosition position;
+        protected int zIndex;
+
         /// <summary>
         /// The texture this item uses
         /// </summary>
@@ -34,9 +37,6 @@ namespace VectorSpace.MapData.MapItems
             set { texture = value; }
         }
         protected Texture texture;
-
-        protected WorldPosition position;
-        protected int zIndex;
 
         /// <summary>
         /// TextureItem user properties
@@ -299,18 +299,6 @@ namespace VectorSpace.MapData.MapItems
         #endregion
 
 
-        #region Initialization
-        /// <summary>
-        /// Initializes the TextureItem after loading
-        /// </summary>
-        /// <param name="texture">The texture used by this item</param>
-        public void Initialize(Texture texture)
-        {
-            this.texture = texture;
-        }
-        #endregion
-
-
         #region Factory Methods
         /// <summary>
         /// Creates a TextureItem
@@ -324,6 +312,18 @@ namespace VectorSpace.MapData.MapItems
         public static TextureItem Create(string layer, string name, Texture texture, WorldPosition position, int zIndex = 0)
         {
             return new TextureItem(layer, name, texture, position, zIndex);
+        }
+        #endregion
+
+
+        #region Initialization
+        /// <summary>
+        /// Initializes the TextureItem after loading
+        /// </summary>
+        /// <param name="texture">The texture used by this item</param>
+        public void Initialize(Texture texture)
+        {
+            this.texture = texture;
         }
         #endregion
 
@@ -406,7 +406,6 @@ namespace VectorSpace.MapData.MapItems
             if (handler != null)
                 handler(this, e);
         }
-
         public event EventHandler IsVisibleChanged;
 
 
@@ -420,7 +419,6 @@ namespace VectorSpace.MapData.MapItems
             if (handler != null)
                 handler(this, e);
         }
-
         public event EventHandler IsSelectedChanged;
         #endregion
 
