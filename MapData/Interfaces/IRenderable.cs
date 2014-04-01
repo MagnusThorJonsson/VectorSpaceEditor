@@ -75,14 +75,14 @@ namespace VectorSpace.MapData.Interfaces
         /// </summary>
         /// <param name="x">Amount to move on the X axis</param>
         /// <param name="y">Amount to move on the Y axis</param>
-        void Move(int x, int y);
+        void Move(float x, float y);
         
         /// <summary>
         /// Sets the texture item to the given position
         /// </summary>
         /// <param name="x">Position on the X axis</param>
         /// <param name="y">Position on the Y axis</param>
-        void SetPosition(int x, int y);
+        void SetPosition(float x, float y);
         #endregion
     }
 }

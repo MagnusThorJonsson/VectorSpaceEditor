@@ -562,9 +562,9 @@ namespace VectorSpace.MapData.MapItems
         /// </summary>
         /// <param name="x">Amount to move on the X axis</param>
         /// <param name="y">Amount to move on the Y axis</param>
-        public void Move(int x, int y)
+        public void Move(float x, float y)
         {
-            position.Position = new System.Drawing.Point(
+            position.Position = new Point(
                 x + position.Position.X,
                 y + position.Position.Y
             );
@@ -577,9 +577,9 @@ namespace VectorSpace.MapData.MapItems
         /// </summary>
         /// <param name="x">Position on the X axis</param>
         /// <param name="y">Position on the Y axis</param>
-        public void SetPosition(int x, int y)
+        public void SetPosition(float x, float y)
         {
-            position.Position = new System.Drawing.Point(x, y);
+            position.Position = new Point(x, y);
 
             OnPropertyChanged("Position");
         }

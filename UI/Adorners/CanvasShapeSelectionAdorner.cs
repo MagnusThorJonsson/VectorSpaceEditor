@@ -38,7 +38,7 @@ namespace VectorSpace.UI.Adorners
                     {
                         //point = polygon.Points[i];
                         Thumb thumb = new Thumb();
-                        buildCorner(ref thumb, Cursors.SizeNESW);
+                        buildCorner(ref thumb, Cursors.Hand);
                         thumb.Tag = i;
                         thumb.DragDelta += new DragDeltaEventHandler(HandleThumb_DragDelta);
                         thumbs.Add(thumb);

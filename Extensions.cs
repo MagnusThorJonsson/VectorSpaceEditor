@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows;
 
 namespace VectorSpace
 {
@@ -11,6 +12,25 @@ namespace VectorSpace
     {
         private const string INDENT_STRING = "\t";
 
+        #region Point Extensions
+        /// <summary>
+        /// Gets the distance between two points
+        /// </summary>
+        /// <param name="p">Point A</param>
+        /// <param name="q">Point B</param>
+        /// <returns>Distance between the points</returns>
+        public static double GetDistance(this Point p, Point q)
+        {
+            double a = p.X - q.X;
+            double b = p.Y - q.Y;
+            double distance = Math.Sqrt(a * a + b * b);
+
+            return distance;
+        }
+        #endregion
+
+
+        #region Collection Extensions
         /// <summary>
         /// Sorting helper for ObservableCollections
         /// </summary>
@@ -48,6 +68,7 @@ namespace VectorSpace
                 action(i);
             }
         }
+        #endregion
 
 
         #region String Extensions

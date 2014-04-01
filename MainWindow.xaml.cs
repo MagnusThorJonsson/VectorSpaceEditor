@@ -77,6 +77,7 @@ namespace VectorSpace
         private int _selectedLibraryItem;
         private int _selectedLayerIndex;
 
+        private ShapeItem _currentShapeItemInConstruction;
         private ContentPresenter _currentlySelectedCanvasItem;
         private Point _lastMousePosition;
         
@@ -292,6 +293,7 @@ namespace VectorSpace
             LayersListBox.ItemsSource = null;
             CanvasItemsTab.ItemsSource = null;
             _currentlySelectedCanvasItem = null;
+            _currentShapeItemInConstruction = null;
             
             assingPropertyGrid(null);
             enableTools(false);
@@ -449,6 +451,9 @@ namespace VectorSpace
 
             // Remove any adorners from items that already have one
             removeAdorner(_currentlySelectedCanvasItem);
+
+            _currentlySelectedCanvasItem = null;
+            _currentShapeItemInConstruction = null;
         }
 
         /// <summary>
@@ -463,6 +468,9 @@ namespace VectorSpace
 
             // Remove any adorners from items that already have one
             removeAdorner(_currentlySelectedCanvasItem);
+
+            _currentlySelectedCanvasItem = null;
+            _currentShapeItemInConstruction = null;
         }
 
         #endregion
@@ -490,6 +498,10 @@ namespace VectorSpace
             AddLayerBtn.IsEnabled = true;
             LayersListBox.ItemsSource = _currentMap.Layers;
             LayersListBox.SelectedIndex = 0;
+
+            // Make sure stuff isn't selected
+            _currentlySelectedCanvasItem = null;
+            _currentShapeItemInConstruction = null;
 
             // Set the application edit state to select mode, enable tools and toggle the Select tool as in use
             _currentEditState = ApplicationEditState.Select;
@@ -714,6 +726,8 @@ namespace VectorSpace
                         IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
                         if (item != null)
                             item.IsSelected = false;
+
+                        _currentlySelectedCanvasItem = null;
                     }
 
                     // Add an adorner if an image was clicked
@@ -725,9 +739,50 @@ namespace VectorSpace
                             texItem.IsSelected = true;
                     }
                     else
-                    {
-                        _currentlySelectedCanvasItem = null;
                         assingPropertyGrid(_currentMap);
+                    break;
+
+
+                case ApplicationEditState.CreateShape:
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                    {
+                        Point mousePos = e.GetPosition(LevelCanvas);
+                        if (_currentShapeItemInConstruction == null)
+                        {
+                            Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
+                            if (layer != null)
+                            {
+                                List<Point> points = new List<Point>();
+                                points.Add(mousePos);
+
+                                WorldPosition wPos = new WorldPosition(
+                                    new Point(mousePos.X, mousePos.Y),
+                                    new Point(),
+                                    1f,
+                                    1f,
+                                    0f
+                                );
+                                _currentShapeItemInConstruction = new ShapeItem(layer.Id, "Test", points, new WorldPosition(), 0, true);
+                                _currentMap.AddItem(layer.Id, _currentShapeItemInConstruction);
+                            }
+                        }
+                        else
+                        {
+                            // TODO: No magic numbers in the distance check, make a config variable or something
+                            // If we're close enough to the first point in the shape we're creating we assume we've finished editing
+                            if (mousePos.GetDistance(_currentShapeItemInConstruction.Points[0]) < 10.0)
+                            {
+                                // Switch the application state over to Select mode
+                                _currentEditState = ApplicationEditState.Select;
+                                toggleToolButton(SelectToolBtn);
+
+                                // Flag the currently created item as selected and remove cache
+                                _currentShapeItemInConstruction.IsSelected = true;
+                                _currentShapeItemInConstruction = null;
+                            }
+                            else
+                                _currentShapeItemInConstruction.AddPoint(mousePos);
+                        }
                     }
                     break;
             }
@@ -822,7 +877,7 @@ namespace VectorSpace
                         layer.Id,
                         item.Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
                         item,
-                        new WorldPosition(new System.Drawing.Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new System.Drawing.Point(), 1f, 1f, 0f)
+                        new WorldPosition(new Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new Point(), 1f, 1f, 0f)
                     );
                 }
             }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
+using System.Windows;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
@@ -32,13 +32,13 @@ namespace VectorSpace.MapData.Components
         /// The items position on the X axis
         /// </summary>
         [JsonIgnore]
-        public int X { get { return Position.X; } }
+        public float X { get { return (float)Position.X; } }
         
         /// <summary>
         /// The items position on the Y axis
         /// </summary>
         [JsonIgnore]
-        public int Y { get { return Position.Y; } }
+        public float Y { get { return (float)Position.Y; } }
 
         
         /// <summary>
