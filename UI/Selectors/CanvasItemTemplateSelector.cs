@@ -9,6 +9,9 @@ using VectorSpace.MapData.MapItems;
 
 namespace VectorSpace.UI.Selectors
 {
+    /// <summary>
+    /// Selects the correct Data Template for items on the Level Canvas
+    /// </summary>
     public class CanvasItemTemplateSelector : DataTemplateSelector
     {
         #region Properties

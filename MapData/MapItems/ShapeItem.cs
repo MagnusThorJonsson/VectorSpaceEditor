@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
+using System.Windows.Media;
 
 namespace VectorSpace.MapData.MapItems
 {
@@ -104,6 +105,85 @@ namespace VectorSpace.MapData.MapItems
         protected ObservableCollection<ItemProperty> properties;
 
         /// <summary>
+        /// The shapes stroke thickness
+        /// </summary>
+        [JsonProperty(Order = 7)]
+        public int StrokeThickness
+        {
+            get { return strokeThickness; }
+            set
+            {
+                strokeThickness = value;
+                if (strokeThickness < 1)
+                    strokeThickness = 1;
+
+                OnPropertyChanged("StrokeThickness");
+            }
+        }
+        protected int strokeThickness;
+
+        /// <summary>
+        /// The shapes stroke brush (color)
+        /// </summary>
+        [JsonProperty(Order = 8)]
+        public Brush Stroke
+        {
+            get { return stroke; }
+            set
+            {
+                stroke = value;
+                OnPropertyChanged("Stroke");
+            }
+        }
+        protected Brush stroke;
+
+        /// <summary>
+        /// The shapes fill brush (color)
+        /// </summary>
+        [JsonProperty(Order = 9)]
+        public Brush Fill
+        {
+            get { return fill; }
+            set
+            {
+                fill = value;
+                OnPropertyChanged("Fill");
+            }
+        }
+        protected Brush fill;
+
+
+        /// <summary>
+        /// Is the shape a polygon
+        /// </summary>
+        [JsonProperty(Order = 10)]
+        public bool IsPolygon
+        {
+            get { return isPolygon; }
+            set
+            {
+                isPolygon = value;
+                OnPropertyChanged("IsPolygon");
+            }
+        }
+        protected bool isPolygon;
+
+        /// <summary>
+        /// The shape point list
+        /// </summary>
+        [JsonProperty(Order = 11)]
+        public ObservableCollection<Point> Points
+        {
+            get { return points; }
+            protected set
+            {
+                points = value;
+                OnPropertyChanged("Points");
+            }
+        }
+
+
+        /// <summary>
         /// Is Visible property
         /// </summary>
         [JsonIgnore]
@@ -178,24 +258,11 @@ namespace VectorSpace.MapData.MapItems
                 }
             }
         }
-
-        /// <summary>
-        /// The shape point list
-        /// </summary>
-        public ObservableCollection<Point> Points
-        {
-            get { return points; }
-            protected set
-            {
-                points = value;
-                OnPropertyChanged("Points");
-            }
-        }
         #endregion
 
 
         #region Constructors
-        public ShapeItem(string layer, string name, WorldPosition position, int zIndex)
+        public ShapeItem(string layer, string name, WorldPosition position, int zIndex, bool isPolygon = true)
         {
             // Set class type
             this.type = typeof(ShapeItem).Name;
@@ -210,8 +277,56 @@ namespace VectorSpace.MapData.MapItems
             this.isSelected = false;
             this.isVisible = true;
 
+            this.fill = new SolidColorBrush(Colors.Red);
+            this.fill.Opacity = 0.5;
+            this.stroke = new SolidColorBrush(Colors.Red);
+            this.strokeThickness = 1;
+            this.isPolygon = isPolygon;
+
             this.properties = new ObservableCollection<ItemProperty>();
             this.points = new ObservableCollection<Point>();
+        }
+
+        public ShapeItem(string layer, string name, List<Point> points, WorldPosition position, int zIndex, bool isPolygon = true)
+        {
+            // Set class type
+            this.type = typeof(ShapeItem).Name;
+
+            this.layer = layer;
+            this.name = name;
+            this.position = position;
+            this.zIndex = zIndex;
+
+            this.size = new Point();
+
+            this.isSelected = false;
+            this.isVisible = true;
+
+            this.fill = new SolidColorBrush(Colors.Red);
+            this.fill.Opacity = 0.5;
+            this.stroke = new SolidColorBrush(Colors.Red);
+            this.strokeThickness = 1;
+            this.isPolygon = isPolygon;
+
+            this.properties = new ObservableCollection<ItemProperty>();
+            this.points = new ObservableCollection<Point>(points);
+        }
+        #endregion
+
+
+        #region Factory Methods
+        /// <summary>
+        /// Creates a ShapeItem
+        /// </summary>
+        /// <param name="layer">The layer the item is on</param>
+        /// <param name="name">The name of the item</param>
+        /// <param name="points">The shape point list</param>
+        /// <param name="position">The item position</param>
+        /// <param name="zIndex">The Z index depth of the item</param>
+        /// <returns></returns>
+        public static ShapeItem Create(string layer, string name, List<Point> points, WorldPosition position, int zIndex = 0)
+        {
+            return new ShapeItem(layer, name, points, position, zIndex);
         }
         #endregion
 

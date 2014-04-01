@@ -42,10 +42,10 @@
             <converters:PointsToPathConverter x:Key="PointsToPathConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
-            <!-- DataTemplates -->
+            <!-- Data Templates -->
             <!-- TextureItem -->
             <DataTemplate x:Key="TextureTemplate">
-                <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}"  Stretch="Fill" SnapsToDevicePixels="true" 
+                <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true" 
                                                    ContextMenuOpening="CanvasItem_ContextMenuOpening"
                                                    ContextMenuClosing="CanvasItem_ContextMenuClosing"
                                                    Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
@@ -68,10 +68,18 @@
 
             <!-- Shape & Path Template -->
             <DataTemplate x:Key="ShapeTemplate">
+                <Path Data="{Binding Converter={StaticResource ResourceKey=PointsToPathConverter}}"
+                      Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"
+                      Fill="{Binding Fill}" 
+                      Stroke="{Binding Stroke}" 
+                      StrokeThickness="{Binding StrokeThickness}" 
+                       />
             </DataTemplate>
 
             <!-- Template Selectors -->
-            <selectors:CanvasItemTemplateSelector x:Key="CanvasItemTemplateSelector" TextureTemplate="{StaticResource TextureTemplate}" ShapeTemplate="{StaticResource ShapeTemplate}" />
+            <selectors:CanvasItemTemplateSelector x:Key="CanvasItemTemplateSelector" 
+                                                  TextureTemplate="{StaticResource TextureTemplate}" 
+                                                  ShapeTemplate="{StaticResource ShapeTemplate}" />
 
         </ResourceDictionary>
     </Window.Resources>
@@ -164,14 +172,12 @@
                                                 AllowDrop="True"
                                                 MouseLeftButtonDown="LevelCanvas_MouseLeftButtonDown"
                                                 MouseLeftButtonUp="LevelCanvas_MouseLeftButtonUp"
-                                                MouseMove="LevelCanvas_MouseMove"
-                                                                                             
+                                                MouseMove="LevelCanvas_MouseMove"                                               
                                                 DragOver="LevelCanvas_DragOver"
-                                                Drop="LevelCanvas_Drop"
+                                                Drop="LevelCanvas_Drop"                                              
                                                 ItemTemplateSelector="{StaticResource CanvasItemTemplateSelector}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <!--vcsp:DragCanvas Background="Transparent" /-->
                                             <Canvas Background="Transparent" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>

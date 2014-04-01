@@ -230,9 +230,26 @@ namespace VectorSpace
                                 presenter.RenderTransform = new RotateTransform(item.Position.Rotation, origin.X, origin.Y);
                                 presenter.InvalidateMeasure();
                             }
-                            
                         }
 
+                        List<Point> polygon = new List<Point>();
+                        polygon.Add(new Point(100, 100));
+                        polygon.Add(new Point(150, 100));
+                        polygon.Add(new Point(150, 150));
+                        polygon.Add(new Point(100, 150));
+
+                        _currentMap.CreateItem(
+                            "0",
+                            "pointTest",
+                            polygon,
+                            new WorldPosition(
+                                new System.Drawing.Point(100, 100),
+                                new System.Drawing.Point(0, 0), 
+                                1f, 
+                                1f, 
+                                0f
+                            )
+                        );
                     }
                 }
             }

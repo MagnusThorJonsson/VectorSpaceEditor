@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
+using System.Windows;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -507,6 +507,30 @@ namespace VectorSpace.MapData
             this.AddItem(layerId, textureItem);
 
             return textureItem;
+        }
+
+
+        /// <summary>
+        /// Creates a new Shape Item on the Canvas map
+        /// </summary>
+        /// <param name="layerId">The layer put the object on</param>
+        /// <param name="name">The name of the object</param>
+        /// <param name="texture">The texture for the item</param>
+        /// <param name="position">The position</param>
+        /// <returns>The created item</returns>
+        public IRenderable CreateItem(string layerId, string name, List<Point> points, WorldPosition position)
+        {
+            // TODO: Make the layer id a string lookup
+            ShapeItem shapeItem = ShapeItem.Create(
+                layerId,
+                name,
+                points,
+                position,
+                0
+            );
+            this.AddItem(layerId, shapeItem);
+
+            return shapeItem;
         }
         #endregion
 
