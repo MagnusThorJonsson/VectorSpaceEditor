@@ -157,6 +157,10 @@
                     <Image Source="Resources/Tools/icon-select.png"  Stretch="None" />
                 </ToggleButton>
 
+                <ToggleButton Name="CreateShapeToolBtn" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="Create Shape tool" IsEnabled="False" Margin="0, 5, 0, 5" Click="CreateShapeToolBtn_Click">
+                    <Image Source="Resources/Tools/icon-transform.png"  Stretch="None" />
+                </ToggleButton>
+
                 <Separator />
             </StackPanel>
 
@@ -294,8 +298,8 @@
                                                                 <ListBox.ItemTemplate>
                                                                     <DataTemplate>
                                                                         <StackPanel Orientation="Horizontal">
+                                                                            <CheckBox IsChecked="{Binding IsVisible}" Margin="5,6,0,0" />
                                                                             <Label Content="{Binding Name}" />
-                                                                            <CheckBox IsChecked="{Binding IsVisible}" />
                                                                         </StackPanel>
                                                                     </DataTemplate>
                                                                 </ListBox.ItemTemplate>

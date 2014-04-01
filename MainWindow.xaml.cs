@@ -50,8 +50,7 @@ namespace VectorSpace
     public enum ApplicationEditState
     { 
         Select,
-        Create,
-        Transform,
+        CreateShape,
         Edit // ?
     }
 
@@ -447,7 +446,25 @@ namespace VectorSpace
         {
             _currentEditState = ApplicationEditState.Select;
             toggleToolButton((ToggleButton)sender);
+
+            // Remove any adorners from items that already have one
+            removeAdorner(_currentlySelectedCanvasItem);
         }
+
+        /// <summary>
+        /// Handles the Create Shape Tool button click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CreateShapeToolBtn_Click(object sender, RoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.CreateShape;
+            toggleToolButton((ToggleButton)sender);
+
+            // Remove any adorners from items that already have one
+            removeAdorner(_currentlySelectedCanvasItem);
+        }
+
         #endregion
 
         #region Toolbar Private Helper Methods
@@ -476,6 +493,7 @@ namespace VectorSpace
 
             // Set the application edit state to select mode, enable tools and toggle the Select tool as in use
             _currentEditState = ApplicationEditState.Select;
+            toggleToolButton(SelectToolBtn);
         }
 
         /// <summary>
@@ -485,6 +503,7 @@ namespace VectorSpace
         private void enableTools(bool isEnabled)
         {
             SelectToolBtn.IsEnabled = isEnabled;
+            CreateShapeToolBtn.IsEnabled = isEnabled;
         }
 
         /// <summary>
@@ -494,6 +513,7 @@ namespace VectorSpace
         private void toggleToolButton(ToggleButton enabledButton = null)
         {
             SelectToolBtn.IsChecked = false;
+            CreateShapeToolBtn.IsChecked = false;
 
             if (enabledButton != null)
                 enabledButton.IsChecked = true;
@@ -698,7 +718,7 @@ namespace VectorSpace
 
                     // Add an adorner if an image was clicked
                     FrameworkElement selectedItem = e.OriginalSource as FrameworkElement;
-                    if (selectedItem != null)
+                    if (selectedItem != null && !(selectedItem is Canvas))
                     {
                         IRenderable texItem = selectedItem.DataContext as IRenderable;
                         if (texItem != null)
@@ -898,7 +918,7 @@ namespace VectorSpace
         private void LibraryItem_MouseMove(object sender, MouseEventArgs e)
         {
             Image image = (Image)sender;
-            if (_currentMap.Layers.Count > 0 && image != null && e.LeftButton == MouseButtonState.Pressed)
+            if (_currentEditState == ApplicationEditState.Select && _currentMap != null && _currentMap.Layers.Count > 0 && image != null && e.LeftButton == MouseButtonState.Pressed)
             {
                 // Package the TextureItem data
                 DataObject data = new DataObject(
