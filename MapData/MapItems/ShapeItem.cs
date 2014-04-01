@@ -137,6 +137,7 @@ namespace VectorSpace.MapData.MapItems
         }
         protected Brush stroke;
 
+        // Note that the Fill brush must come before the FillOpacity for it to load correctly on deserialization
         /// <summary>
         /// The shapes fill brush (color)
         /// </summary>
@@ -152,11 +153,29 @@ namespace VectorSpace.MapData.MapItems
         }
         protected Brush fill;
 
+        /// <summary>
+        /// The opacity of the shape fill
+        /// </summary>
+        [JsonProperty(Order = 10)]
+        public float FillOpacity
+        {
+            get { return fillOpacity; }
+            set
+            {
+                fillOpacity = value;
+                if (Fill != null)
+                {
+                    Fill.Opacity = fillOpacity;
+                    OnPropertyChanged("Fill");
+                }
+            }
+        }
+        protected float fillOpacity;
 
         /// <summary>
         /// Is the shape a polygon
         /// </summary>
-        [JsonProperty(Order = 10)]
+        [JsonProperty(Order = 11)]
         public bool IsPolygon
         {
             get { return points.IsPolygon; }
@@ -170,7 +189,7 @@ namespace VectorSpace.MapData.MapItems
         /// <summary>
         /// The shape point list
         /// </summary>
-        [JsonProperty(Order = 11)]
+        [JsonProperty(Order = 12)]
         public ShapePoints Points
         {
             get { return points; }
@@ -295,7 +314,8 @@ namespace VectorSpace.MapData.MapItems
             this.isVisible = true;
 
             this.fill = new SolidColorBrush(Colors.Red);
-            this.fill.Opacity = 0.5;
+            this.fillOpacity = 0.5f;
+            this.fill.Opacity = fillOpacity;
             this.stroke = new SolidColorBrush(Colors.Red);
             this.strokeThickness = 1;
 
@@ -319,7 +339,8 @@ namespace VectorSpace.MapData.MapItems
             this.isVisible = true;
 
             this.fill = new SolidColorBrush(Colors.Red);
-            this.fill.Opacity = 0.5;
+            this.fillOpacity = 0.5f;
+            this.fill.Opacity = fillOpacity;
             this.stroke = new SolidColorBrush(Colors.Red);
             this.strokeThickness = 1;
 
