@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
 
-namespace VectorSpace.JsonConverters
+namespace VectorSpace.UI.Converters
 {
     public class IRenderableConverter : JsonCreateConverter<IRenderable>
     {

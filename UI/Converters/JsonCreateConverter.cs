@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VectorSpace.JsonConverters
+namespace VectorSpace.UI.Converters
 {
     public abstract class JsonCreateConverter<T> : JsonConverter
     {

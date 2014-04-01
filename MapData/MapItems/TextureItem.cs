@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using VectorSpace.JsonConverters;
+using VectorSpace.UI.Converters;
 using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 

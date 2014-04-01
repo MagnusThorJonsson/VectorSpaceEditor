@@ -42,7 +42,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
-using VectorSpace.JsonConverters;
+using VectorSpace.UI.Converters;
 using System.Collections.Specialized;
 
 namespace VectorSpace
