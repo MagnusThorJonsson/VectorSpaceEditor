@@ -11,9 +11,15 @@ using System.Windows;
 
 namespace VectorSpace.MapData.Components
 {
+    /// <summary>
+    /// Contains the points used to map out a shape
+    /// </summary>
     public class ShapePoints : ObservableCollection<Point>
     {
         #region Variables & Properties
+        /// <summary>
+        /// Flags whether this shape is a polygon
+        /// </summary>
         public bool IsPolygon
         {
             get { return isPolygon; }
@@ -28,12 +34,21 @@ namespace VectorSpace.MapData.Components
 
 
         #region Constructors
+        /// <summary>
+        /// Constructs a ShapePoints object
+        /// </summary>
+        /// <param name="isPolygon">True to close path</param>
         public ShapePoints(bool isPolygon)
             : base()
         {
             this.isPolygon = isPolygon;
         }
 
+        /// <summary>
+        /// Constructs a ShapePoints object
+        /// </summary>
+        /// <param name="isPolygon">True to close path</param>
+        /// <param name="list">The list of points to construct the polygon</param>
         public ShapePoints(bool isPolygon, IEnumerable<Point> list) : base(list)
         {
             this.isPolygon = isPolygon;

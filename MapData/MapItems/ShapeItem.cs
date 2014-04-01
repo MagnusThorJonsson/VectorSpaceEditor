@@ -13,6 +13,9 @@ using System.Windows.Media;
 
 namespace VectorSpace.MapData.MapItems
 {
+    /// <summary>
+    /// Map Item that is a Path
+    /// </summary>
     public class ShapeItem : IRenderable, IHasProperties
     {
         #region Variables
@@ -298,6 +301,12 @@ namespace VectorSpace.MapData.MapItems
 
 
         #region Constructors
+        /// <summary>
+        /// Creates a ShapeItem
+        /// </summary>
+        /// <param name="layer">The layer the item resides on</param>
+        /// <param name="name">The name of the item</param>
+        /// <param name="isPolygon">Whether the item is a polygon or not</param>
         public ShapeItem(string layer, string name, bool isPolygon)
         {
             // Set class type
@@ -323,6 +332,15 @@ namespace VectorSpace.MapData.MapItems
             this.points = new ShapePoints(isPolygon);
         }
 
+        /// <summary>
+        /// Creates a ShapeItem
+        /// </summary>
+        /// <param name="layer">The layer the item resides on</param>
+        /// <param name="name">The name of the item</param>
+        /// <param name="points">A list of points the item consists of</param>
+        /// <param name="position">The position of the item</param>
+        /// <param name="zIndex">The index depth of the item</param>
+        /// <param name="isPolygon">Flags whether the item is a polygon or not (defauls to true)</param>
         public ShapeItem(string layer, string name, List<Point> points, WorldPosition position, int zIndex, bool isPolygon = true)
         {
             // Set class type
