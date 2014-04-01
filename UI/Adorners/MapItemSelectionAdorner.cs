@@ -11,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using VectorSpace.MapData.MapItems;
 
-namespace VectorSpace.Adorners
+namespace VectorSpace.UI.Adorners
 {
     /// <summary>
     /// Map Item Selection Adorner.

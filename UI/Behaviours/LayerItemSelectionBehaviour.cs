@@ -3,7 +3,7 @@ using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace VectorSpace.Behaviours
+namespace VectorSpace.UI.Behaviours
 {
     public static class LayerItemSelectionBehaviour
     {

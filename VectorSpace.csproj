@@ -56,8 +56,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Adorners\MapItemSelectionAdorner.cs" />
-    <Compile Include="Behaviours\LayerItemSelectionBehaviour.cs" />
+    <Compile Include="UI\Adorners\MapItemSelectionAdorner.cs" />
+    <Compile Include="UI\Behaviours\LayerItemSelectionBehaviour.cs" />
     <Compile Include="Dialogs\NewLayerWindow.xaml.cs">
       <DependentUpon>NewLayerWindow.xaml</DependentUpon>
     </Compile>
@@ -76,6 +76,7 @@
     <Compile Include="MapData\MapItems\TextureItem.cs" />
     <Compile Include="MapData\Texture.cs" />
     <Compile Include="MapData\TextureLibrary.cs" />
+    <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
     <Page Include="Dialogs\ToolSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -107,11 +108,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Styles\LayerExpanderStyle.xaml">
+    <Page Include="UI\Styles\LayerExpanderStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Styles\LayerItemContainerStyle.xaml">
+    <Page Include="UI\Styles\LayerItemContainerStyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

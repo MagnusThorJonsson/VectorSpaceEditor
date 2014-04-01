@@ -50,6 +50,22 @@ namespace VectorSpace.MapData.MapItems
         protected ObservableCollection<ItemProperty> properties;
 
         /// <summary>
+        /// Is Visible property
+        /// </summary>
+        [JsonIgnore]
+        public bool IsVisible
+        {
+            get { return isVisible; }
+            set
+            {
+                isVisible = value;
+                OnPropertyChanged("IsVisible");
+                OnIsVisibleChanged(EventArgs.Empty);
+            }
+        }
+        protected bool isVisible;
+
+        /// <summary>
         /// Is Selected property
         /// </summary>
         [JsonIgnore]
@@ -250,6 +266,7 @@ namespace VectorSpace.MapData.MapItems
             this.zIndex = 0;
 
             this.isSelected = false;
+            this.isVisible = true;
 
             this.properties = new ObservableCollection<ItemProperty>();
         }
@@ -275,6 +292,7 @@ namespace VectorSpace.MapData.MapItems
             this.zIndex = zIndex;
 
             this.isSelected = false;
+            this.isVisible = true;
 
             this.properties = new ObservableCollection<ItemProperty>();
         }
@@ -377,6 +395,20 @@ namespace VectorSpace.MapData.MapItems
             if (handler != null)
                 handler(this, e);
         }
+
+        /// <summary>
+        /// Handles changes to the IsVisible flag
+        /// </summary>
+        /// <param name="e"></param>
+        protected void OnIsVisibleChanged(EventArgs e)
+        {
+            EventHandler handler = IsVisibleChanged;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        public event EventHandler IsVisibleChanged;
+
 
         /// <summary>
         /// Handles changes to the IsSelected flag

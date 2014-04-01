@@ -47,7 +47,20 @@ namespace VectorSpace.MapData.Interfaces
         /// <summary>
         /// The ZIndex depth for the object (controlled by the layer placement)
         /// </summary>
-        int ZIndex { get; set; } 
+        int ZIndex { get; set; }
+        #endregion
+
+
+        #region UI properties
+        /// <summary>
+        /// Flags whether an item is selected on the map canvas
+        /// </summary>
+        bool IsSelected { get; set; }
+
+        /// <summary>
+        /// Flags whether an item is visible on the map canvas
+        /// </summary>
+        bool IsVisible { get; set; }
         #endregion
     }
 }

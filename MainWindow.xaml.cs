@@ -37,7 +37,7 @@ using Xceed.Wpf.Toolkit;
 using System.Windows.Controls.Primitives;
 using System.Collections;
 using System.Windows.Media.Media3D;
-using VectorSpace.Adorners;
+using VectorSpace.UI.Adorners;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization.Json;
@@ -478,8 +478,6 @@ namespace VectorSpace
             // Set the application edit state to select mode, enable tools and toggle the Select tool as in use
             _currentEditState = ApplicationEditState.Select;
         }
-
-
 
         /// <summary>
         /// Enables or disables the toolbar buttons
