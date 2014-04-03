@@ -174,8 +174,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Layer\layer-icon-add.png" />
-    <Resource Include="Resources\Layer\layer-icon-delete.png" />
+    <Resource Include="Resources\Layer\icon-add-btn.png" />
+    <Resource Include="Resources\Layer\icon-remove-btn.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Tools\icon-folder-open.png" />
@@ -200,6 +200,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Layer\icon-visibility-show.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Layer\icon-visibility-hide.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

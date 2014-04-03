@@ -614,7 +614,7 @@ namespace VectorSpace
             {
                 ItemPropertyPanel.Visibility = System.Windows.Visibility.Hidden;
                 ItemPropertySizeText.Content = null;
-                ItemPropertyOriginText.Content = null;
+                ItemPropertyPositionText.Content = null;
                 ItemPropertyAngleText.Content = null;
                 ItemPropertyZIndexText.Content = null;
             }
@@ -622,7 +622,7 @@ namespace VectorSpace
             {
                 ItemPropertyPanel.Visibility = System.Windows.Visibility.Visible;
                 ItemPropertySizeText.Content = item.Width + " x " + item.Height;
-                ItemPropertyOriginText.Content = item.Position.Origin.X + " x " + item.Position.Origin.Y;
+                ItemPropertyPositionText.Content = item.Position.X + " x " + item.Position.Y;
                 ItemPropertyAngleText.Content = item.Angle + " degrees";
                 ItemPropertyZIndexText.Content = item.ZIndex;
             }
@@ -837,12 +837,9 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LevelCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            switch (EditState)
-            {
-                case ApplicationEditState.Select:
-                    //_lastMousePosition = new Point();
-                    break;
-            }
+            // If the currently selected item is not null we reassing the property panel to update
+            if (_currentlySelectedCanvasItem != null)
+                assignItemPropertyPanel(_currentlySelectedCanvasItem.DataContext as TextureItem);
         }
 
         /// <summary>
@@ -873,6 +870,9 @@ namespace VectorSpace
                                 (int)(mousePos.X - _lastMousePosition.X),
                                 (int)(mousePos.Y - _lastMousePosition.Y)
                             );
+
+                            // Update property panel
+                            assignItemPropertyPanel(item as TextureItem);
                         }
                     }
                     break;
