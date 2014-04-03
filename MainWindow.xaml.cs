@@ -1012,8 +1012,6 @@ namespace VectorSpace
         private void LibraryTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             _selectedLibrary = ((TabControl)sender).SelectedIndex;
-
-            //assingPropertyGrid(_currentMap);
         }
         #endregion
 
@@ -1070,6 +1068,11 @@ namespace VectorSpace
         #region Canvas Item Context Menu Handlers
 
         #region Item Remove/Hide Handlers
+        /// <summary>
+        /// Removes an item from the Map
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CanvasItemContext_RemoveItem(object sender, RoutedEventArgs e)
         {
             if (_currentlySelectedCanvasItem != null)
@@ -1080,6 +1083,27 @@ namespace VectorSpace
                     item.IsSelected = false;
                     _currentMap.RemoveItem(item);
                     _currentlySelectedCanvasItem = null;
+                }
+            }
+
+            _isContextOpen = false;
+            e.Handled = true;
+        }
+
+
+        /// <summary>
+        /// Hides an item
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CanvasItemContext_HideItem(object sender, RoutedEventArgs e)
+        {
+            if (_currentlySelectedCanvasItem != null)
+            {
+                IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                if (item != null)
+                {
+                    item.IsVisible = false;
                 }
             }
 

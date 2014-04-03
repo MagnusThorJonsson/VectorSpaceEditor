@@ -42,7 +42,7 @@
 
             <!-- Canvas Item Context Menu -->
             <ContextMenu x:Key="CanvasItemContextMenu">
-                <MenuItem Header="Hide" />
+                <MenuItem Header="Hide Item" Click="CanvasItemContext_HideItem" />
                 <Separator />
                 <MenuItem Header="Order">
                     <MenuItem Header="Bring to Front" Click="CanvasItemContext_BringToFront" />
@@ -352,6 +352,7 @@
                                                                     <DataTemplate>
                                                                         <StackPanel Orientation="Horizontal">
 
+                                                                            <!-- Layer Item visibility toggle  -->
                                                                             <ToggleButton IsChecked="{Binding IsVisible}" ToolTip="Toggle visibility" Foreground="Black" Width="16" Height="16" Margin="5,0,0,0">
                                                                                 <ToggleButton.Template>
                                                                                     <ControlTemplate TargetType="{x:Type ToggleButton}">

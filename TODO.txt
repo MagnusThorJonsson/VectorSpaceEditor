@@ -2,3 +2,8 @@
 
 19/02/2014
 Add Tint property to Textures and TextureItems
+
+02/04/2014
+Fix Item Property panel update on rotate and resize
+
+Refactor and simplify the places where the assignItemProperty and assignUserProperty get called
