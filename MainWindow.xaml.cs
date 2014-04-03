@@ -44,6 +44,7 @@ using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using VectorSpace.UI.Converters;
 using System.Collections.Specialized;
+using VectorSpace.Undo;
 
 namespace VectorSpace
 {
@@ -312,6 +313,24 @@ namespace VectorSpace
         #endregion
 
         #region MenuItem Edit Handlers
+        private void MenuItem_Edit_Undo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (_currentMap != null && UndoRedoManager.Instance().HasUndoOperations)
+            {
+                e.CanExecute = true;
+            }
+            else
+                e.CanExecute = false;
+        }
+
+        private void MenuItem_Edit_Undo_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            UndoRedoManager.Instance().Undo();
+
+        }
+
+
+
         private void MenuItem_Edit_MapSettings(object sender, RoutedEventArgs e)
         {
             NewLevelWindow settingsDlg = new NewLevelWindow(_currentMap);

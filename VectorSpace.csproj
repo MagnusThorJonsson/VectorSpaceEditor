@@ -82,6 +82,11 @@
     <Compile Include="UI\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="UI\Converters\PointsToPathConverter.cs" />
     <Compile Include="UI\Selectors\CanvasItemTemplateSelector.cs" />
+    <Compile Include="Undo\ListStackExtensions.cs" />
+    <Compile Include="Undo\IUndoRedoRecord.cs" />
+    <Compile Include="Undo\UndoRedoManager.cs" />
+    <Compile Include="Undo\UndoRedoRecord.cs" />
+    <Compile Include="Undo\UndoTransaction.cs" />
     <Page Include="Dialogs\ToolSettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

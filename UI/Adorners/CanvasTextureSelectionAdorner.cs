@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
+using VectorSpace.Undo;
 
 namespace VectorSpace.UI.Adorners
 {
@@ -140,6 +141,10 @@ namespace VectorSpace.UI.Adorners
                     {
                         this.initialAngle = this.rotateTransform.Angle;
                     }
+
+                    // Undo item rotation
+                    double cAngle = this.initialAngle;
+                    UndoRedoManager.Instance().Push((dummy) => HandleRotation(cAngle), this, "Item rotation");
                 }
             }
         }
@@ -151,10 +156,7 @@ namespace VectorSpace.UI.Adorners
 
         public void HandleRotate_DragDelta(object sender, DragDeltaEventArgs args)
         {
-            FrameworkElement adornedElement = this.AdornedElement as FrameworkElement;
-            IRenderable canvasItem = (IRenderable)adornedElement.DataContext;
-
-            if (canvasItem != null && adornedElement != null && this.parentCanvas != null)
+            if (this.parentCanvas != null)
             {
                 // Get the delta vector for the mouse position
                 Vector deltaVector = Point.Subtract(
@@ -162,11 +164,27 @@ namespace VectorSpace.UI.Adorners
                     this.centerPoint
                 );
 
+                // Translate rotation
+                HandleRotation(initialAngle + Math.Round(Vector.AngleBetween(startVector, deltaVector), 0));
+            }
+        }
+
+        /// <summary>
+        /// Helper method that translates the rotation
+        /// </summary>
+        /// <param name="angle">The rotation angle</param>
+        public void HandleRotation(double angle)
+        {
+            FrameworkElement element = this.AdornedElement as FrameworkElement;
+            IRenderable item = element.DataContext as IRenderable;
+
+            if (element != null && item != null)
+            {
                 // Apply angle to rotate transform and save to the canvas item data
-                RotateTransform rotateTransform = adornedElement.RenderTransform as RotateTransform;
-                rotateTransform.Angle = this.initialAngle + Math.Round(Vector.AngleBetween(this.startVector, deltaVector), 0);
-                canvasItem.Angle = (float)rotateTransform.Angle;
-                adornedElement.InvalidateMeasure();
+                RotateTransform rotateTransform = element.RenderTransform as RotateTransform;
+                rotateTransform.Angle = angle;
+                item.Angle = (float)rotateTransform.Angle;
+                element.InvalidateMeasure();
             }
         }
         #endregion
