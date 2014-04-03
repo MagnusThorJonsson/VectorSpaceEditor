@@ -185,8 +185,8 @@ namespace VectorSpace.Undo
                 {
                     throw new InvalidOperationException("Nothing in the undo stack");
                 }
-                object oUndoData = _undoStack.Pop();
 
+                IUndoRedoRecord oUndoData = _undoStack.Pop();
                 Type undoDataType = oUndoData.GetType();
 
                 ///If the stored operation was a transaction, perform the undo as a transaction too.
@@ -277,7 +277,7 @@ namespace VectorSpace.Undo
             }
             else
             {
-                Trace.TraceInformation("Adding to undo stack {0} with data {1}", undoOperation.Method.Name, undoData);
+                //Trace.TraceInformation("Adding to undo stack {0} with data {1}", undoOperation.Method.Name, undoData);
                 stack = _undoStack;
                 eventToFire = new Action(FireUndoStackStatusChanged);
             }
@@ -287,6 +287,7 @@ namespace VectorSpace.Undo
                 _redoStack.Clear();
                 FireRedoStackStatusChanged();
             }
+
             ///If a transaction is going on, add the operation as a entry to the transaction operation
             if (_curTran == null)
             {
@@ -294,8 +295,7 @@ namespace VectorSpace.Undo
             }
             else
             {
-                (stack[0] as UndoTransaction).AddUndoRedoOperation(new UndoRedoRecord<T>(undoOperation, undoData,
-                                                                                       description));
+                (stack[0] as UndoTransaction).AddUndoRedoOperation(new UndoRedoRecord<T>(undoOperation, undoData, description));
             }
 
             //If the stack count exceeds maximum allowed items

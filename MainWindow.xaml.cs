@@ -286,7 +286,10 @@ namespace VectorSpace
         /// Closes the currently open map
         /// </summary>
         private void CloseMap()
-        {            
+        {
+            ///clear any undo operations added implicitly during startup
+            UndoRedoManager.Instance().Clear();
+
             MainCanvasPanel.Visibility = System.Windows.Visibility.Hidden;
 
             LevelCanvas.IsEnabled = false;
@@ -329,7 +332,21 @@ namespace VectorSpace
 
         }
 
+        private void MenuItem_Edit_Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (_currentMap != null && UndoRedoManager.Instance().HasRedoOperations)
+            {
+                e.CanExecute = true;
+            }
+            else
+                e.CanExecute = false;
+        }
 
+        private void MenuItem_Edit_Redo_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            UndoRedoManager.Instance().Redo();
+
+        }
 
         private void MenuItem_Edit_MapSettings(object sender, RoutedEventArgs e)
         {

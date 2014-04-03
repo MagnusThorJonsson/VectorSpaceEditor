@@ -16,7 +16,8 @@
         <CommandBinding Command="Save" CanExecute="MenuItem_File_Save_CanExecute" Executed="MenuItem_File_Save_Executed" />
         <CommandBinding Command="Close" CanExecute="MenuItem_File_Close_CanExecute" Executed="MenuItem_File_Close_Executed" />
         <!-- Edit Menu bar commands -->
-        <CommandBinding Command="Undo" CanExecute="MenuItem_Edit_Undo_CanExecute" Executed="MenuItem_Edit_Undo_Executed" /> 
+        <CommandBinding Command="Undo" CanExecute="MenuItem_Edit_Undo_CanExecute" Executed="MenuItem_Edit_Undo_Executed" />
+        <CommandBinding Command="Redo" CanExecute="MenuItem_Edit_Redo_CanExecute" Executed="MenuItem_Edit_Redo_Executed" />
         <!-- Tools Menu bar commands -->
         <CommandBinding Command="{x:Static local:MainWindow.TextureManagerShortcutCommand}" CanExecute="MenuItem_Tools_TextureManager_CanExecute" Executed="MenuItem_Tools_TextureManager" />
         

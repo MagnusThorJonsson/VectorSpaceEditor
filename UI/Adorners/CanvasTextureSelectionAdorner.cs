@@ -71,6 +71,7 @@ namespace VectorSpace.UI.Adorners
 
 
             // Add handlers for resizing.
+            bottomLeft.DragStarted += new DragStartedEventHandler(HandleResize_DragStarted);
             bottomLeft.DragDelta += new DragDeltaEventHandler(HandleBottomLeft);
             bottomRight.DragDelta += new DragDeltaEventHandler(HandleBottomRight);
             topLeft.DragDelta += new DragDeltaEventHandler(HandleTopLeft);
@@ -142,9 +143,8 @@ namespace VectorSpace.UI.Adorners
                         this.initialAngle = this.rotateTransform.Angle;
                     }
 
-                    // Undo item rotation
-                    double cAngle = this.initialAngle;
-                    UndoRedoManager.Instance().Push((dummy) => HandleRotation(cAngle), this, "Item rotation");
+                    // Tag rotation undo
+                    HandleRotation(this.initialAngle, true);
                 }
             }
         }
@@ -173,13 +173,21 @@ namespace VectorSpace.UI.Adorners
         /// Helper method that translates the rotation
         /// </summary>
         /// <param name="angle">The rotation angle</param>
-        public void HandleRotation(double angle)
+        /// <param name="doUndo">Set to true when registering undo action (used on drag start)</param>
+        public void HandleRotation(double angle, bool doUndo = false)
         {
             FrameworkElement element = this.AdornedElement as FrameworkElement;
             IRenderable item = element.DataContext as IRenderable;
 
             if (element != null && item != null)
             {
+                // Undo item rotation
+                if (doUndo)
+                {
+                    double a = item.Angle;
+                    UndoRedoManager.Instance().Push((dummy) => HandleRotation(a, true), this);
+                }
+
                 // Apply angle to rotate transform and save to the canvas item data
                 RotateTransform rotateTransform = element.RenderTransform as RotateTransform;
                 rotateTransform.Angle = angle;
@@ -190,6 +198,10 @@ namespace VectorSpace.UI.Adorners
         #endregion
 
         #region Resize Handlers
+        public void HandleRotate_DragStarted(object sender, DragStartedEventArgs args)
+        {
+        }
+
         // Handler for resizing from the top-right.
         public void HandleTopRight(object sender, DragDeltaEventArgs args)
         {
@@ -206,13 +218,15 @@ namespace VectorSpace.UI.Adorners
                 // Change the size by the amount the user drags the mouse, as long as it’s larger 
                 // than the width or height of an adorner, respectively.
                 //adornedElement.Width = Math.Max(adornedElement.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
-                item.Width = (float)Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
 
                 float height_old = item.Height;
                 float height_new = (float)Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height);
                 float top_old = item.Position.Y;
                 item.Height = height_new;
 
+
+                item.Width = (float)Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
+                
                 // Adjust position
                 item.SetPosition(
                     item.Position.X,
