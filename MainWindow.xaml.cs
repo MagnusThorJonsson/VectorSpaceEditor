@@ -295,7 +295,7 @@ namespace VectorSpace
             _currentlySelectedCanvasItem = null;
             _currentShapeItemInConstruction = null;
             
-            assingPropertyGrid(null);
+            assignUserPropertyPanel(null);
             enableTools(false);
 
             // TODO: Probably need to handle this in a better way
@@ -411,7 +411,7 @@ namespace VectorSpace
 
         #region Shortcut Key Commands
         /// <summary>
-        /// Select Tool Shortcut Command (Shift + V)
+        /// Select Tool Shortcut Command (Ctrl + Alt + S)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -421,6 +421,19 @@ namespace VectorSpace
             toggleToolButton(SelectToolBtn);
         }
         public static RoutedCommand SelectToolShortcutCommand = new RoutedCommand();
+
+        /// <summary>
+        /// Create Shape Tool Shortcut Command (Ctrl + Alt + C)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void ExecutedCreateShapeToolShortcutCommand(object sender, ExecutedRoutedEventArgs e)
+        {
+            _currentEditState = ApplicationEditState.CreateShape;
+            toggleToolButton(CreateShapeToolBtn);
+        }
+        public static RoutedCommand CreateShapeToolShortcutCommand = new RoutedCommand();
+
 
         /// <summary>
         /// Flags whether shortcut commands for the Toolbar can be executed
@@ -481,7 +494,8 @@ namespace VectorSpace
         /// </summary>
         private void enableCanvas()
         {
-            assingPropertyGrid(_currentMap);
+            assignUserPropertyPanel(_currentMap);
+            assignItemPropertyPanel(null);
 
             // Set canvas size and display it
             MainCanvasPanel.Visibility = System.Windows.Visibility.Visible;
@@ -569,7 +583,7 @@ namespace VectorSpace
         /// Assigns object properties to the property grid
         /// </summary>
         /// <param name="property">Property holder</param>
-        private void assingPropertyGrid(IHasProperties property)
+        private void assignUserPropertyPanel(IHasProperties property)
         {
             if (property == null)
             {
@@ -586,6 +600,31 @@ namespace VectorSpace
                 PropertiesDataGrid.ItemsSource = property.Properties;
                 AddPropertyBtn.IsEnabled = true;
                 RemovePropertyBtn.IsEnabled = true;
+            }
+        }
+
+
+        /// <summary>
+        /// Assigns the item property panel content
+        /// </summary>
+        /// <param name="item"></param>
+        private void assignItemPropertyPanel(TextureItem item)
+        {
+            if (item == null)
+            {
+                ItemPropertyPanel.Visibility = System.Windows.Visibility.Hidden;
+                ItemPropertySizeText.Content = null;
+                ItemPropertyOriginText.Content = null;
+                ItemPropertyAngleText.Content = null;
+                ItemPropertyZIndexText.Content = null;
+            }
+            else
+            {
+                ItemPropertyPanel.Visibility = System.Windows.Visibility.Visible;
+                ItemPropertySizeText.Content = item.Width + " x " + item.Height;
+                ItemPropertyOriginText.Content = item.Position.Origin.X + " x " + item.Position.Origin.Y;
+                ItemPropertyAngleText.Content = item.Angle + " degrees";
+                ItemPropertyZIndexText.Content = item.ZIndex;
             }
         }
         #endregion
@@ -739,7 +778,10 @@ namespace VectorSpace
                             texItem.IsSelected = true;
                     }
                     else
-                        assingPropertyGrid(_currentMap);
+                    {
+                        assignUserPropertyPanel(_currentMap);
+                        assignItemPropertyPanel(null);
+                    }
                     break;
 
 
@@ -756,13 +798,13 @@ namespace VectorSpace
                                 points.Add(mousePos);
 
                                 WorldPosition wPos = new WorldPosition(
-                                    new Point(mousePos.X, mousePos.Y),
+                                    new Point(),
                                     new Point(),
                                     1f,
                                     1f,
                                     0f
                                 );
-                                _currentShapeItemInConstruction = new ShapeItem(layer.Id, "Test", points, new WorldPosition(), 0, true);
+                                _currentShapeItemInConstruction = new ShapeItem(layer.Id, "Test", points, wPos, 0, true);
                                 _currentMap.AddItem(layer.Id, _currentShapeItemInConstruction);
                             }
                         }
@@ -898,7 +940,9 @@ namespace VectorSpace
             Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
             if (selectedItem != null && layer != null && selectedItem.Layer == layer.Id)
             {
-                assingPropertyGrid((IHasProperties)item.DataContext);
+                assignUserPropertyPanel((IHasProperties)item.DataContext);
+                assignItemPropertyPanel(selectedItem as TextureItem);
+
 
                 if (selectedItem is TextureItem)
                     AdornerLayer.GetAdornerLayer(item).Add(new CanvasTextureSelectionAdorner(item, LevelCanvas));
@@ -906,7 +950,10 @@ namespace VectorSpace
                     AdornerLayer.GetAdornerLayer(item).Add(new CanvasShapeSelectionAdorner(item));
             }
             else
-                assingPropertyGrid(_currentMap);
+            {
+                assignUserPropertyPanel(_currentMap);
+                assignItemPropertyPanel(null);
+            }
         }
 
 
@@ -945,10 +992,16 @@ namespace VectorSpace
                 _selectedLibraryItem = ((ListBox)sender).SelectedIndex;
                 // Assign the default user properties to the property grid
                 if (_selectedLibraryItem >= 0 && _selectedLibraryItem < _currentMap.TextureLibraries[_selectedLibrary].Textures.Count)
-                    assingPropertyGrid(_currentMap.TextureLibraries[_selectedLibrary].Textures[_selectedLibraryItem]);
+                {
+                    assignUserPropertyPanel(_currentMap.TextureLibraries[_selectedLibrary].Textures[_selectedLibraryItem]);
+                    assignItemPropertyPanel(null); // Null here too just to clear the panel if a user clicks on a library item
+                }
             }
             else
-                assingPropertyGrid(_currentMap);
+            {
+                assignUserPropertyPanel(_currentMap);
+                assignItemPropertyPanel(null);
+            }
         }
 
         /// <summary>
@@ -1015,6 +1068,25 @@ namespace VectorSpace
 
 
         #region Canvas Item Context Menu Handlers
+
+        #region Item Remove/Hide Handlers
+        private void CanvasItemContext_RemoveItem(object sender, RoutedEventArgs e)
+        {
+            if (_currentlySelectedCanvasItem != null)
+            {
+                IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                if (item != null)
+                {
+                    item.IsSelected = false;
+                    _currentMap.RemoveItem(item);
+                    _currentlySelectedCanvasItem = null;
+                }
+            }
+
+            _isContextOpen = false;
+            e.Handled = true;
+        }
+        #endregion
 
         #region Item Order Handlers
         /// <summary>

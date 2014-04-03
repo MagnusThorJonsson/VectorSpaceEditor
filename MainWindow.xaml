@@ -8,7 +8,7 @@
         xmlns:converters="clr-namespace:VectorSpace.UI.Converters"
         xmlns:selectors="clr-namespace:VectorSpace.UI.Selectors"
         xmlns:mapitems="clr-namespace:VectorSpace.MapData.MapItems"
-        Title="VectorSpace v0.1a" Height="720" Width="1280">
+        Title="VectorSpace v0.1a" Height="720" Width="1280" MinHeight="480" MinWidth="640">
     <Window.CommandBindings>
         <!-- File Menu bar commands -->
         <CommandBinding Command="New" CanExecute="MenuItem_File_New_CanExecute" Executed="MenuItem_File_New_Executed" />
@@ -20,6 +20,7 @@
         
         <!-- Left Toolbar commands -->
         <CommandBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedSelectToolShortcutCommand" />
+        <CommandBinding Command="{x:Static local:MainWindow.CreateShapeToolShortcutCommand}" CanExecute="CanExecuteToolShortcutCommands" Executed="ExecutedCreateShapeToolShortcutCommand" />
     </Window.CommandBindings>
     
     <Window.InputBindings>
@@ -28,6 +29,7 @@
         
         <!-- Toolbar Shortcuts -->
         <KeyBinding Command="{x:Static local:MainWindow.SelectToolShortcutCommand}" Key="S" Modifiers="Control+Alt" />
+        <KeyBinding Command="{x:Static local:MainWindow.CreateShapeToolShortcutCommand}" Key="C" Modifiers="Control+Alt" />
     </Window.InputBindings>
     
     <Window.Resources>
@@ -49,16 +51,16 @@
                     <MenuItem Header="Send to Back" Click="CanvasItemContext_SendToBack" />
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="Remove" />
+                <MenuItem Header="Remove Item" Click="CanvasItemContext_RemoveItem" />
             </ContextMenu>
 
             <!-- Converters -->
             <converters:PointsToPathConverter x:Key="PointsToPathConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
-            <!-- Data Templates -->
+            <!-- Canvas Data Templates -->
             <!-- TextureItem -->
-            <DataTemplate x:Key="TextureTemplate">
+            <DataTemplate x:Key="TextureItemTemplate">
                 <Image Source="{Binding Texture.Source}" Width="{Binding Width}" Height="{Binding Height}" Stretch="Fill" SnapsToDevicePixels="true" 
                        ContextMenu="{StaticResource CanvasItemContextMenu}"
                        ContextMenuOpening="CanvasItem_ContextMenuOpening"
@@ -67,8 +69,8 @@
                 </Image>
             </DataTemplate>
 
-            <!-- Shape & Path Template -->
-            <DataTemplate x:Key="ShapeTemplate">
+            <!-- ShapeItem -->
+            <DataTemplate x:Key="ShapeItemTemplate">
                 <Path Data="{Binding Points, Converter={StaticResource ResourceKey=PointsToPathConverter}}"
                       ContextMenu="{StaticResource CanvasItemContextMenu}"
                       ContextMenuOpening="CanvasItem_ContextMenuOpening"
@@ -78,11 +80,12 @@
                       Stroke="{Binding Stroke}" 
                       StrokeThickness="{Binding StrokeThickness}" />
             </DataTemplate>
+            <!-- /Canvas Data Templates -->
 
             <!-- Template Selectors -->
             <selectors:CanvasItemTemplateSelector x:Key="CanvasItemTemplateSelector" 
-                                                  TextureTemplate="{StaticResource TextureTemplate}" 
-                                                  ShapeTemplate="{StaticResource ShapeTemplate}" />
+                                                  TextureTemplate="{StaticResource TextureItemTemplate}" 
+                                                  ShapeTemplate="{StaticResource ShapeItemTemplate}" />
 
         </ResourceDictionary>
     </Window.Resources>
@@ -201,49 +204,99 @@
                     </DockPanel>
                 </Border>
 
-                <!-- Library Tabs -->
-                <TabControl Name="CanvasItemsTab" Grid.Row="1" Margin="0, 5, 0, 0" SelectionChanged="LibraryTabControl_SelectionChanged">
-                    <TabControl.ItemContainerStyle>
-                        <Style TargetType="{x:Type TabItem}">
-                            <Setter Property="Header">
-                                <Setter.Value>
-                                    <Binding Path="Name"/>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </TabControl.ItemContainerStyle>
-                    <TabControl.ContentTemplate>
-                        <DataTemplate>
-                            
-                            <Border BorderBrush="#999999" BorderThickness="0,0,1,1">
-                                <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
-                                    <ListBox Name="TextureListBox" ItemsSource="{Binding Textures}" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled" 
-                                             SelectionMode="Single" BorderThickness="0" SelectionChanged="LibraryListBox_SelectionChanged">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border x:Name="border" BorderThickness="1" BorderBrush="Gray" Margin="5, 0, 0, 0" Width="70" Height="70" Background="White" >
-                                                    <Image Source="{Binding Source}" Stretch="Uniform" MouseMove="LibraryItem_MouseMove" GiveFeedback="LibraryItem_GiveFeedback" />
-                                                </Border>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                        <ListBox.Style>
-                                            <Style TargetType="ListBox">
-                                                <Setter Property="ItemsPanel">
-                                                    <Setter.Value>
-                                                        <ItemsPanelTemplate>
-                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                                                        </ItemsPanelTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Style>
-                                        </ListBox.Style>
-                                    </ListBox>
-                                </Border>
-                            </Border>
 
-                        </DataTemplate>
-                    </TabControl.ContentTemplate>
-                </TabControl>
+                <!-- Library and item properties -->
+                <Grid Grid.Row="1" Margin="0, 5, 0, 0">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="200" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Library Tabs -->
+                    <TabControl Name="CanvasItemsTab" Grid.Column="0"  SelectionChanged="LibraryTabControl_SelectionChanged">
+                        <TabControl.ItemContainerStyle>
+                            <Style TargetType="{x:Type TabItem}">
+                                <Setter Property="Header">
+                                    <Setter.Value>
+                                        <Binding Path="Name"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TabControl.ItemContainerStyle>
+                        <TabControl.ContentTemplate>
+                            <DataTemplate>
+
+                                <Border BorderBrush="#999999" BorderThickness="0,0,1,1">
+                                    <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
+                                        <ListBox Name="TextureListBox" ItemsSource="{Binding Textures}" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+                                             SelectionMode="Single" BorderThickness="0" SelectionChanged="LibraryListBox_SelectionChanged">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border x:Name="border" BorderThickness="1" BorderBrush="Gray" Margin="5, 0, 0, 0" Width="70" Height="70" Background="White" >
+                                                        <Image Source="{Binding Source}" Stretch="Uniform" MouseMove="LibraryItem_MouseMove" GiveFeedback="LibraryItem_GiveFeedback" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                            <ListBox.Style>
+                                                <Style TargetType="ListBox">
+                                                    <Setter Property="ItemsPanel">
+                                                        <Setter.Value>
+                                                            <ItemsPanelTemplate>
+                                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                                            </ItemsPanelTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </ListBox.Style>
+                                        </ListBox>
+                                    </Border>
+                                </Border>
+
+                            </DataTemplate>
+                        </TabControl.ContentTemplate>
+                    </TabControl>
+
+                    <!-- Item properties -->
+                    <Border Grid.Column="2" BorderBrush="#666" BorderThickness="0,0,2,2" Margin="5,2,0,0">
+                        <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
+                            <StackPanel Orientation="Vertical" Name="ItemPropertyPanel" Visibility="Hidden">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label FontWeight="Bold">Item properties</Label>
+                                </StackPanel>
+                                <Separator Margin="0,0,0,5" />
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="24" />
+                                        <RowDefinition Height="24" />
+                                        <RowDefinition Height="24" />
+                                        <RowDefinition Height="24" />
+                                    </Grid.RowDefinitions>
+
+                                    <Label FontWeight="Bold" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right">Size:</Label>
+                                    <Label Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" Name="ItemPropertySizeText"></Label>
+
+                                    <Label FontWeight="Bold" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right">Origin:</Label>
+                                    <Label Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Name="ItemPropertyOriginText"></Label>
+
+                                    <Label FontWeight="Bold" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Right">Angle:</Label>
+                                    <Label Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" Name="ItemPropertyAngleText"></Label>
+
+                                    <Label FontWeight="Bold" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Right">Z-Index:</Label>
+                                    <Label Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" Name="ItemPropertyZIndexText"></Label>
+
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Border>
+                </Grid>
+
             </Grid>
             
             <Grid Grid.Column="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
@@ -253,7 +306,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Layer Window -->
-                <Border Grid.Row="0" BorderBrush="#999999" BorderThickness="0,0,1,1" Margin="5, 0, 5, 0">
+                <Border Grid.Row="0" BorderBrush="#666" BorderThickness="0,0,2,2" Margin="5, 0, 5, 0">
                     <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
 
                         <DockPanel Name="LayerWindowDock">
@@ -320,8 +373,8 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
 
-                                            <Button Name="RemoveLayerBtn" Grid.Column="0" VerticalAlignment="Center" ToolTip="Delete layer" Content="Remove" IsEnabled="False" Click="RemoveLayerBtn_Click" />
-                                            <Button Name="AddLayerBtn" Grid.Column="1" VerticalAlignment="Center" ToolTip="Add new layer" Margin="5, 0" Content="Add new" IsEnabled="False" Click="AddLayerBtn_Click" />
+                                            <Button Name="RemoveLayerBtn" Grid.Column="0" VerticalAlignment="Center" ToolTip="Remove layer" Content="Remove" IsEnabled="False" Click="RemoveLayerBtn_Click" />
+                                            <Button Name="AddLayerBtn" Grid.Column="1" VerticalAlignment="Center" ToolTip="Add new layer" Margin="5, 0" Content="Add" IsEnabled="False" Click="AddLayerBtn_Click" />
                                         </Grid>
                                     </DockPanel>
 
@@ -333,7 +386,7 @@
 
 
                 <!-- User Defined Properties Display -->
-                <Border Grid.Row="1" BorderBrush="#999999" BorderThickness="0,0,1,1" Margin="5, 5, 5, 0">
+                <Border Grid.Row="1" BorderBrush="#666" BorderThickness="0,0,2,2" Margin="5, 5, 5, 0">
                     <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
 
                         <Grid>

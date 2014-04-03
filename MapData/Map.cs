@@ -439,6 +439,22 @@ namespace VectorSpace.MapData
             return false;
         }
 
+        /// <summary>
+        /// Finds a layer by an item it contains
+        /// </summary>
+        /// <param name="item">The item to look for</param>
+        /// <returns>The layer containing said item</returns>
+        public Layer FindLayerByItem(IRenderable item)
+        {
+            for (int i = 0; i < _layers.Count; i++)
+            {
+                if (_layers[i].Items.Contains(item))
+                    return _layers[i];
+            }
+
+            return null;
+        }
+
         // TODO: This is a pretty bad way to handle this stuff, will get exponentially slower by the amount of items in the Layers
         /// <summary>
         /// Sorts the layer items by ZIndex in descending order
@@ -455,7 +471,7 @@ namespace VectorSpace.MapData
 
         #region Item Methods
 
-        #region Item Add & Create Methods
+        #region Item Add, Create & Remove Methods
         /// <summary>
         /// Adds an item to the specified layer
         /// </summary>
@@ -531,6 +547,35 @@ namespace VectorSpace.MapData
             this.AddItem(layerId, shapeItem);
 
             return shapeItem;
+        }
+
+        /// <summary>
+        /// Removes an item from the map
+        /// </summary>
+        /// <param name="item">The item to remove</param>
+        /// <returns>True on success</returns>
+        /// <exception cref="KeyNotFoundException">Thrown when an item wasn't found in either the Layers or MapItems collections.</exception>
+        public bool RemoveItem(IRenderable item)
+        {
+            if (item != null)
+            {
+                Layer layer = FindLayerByItem(item);
+                if (layer != null)
+                {
+                    layer.RemoveItem(item);
+
+                    if (_mapItems.Remove(item))
+                    {
+                        return true;
+                    }
+                    else
+                        throw new KeyNotFoundException(string.Format("Item '{0}' was not found in the map items collection cache.", item));
+
+                }
+                throw new KeyNotFoundException(string.Format("No layer containing item '{0}' was found.", item));
+            }
+
+            return false;
         }
         #endregion
 
