@@ -71,11 +71,17 @@ namespace VectorSpace.UI.Adorners
 
 
             // Add handlers for resizing.
-            bottomLeft.DragStarted += new DragStartedEventHandler(HandleResize_DragStarted);
             bottomLeft.DragDelta += new DragDeltaEventHandler(HandleBottomLeft);
+            bottomLeft.DragStarted += new DragStartedEventHandler(HandleResize_DragStarted);
+
             bottomRight.DragDelta += new DragDeltaEventHandler(HandleBottomRight);
+            bottomRight.DragStarted += new DragStartedEventHandler(HandleResize_DragStarted);
+            
             topLeft.DragDelta += new DragDeltaEventHandler(HandleTopLeft);
+            topLeft.DragStarted += new DragStartedEventHandler(HandleResize_DragStarted);
+            
             topRight.DragDelta += new DragDeltaEventHandler(HandleTopRight);
+            topRight.DragStarted += new DragStartedEventHandler(HandleResize_DragStarted);
 
             // Add handler for rotating
             rotateThumb.DragStarted += new DragStartedEventHandler(HandleRotate_DragStarted);
@@ -109,43 +115,37 @@ namespace VectorSpace.UI.Adorners
         public void HandleRotate_DragStarted(object sender, DragStartedEventArgs args)
         {
             FrameworkElement adornedElement = this.AdornedElement as FrameworkElement;
-
-            if (adornedElement != null)
+            if (adornedElement != null && this.parentCanvas != null)
             {
-                if (this.parentCanvas != null)
+                Point origin = new Point(
+                        adornedElement.ActualWidth * 0.5,//adornedElement.RenderTransformOrigin.X,
+                        adornedElement.ActualHeight * 0.5//adornedElement.RenderTransformOrigin.Y
+                );
+
+                // Calculate center of the item being rotated (origin + canvas pos)
+                this.centerPoint = adornedElement.TranslatePoint(
+                    origin,
+                    parentCanvas
+                );
+
+                // Get the mouse starting vector
+                this.startVector = Point.Subtract(
+                    Mouse.GetPosition(this.parentCanvas),
+                    this.centerPoint
+                );
+
+                // Initialize rotate transform
+                this.rotateTransform = adornedElement.RenderTransform as RotateTransform;
+                if (this.rotateTransform == null)
                 {
-                    Point origin = new Point(
-                            adornedElement.ActualWidth * 0.5,//adornedElement.RenderTransformOrigin.X,
-                            adornedElement.ActualHeight * 0.5//adornedElement.RenderTransformOrigin.Y
-                    );
-
-                    // Calculate center of the item being rotated (origin + canvas pos)
-                    this.centerPoint = adornedElement.TranslatePoint(
-                        origin,
-                        parentCanvas
-                    );
-
-                    // Get the mouse starting vector
-                    this.startVector = Point.Subtract(
-                        Mouse.GetPosition(this.parentCanvas), 
-                        this.centerPoint
-                    );
-
-                    // Initialize rotate transform
-                    this.rotateTransform = adornedElement.RenderTransform as RotateTransform;
-                    if (this.rotateTransform == null)
-                    {
-                        adornedElement.RenderTransform = new RotateTransform(0, origin.X, origin.Y);
-                        this.initialAngle = 0;
-                    }
-                    else
-                    {
-                        this.initialAngle = this.rotateTransform.Angle;
-                    }
-
-                    // Tag rotation undo
-                    HandleRotation(this.initialAngle, true);
+                    adornedElement.RenderTransform = new RotateTransform(0, origin.X, origin.Y);
+                    this.initialAngle = 0;
                 }
+                else
+                    this.initialAngle = this.rotateTransform.Angle;
+
+                // Tag rotation undo
+                HandleRotation(this.initialAngle, true);
             }
         }
 
@@ -198,8 +198,19 @@ namespace VectorSpace.UI.Adorners
         #endregion
 
         #region Resize Handlers
-        public void HandleRotate_DragStarted(object sender, DragStartedEventArgs args)
+        public void HandleResize_DragStarted(object sender, DragStartedEventArgs args)
         {
+            FrameworkElement element = this.AdornedElement as FrameworkElement;
+            if (element != null)
+            {
+                IRenderable item = element.DataContext as IRenderable;
+                if (item != null)
+                    HandleResize(
+                        new Size(item.Width, item.Height),
+                        new Point(item.Position.X, item.Position.Y),
+                        true
+                    );
+            }
         }
 
         // Handler for resizing from the top-right.
@@ -215,22 +226,15 @@ namespace VectorSpace.UI.Adorners
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                // Change the size by the amount the user drags the mouse, as long as it’s larger 
-                // than the width or height of an adorner, respectively.
-                //adornedElement.Width = Math.Max(adornedElement.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
-
-                float height_old = item.Height;
-                float height_new = (float)Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height);
-                float top_old = item.Position.Y;
-                item.Height = height_new;
-
-
-                item.Width = (float)Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
-                
-                // Adjust position
-                item.SetPosition(
-                    item.Position.X,
-                    (int)(top_old - (height_new - height_old))
+                HandleResize(
+                    new Size(
+                        Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width),
+                        Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height)
+                    ),
+                    new Point(
+                        item.Position.X,
+                        item.Position.Y - (Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height) - item.Height)
+                    )
                 );
             }
         }
@@ -248,10 +252,13 @@ namespace VectorSpace.UI.Adorners
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                // Change the size by the amount the user drags the mouse, as long as it’s larger 
-                // than the width or height of an adorner, respectively.
-                item.Width = (float)Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width);
-                item.Height = (float)Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height);
+                HandleResize(
+                    new Size(
+                        Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width),
+                        Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height)
+                    ),
+                    item.Position.Position
+                );
             }
         }
 
@@ -261,27 +268,25 @@ namespace VectorSpace.UI.Adorners
             FrameworkElement adornedElement = AdornedElement as FrameworkElement;
             Thumb hitThumb = sender as Thumb;
 
-            if (adornedElement == null || hitThumb == null) return;
+            if (adornedElement == null || hitThumb == null) 
+                return;
 
-            // Ensure that the Width and Height are properly initialized after the resize.
+            // Make sure the size is not out of bounds
             EnforceSize(adornedElement);
 
+            // Resize item
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                float width_old = item.Width;
-                float width_new = (float)Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width);
-                float left_old = item.Position.X;
-                item.Width = width_new;
-
-                float height_old = item.Height;
-                float height_new = (float)Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height);
-                float top_old = item.Position.Y;
-                item.Height = height_new;
-
-                item.SetPosition(
-                    (int)(left_old - (width_new - width_old)),
-                    (int)(top_old - (height_new - height_old))
+                HandleResize(
+                    new Size(
+                        Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width),
+                        Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height)
+                    ),
+                    new Point(
+                        item.Position.X - (Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width) - item.Width),
+                        item.Position.Y - (Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height) - item.Height)
+                    )
                 );
             }
         }
@@ -299,20 +304,43 @@ namespace VectorSpace.UI.Adorners
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                // Change the size by the amount the user drags the mouse, as long as it’s larger 
-                // than the width or height of an adorner, respectively.
-                //adornedElement.Width = Math.Max(adornedElement.Width – args.HorizontalChange, hitThumb.DesiredSize.Width);
-                item.Height = (float)Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height);
-
-                float width_old = item.Width;
-                float width_new = (float)Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width);
-                float left_old = item.Position.X;
-                item.Width = width_new;
-
-                item.SetPosition(
-                    (int)(left_old - (width_new - width_old)),
-                    item.Position.Y
+                HandleResize(
+                    new Size(
+                        Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width),
+                        Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height)
+                    ),
+                    new Point(
+                        (item.Position.X - (Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width) - item.Width)),
+                        item.Position.Y
+                    )
                 );
+            }
+        }
+
+        /// <summary>
+        /// Handles the resizing
+        /// </summary>
+        /// <param name="newSize">The new size</param>
+        /// <param name="newPosition">The new position</param>
+        /// <param name="doUndo">True to save to undo, defaults to false</param>
+        public void HandleResize(Size newSize, Point newPosition, bool doUndo = false)
+        {
+            FrameworkElement element = this.AdornedElement as FrameworkElement;
+            IRenderable item = element.DataContext as IRenderable;
+
+            if (element != null && item != null)
+            {
+                // Undo item rotation
+                if (doUndo)
+                {
+                    Size size = new Size(item.Width, item.Height);
+                    Point pos = new Point(item.Position.X, item.Position.Y);
+                    UndoRedoManager.Instance().Push((dummy) => HandleResize(size, pos, true), this);
+                }
+
+                item.Width = (float)newSize.Width;
+                item.Height = (float)newSize.Height;
+                item.SetPosition(newPosition);
             }
         }
         #endregion

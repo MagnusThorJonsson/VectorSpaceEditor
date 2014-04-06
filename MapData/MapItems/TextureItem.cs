@@ -446,10 +446,20 @@ namespace VectorSpace.MapData.MapItems
         /// <param name="y">Position on the Y axis</param>
         public void SetPosition(float x, float y)
         {
-            position.Position = new Point(x, y);
+            SetPosition(new Point(x, y));
+        }
+
+        /// <summary>
+        /// Sets the texture item to the given position
+        /// </summary>
+        /// <param name="position">The position</param>
+        public void SetPosition(Point position)
+        {
+            this.position.Position = position;
 
             OnPropertyChanged("Position");
         }
+
 
         /// <summary>
         /// Sets the texture items scale

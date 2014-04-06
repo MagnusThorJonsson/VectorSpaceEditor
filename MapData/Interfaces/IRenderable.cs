@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using VectorSpace.MapData.Components;
 
 namespace VectorSpace.MapData.Interfaces
@@ -78,11 +79,17 @@ namespace VectorSpace.MapData.Interfaces
         void Move(float x, float y);
         
         /// <summary>
-        /// Sets the texture item to the given position
+        /// Sets the  item to the given position
         /// </summary>
         /// <param name="x">Position on the X axis</param>
         /// <param name="y">Position on the Y axis</param>
         void SetPosition(float x, float y);
+
+        /// <summary>
+        /// Sets the item to a given position
+        /// </summary>
+        /// <param name="position">The position</param>
+        void SetPosition(Point position);
         #endregion
     }
 }
