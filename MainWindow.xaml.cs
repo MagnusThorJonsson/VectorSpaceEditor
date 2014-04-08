@@ -780,6 +780,9 @@ namespace VectorSpace
         #region Library & Canvas Methods
 
         #region Canvas Drag Helpers
+        private Point _currentItemDragAmount = new Point();
+        private Point _currentItemStartPosition = new Point();
+
         /// <summary>
         /// Handles the Left Mouse button click on the Canvas
         /// </summary>
@@ -811,7 +814,10 @@ namespace VectorSpace
                     {
                         IRenderable texItem = selectedItem.DataContext as IRenderable;
                         if (texItem != null)
+                        {
                             texItem.IsSelected = true;
+                            _currentItemStartPosition = texItem.Position.Position;
+                        }
                     }
                     else
                     {
@@ -873,9 +879,17 @@ namespace VectorSpace
         /// <param name="e"></param>
         private void LevelCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            // If the currently selected item is not null we reassing the property panel to update
             if (_currentlySelectedCanvasItem != null)
+            {
+                // If the canvas item contains an IRenderable item and if we've moved at all
+                IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                if (item != null && (!_currentItemDragAmount.X.Equals(0) || !_currentItemDragAmount.Y.Equals(0)))
+                {
+                    UndoDragMove(item, (float)_currentItemStartPosition.X, (float)_currentItemStartPosition.Y);
+                }
+
                 assignItemPropertyPanel(_currentlySelectedCanvasItem.DataContext as TextureItem);
+            }
         }
 
         /// <summary>
@@ -902,9 +916,10 @@ namespace VectorSpace
                         IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
                         if (item != null && layer != null && item.Layer == layer.Id)
                         {
-                            item.Move(
-                                (int)(mousePos.X - _lastMousePosition.X),
-                                (int)(mousePos.Y - _lastMousePosition.Y)
+                            HandleItemMove(
+                                item,
+                                (float)(mousePos.X - _lastMousePosition.X),
+                                (float)(mousePos.Y - _lastMousePosition.Y)
                             );
 
                             // Update property panel
@@ -917,6 +932,37 @@ namespace VectorSpace
             _lastMousePosition = mousePos;
         }
 
+
+        public void UndoDragMove(IRenderable item, float x, float y)
+        {
+            if (item != null)
+            {
+                if (UndoRedoManager.Instance().IsDoingUndo || UndoRedoManager.Instance().IsDoingRedo)
+                {
+                    float oX = item.Position.X;
+                    float oY = item.Position.Y;
+
+                    item.SetPosition(x, y);
+
+                    UndoRedoManager.Instance().Push((dummy) => UndoDragMove(item, oX, oY), this, "Item drag");
+                }
+                else
+                    UndoRedoManager.Instance().Push((dummy) => UndoDragMove(item, x, y), this, "Item drag");
+
+                _currentItemDragAmount = new Point();
+                _currentItemStartPosition = new Point();
+            }
+        }
+
+
+        public void HandleItemMove(IRenderable item, float x, float y)
+        {
+            // Add to current Item Drag caching (used for move Undo/Redo)
+            _currentItemDragAmount.X += x;
+            _currentItemDragAmount.Y += y;
+
+            item.Move(x, y);
+        }
         #endregion
 
         #region Canvas Library Drag & Drop Helpers

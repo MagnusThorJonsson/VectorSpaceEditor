@@ -66,6 +66,17 @@ namespace VectorSpace.Undo
 
         #region Properties
         /// <summary>
+        /// Flags whether undo is currently going on
+        /// </summary>
+        public bool IsDoingUndo { get { return _undoGoingOn; } }
+
+        /// <summary>
+        /// Flags whether redo is currently going on
+        /// </summary>
+        public bool IsDoingRedo { get { return _redoGoingOn; } }
+
+
+        /// <summary>
         /// Sets/gets maximum items to be stored in the stack. Note that the change takes effect the next time an item is added to the undo/redo stack
         /// </summary>
         public int MaxItems
