@@ -645,6 +645,8 @@ namespace VectorSpace.MapData
             {
                 if (_mapItems[i].Layer == item.Layer && _mapItems[i].ZIndex == (item.ZIndex + 1))
                 {
+                    UndoRedoManager.Instance().Push((dummy) => DecrementItemZ(item, doSort), this, "Bring item forward");
+
                     _mapItems[i].ZIndex = item.ZIndex;
                     item.ZIndex += 1;
                     
@@ -673,6 +675,8 @@ namespace VectorSpace.MapData
             {
                 if (_mapItems[i].Layer == item.Layer && _mapItems[i].ZIndex == (item.ZIndex - 1))
                 {
+                    UndoRedoManager.Instance().Push((dummy) => IncrementItemZ(item, doSort), this, "Send item back");
+
                     _mapItems[i].ZIndex = item.ZIndex;
                     item.ZIndex -= 1;
 
@@ -693,9 +697,11 @@ namespace VectorSpace.MapData
         public void BringToFront(IRenderable item)
         {
             bool doAgain = true;
-            while (doAgain)
-                doAgain = IncrementItemZ(item, false);
-
+            using (new UndoTransaction("Bring item to front"))
+            {
+                while (doAgain)
+                    doAgain = IncrementItemZ(item, false);
+            }
             _sortLayerItems();
         }
 
@@ -706,9 +712,11 @@ namespace VectorSpace.MapData
         public void SendToBack(IRenderable item)
         {
             bool doAgain = true;
-            while (doAgain)
-                doAgain = DecrementItemZ(item, false);
-
+            using (new UndoTransaction("Send item to back"))
+            {
+                while (doAgain)
+                    doAgain = DecrementItemZ(item, false);
+            }
             _sortLayerItems();
         }
 
