@@ -145,7 +145,7 @@ namespace VectorSpace.UI.Adorners
                     this.initialAngle = this.rotateTransform.Angle;
 
                 // Tag rotation undo
-                HandleRotation(this.initialAngle, true);
+                _handleRotation(this.initialAngle, true);
             }
         }
 
@@ -165,7 +165,7 @@ namespace VectorSpace.UI.Adorners
                 );
 
                 // Translate rotation
-                HandleRotation(initialAngle + Math.Round(Vector.AngleBetween(startVector, deltaVector), 0));
+                _handleRotation(initialAngle + Math.Round(Vector.AngleBetween(startVector, deltaVector), 0));
             }
         }
 
@@ -174,7 +174,7 @@ namespace VectorSpace.UI.Adorners
         /// </summary>
         /// <param name="angle">The rotation angle</param>
         /// <param name="doUndo">Set to true when registering undo action (used on drag start)</param>
-        public void HandleRotation(double angle, bool doUndo = false)
+        private void _handleRotation(double angle, bool doUndo = false)
         {
             FrameworkElement element = this.AdornedElement as FrameworkElement;
             IRenderable item = element.DataContext as IRenderable;
@@ -185,7 +185,7 @@ namespace VectorSpace.UI.Adorners
                 if (doUndo)
                 {
                     double a = item.Angle;
-                    UndoRedoManager.Instance().Push((dummy) => HandleRotation(a, true), this);
+                    UndoRedoManager.Instance().Push((dummy) => _handleRotation(a, true), this);
                 }
 
                 // Apply angle to rotate transform and save to the canvas item data
@@ -205,7 +205,7 @@ namespace VectorSpace.UI.Adorners
             {
                 IRenderable item = element.DataContext as IRenderable;
                 if (item != null)
-                    HandleResize(
+                    _handleResize(
                         new Size(item.Width, item.Height),
                         new Point(item.Position.X, item.Position.Y),
                         true
@@ -226,7 +226,7 @@ namespace VectorSpace.UI.Adorners
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                HandleResize(
+                _handleResize(
                     new Size(
                         Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width),
                         Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height)
@@ -252,7 +252,7 @@ namespace VectorSpace.UI.Adorners
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                HandleResize(
+                _handleResize(
                     new Size(
                         Math.Max(item.Width + args.HorizontalChange, hitThumb.DesiredSize.Width),
                         Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height)
@@ -278,7 +278,7 @@ namespace VectorSpace.UI.Adorners
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                HandleResize(
+                _handleResize(
                     new Size(
                         Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width),
                         Math.Max(item.Height - args.VerticalChange, hitThumb.DesiredSize.Height)
@@ -304,7 +304,7 @@ namespace VectorSpace.UI.Adorners
             IRenderable item = (IRenderable)adornedElement.DataContext;
             if (item != null)
             {
-                HandleResize(
+                _handleResize(
                     new Size(
                         Math.Max(item.Width - args.HorizontalChange, hitThumb.DesiredSize.Width),
                         Math.Max(args.VerticalChange + item.Height, hitThumb.DesiredSize.Height)
@@ -323,7 +323,7 @@ namespace VectorSpace.UI.Adorners
         /// <param name="newSize">The new size</param>
         /// <param name="newPosition">The new position</param>
         /// <param name="doUndo">True to save to undo, defaults to false</param>
-        public void HandleResize(Size newSize, Point newPosition, bool doUndo = false)
+        private void _handleResize(Size newSize, Point newPosition, bool doUndo = false)
         {
             FrameworkElement element = this.AdornedElement as FrameworkElement;
             IRenderable item = element.DataContext as IRenderable;
@@ -335,7 +335,7 @@ namespace VectorSpace.UI.Adorners
                 {
                     Size size = new Size(item.Width, item.Height);
                     Point pos = new Point(item.Position.X, item.Position.Y);
-                    UndoRedoManager.Instance().Push((dummy) => HandleResize(size, pos, true), this);
+                    UndoRedoManager.Instance().Push((dummy) => _handleResize(size, pos, true), this);
                 }
 
                 item.Width = (float)newSize.Width;

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using VectorSpace.MapData.Components;
 using VectorSpace.MapData.Interfaces;
 using VectorSpace.MapData.MapItems;
+using VectorSpace.Undo;
 
 
 namespace VectorSpace.MapData
@@ -408,6 +409,10 @@ namespace VectorSpace.MapData
 
                 // Close any ZIndex gaps that might have been made
                 closeGapsZ();
+
+                // TODO: Currently layer remove clears the undo/redo stack. It would be nice to be able to undo a layer delete
+                UndoRedoManager.Instance().Clear();
+
                 return true;
             }
 
@@ -433,6 +438,10 @@ namespace VectorSpace.MapData
 
                 // Close any ZIndex gaps that might have been made
                 closeGapsZ();
+
+                // TODO: Currently layer remove clears the undo/redo stack. It would be nice to be able to undo a layer delete
+                UndoRedoManager.Instance().Clear();
+
                 return true;
             }
 
@@ -479,6 +488,8 @@ namespace VectorSpace.MapData
         /// <param name="item">The item to add to the layer</param>
         public void AddItem(string layerId, IRenderable item)
         {
+            UndoRedoManager.Instance().Push((dummy) => RemoveItem(item), this, "Create map item");
+
             // We need to get the zIndex before the item is added
             int zIndex = GetHighestZ(layerId) + 1;
 
@@ -520,6 +531,7 @@ namespace VectorSpace.MapData
                 position,
                 0
             );
+
             this.AddItem(layerId, textureItem);
 
             return textureItem;
@@ -544,6 +556,7 @@ namespace VectorSpace.MapData
                 position,
                 0
             );
+
             this.AddItem(layerId, shapeItem);
 
             return shapeItem;
@@ -563,9 +576,10 @@ namespace VectorSpace.MapData
                 if (layer != null)
                 {
                     layer.RemoveItem(item);
-
                     if (_mapItems.Remove(item))
                     {
+                        UndoRedoManager.Instance().Push((dummy) => AddItem(layer.Id, item), this, "Remove map item");
+                        _sortLayerItems();
                         return true;
                     }
                     else

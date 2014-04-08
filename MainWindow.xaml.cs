@@ -78,11 +78,14 @@ namespace VectorSpace
         private int _selectedLibraryItem;
         private int _selectedLayerIndex;
 
+        // Canvas dragging and creation caching
         private ShapeItem _currentShapeItemInConstruction;
         private ContentPresenter _currentlySelectedCanvasItem;
+        private Point _currentItemDragAmount;
+        private Point _currentItemStartPosition;
         private Point _lastMousePosition;
         
-        private bool _isContextOpen = false;
+        private bool _isContextOpen;
         #endregion
 
 
@@ -100,7 +103,11 @@ namespace VectorSpace
             _selectedLayerIndex = 0;
 
             _currentlySelectedCanvasItem = null;
+            _currentItemDragAmount = new Point();
+            _currentItemStartPosition = new Point();
             _lastMousePosition = new Point();
+
+            _isContextOpen = false;
 
             InitializeComponent();
             loadResources();
@@ -780,9 +787,6 @@ namespace VectorSpace
         #region Library & Canvas Methods
 
         #region Canvas Drag Helpers
-        private Point _currentItemDragAmount = new Point();
-        private Point _currentItemStartPosition = new Point();
-
         /// <summary>
         /// Handles the Left Mouse button click on the Canvas
         /// </summary>
@@ -885,7 +889,7 @@ namespace VectorSpace
                 IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
                 if (item != null && (!_currentItemDragAmount.X.Equals(0) || !_currentItemDragAmount.Y.Equals(0)))
                 {
-                    UndoDragMove(item, (float)_currentItemStartPosition.X, (float)_currentItemStartPosition.Y);
+                    _undoDragMove(item, (float)_currentItemStartPosition.X, (float)_currentItemStartPosition.Y);
                 }
 
                 assignItemPropertyPanel(_currentlySelectedCanvasItem.DataContext as TextureItem);
@@ -916,7 +920,7 @@ namespace VectorSpace
                         IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
                         if (item != null && layer != null && item.Layer == layer.Id)
                         {
-                            HandleItemMove(
+                            _handleItemMove(
                                 item,
                                 (float)(mousePos.X - _lastMousePosition.X),
                                 (float)(mousePos.Y - _lastMousePosition.Y)
@@ -933,7 +937,28 @@ namespace VectorSpace
         }
 
 
-        public void UndoDragMove(IRenderable item, float x, float y)
+        /// <summary>
+        /// Handles item movement
+        /// </summary>
+        /// <param name="item">The item being dragged</param>
+        /// <param name="x">The starting X position</param>
+        /// <param name="y">The starting Y Position</param>
+        private void _handleItemMove(IRenderable item, float x, float y)
+        {
+            // Add to current Item Drag caching (used for move Undo/Redo)
+            _currentItemDragAmount.X += x;
+            _currentItemDragAmount.Y += y;
+
+            item.Move(x, y);
+        }
+
+        /// <summary>
+        /// Handles Undo/Redo for drag moves
+        /// </summary>
+        /// <param name="item">The item being dragged</param>
+        /// <param name="x">The starting X position</param>
+        /// <param name="y">The starting Y Position</param>
+        private void _undoDragMove(IRenderable item, float x, float y)
         {
             if (item != null)
             {
@@ -944,24 +969,14 @@ namespace VectorSpace
 
                     item.SetPosition(x, y);
 
-                    UndoRedoManager.Instance().Push((dummy) => UndoDragMove(item, oX, oY), this, "Item drag");
+                    UndoRedoManager.Instance().Push((dummy) => _undoDragMove(item, oX, oY), this, "Item drag");
                 }
                 else
-                    UndoRedoManager.Instance().Push((dummy) => UndoDragMove(item, x, y), this, "Item drag");
+                    UndoRedoManager.Instance().Push((dummy) => _undoDragMove(item, x, y), this, "Item drag");
 
                 _currentItemDragAmount = new Point();
                 _currentItemStartPosition = new Point();
             }
-        }
-
-
-        public void HandleItemMove(IRenderable item, float x, float y)
-        {
-            // Add to current Item Drag caching (used for move Undo/Redo)
-            _currentItemDragAmount.X += x;
-            _currentItemDragAmount.Y += y;
-
-            item.Move(x, y);
         }
         #endregion
 
