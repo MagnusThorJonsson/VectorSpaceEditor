@@ -8,7 +8,10 @@
         xmlns:converters="clr-namespace:VectorSpace.UI.Converters"
         xmlns:selectors="clr-namespace:VectorSpace.UI.Selectors"
         xmlns:mapitems="clr-namespace:VectorSpace.MapData.MapItems"
-        Title="VectorSpace v0.1a" Height="720" Width="1280" MinHeight="480" MinWidth="640">
+        Title="VectorSpace v0.1a" Height="720" Width="1280" MinHeight="480" MinWidth="640"
+                                                      
+        PreviewKeyDown="LevelCanvas_KeyDown"
+        PreviewKeyUp="LevelCanvas_KeyUp">
     <Window.CommandBindings>
         <!-- File Menu bar commands -->
         <CommandBinding Command="New" CanExecute="MenuItem_File_New_CanExecute" Executed="MenuItem_File_New_Executed" />
@@ -60,7 +63,7 @@
             <!-- Converters -->
             <converters:PointsToPathConverter x:Key="PointsToPathConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-
+            
             <!-- Canvas Data Templates -->
             <!-- TextureItem -->
             <DataTemplate x:Key="TextureItemTemplate">
@@ -132,11 +135,13 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="Ma_p Settings" Click="MenuItem_Edit_MapSettings" />
+                <MenuItem Name="EditMenuItem_MapSettings" Header="Ma_p Settings" Click="MenuItem_Edit_MapSettings" IsEnabled="False" />
                 <MenuItem Header="Tool _Settings" Click="MenuItem_Edit_ToolSettings" />
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Name="ToolMenuItem_TextureManager" Header="_Texture Manager" InputGestureText="Ctrl+T" Command="{x:Static local:MainWindow.TextureManagerShortcutCommand}" />
+                <Separator />
+                <MenuItem Name="ToolMenuItem_EditTextureLibrary" Header="Edit Texture Library" Click="MenuItem_Tools_EditTextureLibrary" IsEnabled="False" />
             </MenuItem>
             <MenuItem Header="_View">
                 <Separator />
@@ -181,17 +186,18 @@
                     <DockPanel Name="MainCanvasPanel" Visibility="Hidden">
                         <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
                             <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" Width="{Binding ElementName=LevelCanvas,Path=ActualWidth}"  Height="{Binding ElementName=LevelCanvas,Path=ActualHeight}">
-                                <ItemsControl Name="LevelCanvas" Background="White" IsEnabled="False"
+                                <ItemsControl Name="LevelCanvas" Background="White" IsEnabled="False" Focusable="True"
                                                 AllowDrop="True"
                                                 MouseLeftButtonDown="LevelCanvas_MouseLeftButtonDown"
                                                 MouseLeftButtonUp="LevelCanvas_MouseLeftButtonUp"
                                                 MouseMove="LevelCanvas_MouseMove"                                               
                                                 DragOver="LevelCanvas_DragOver"
-                                                Drop="LevelCanvas_Drop"                                              
+                                                Drop="LevelCanvas_Drop"                         
+                                              
                                                 ItemTemplateSelector="{StaticResource CanvasItemTemplateSelector}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <Canvas Background="Transparent" />
+                                            <Canvas Background="Transparent" Focusable="True" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemContainerStyle>
@@ -398,8 +404,8 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
 
-                                            <Button Name="RemoveLayerBtn" Grid.Column="0" VerticalAlignment="Center" ToolTip="Remove layer" Content="Remove" IsEnabled="False" Click="RemoveLayerBtn_Click" />
-                                            <Button Name="AddLayerBtn" Grid.Column="1" VerticalAlignment="Center" ToolTip="Add new layer" Margin="5, 0" Content="Add" IsEnabled="False" Click="AddLayerBtn_Click" />
+                                            <Button Name="RemoveLayerBtn" Grid.Column="0" VerticalAlignment="Center" ToolTip="Remove layer" Content="Remove layer" IsEnabled="False" Click="RemoveLayerBtn_Click" />
+                                            <Button Name="AddLayerBtn" Grid.Column="1" VerticalAlignment="Center" ToolTip="Add new layer" Margin="5, 0" Content="Add new layer" IsEnabled="False" Click="AddLayerBtn_Click" />
                                         </Grid>
                                     </DockPanel>
 

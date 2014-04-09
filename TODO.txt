@@ -1,5 +1,28 @@
 ﻿
 
+NEXT MOVES
+* Make TextureLibraries editable
+* Add an origin selector for Textures to the TextureLibrary
+* Add a Collision Area to Textures in TextureLibrary
+* Add Entity items. Ability for placing/dragging
+* Multiple item select
+* Multiple item drag
+* Multiple item scaling
+* Create movement paths and attach them to items
+* Create trigger areas
+* Ability to attach trigger areas to items
+* Ability to replace all texture items with another texture item (maybe even within a layer)
+* Add a distinction between path items and texture items in the layer window
+
+
+
+POLISH
+* Fix resizing of items after they've been rotated
+* Fix rotating of items after they've been resized
+* Fix Focus for Level Canvas
+* Move KeyDown/KeyUp to Level Canvas
+* Fix Item Movement Click event (make sure Canvas is focused)
+
 19/02/2014
 Add Tint property to Textures and TextureItems
 

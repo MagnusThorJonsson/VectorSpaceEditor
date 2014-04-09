@@ -96,16 +96,18 @@ namespace VectorSpace.MapData.Components
         /// <summary>
         /// Constructs a texture object
         /// </summary>
-        /// <param name="filepath">The full file path</param>
-        public Texture(string filepath)
+        /// <param name="mapPath">The path to the Map project</param>
+        /// <param name="filepath">The full path to the file directory</param>
+        /// <param name="filename">The file name</param>
+        public Texture(string mapPath, string filepath, string filename)
         {
-            filename = System.IO.Path.GetFileName(filepath);
-            this.filepath = System.IO.Path.GetDirectoryName(filepath);
+            this.filename = filename;
+            this.filepath = filepath.Substring(mapPath.Length + 1);
             
             _source = new BitmapImage();
             _source.BeginInit();
             _source.CacheOption = BitmapCacheOption.OnLoad;
-            _source.UriSource = new Uri(filepath);
+            _source.UriSource = new Uri(System.IO.Path.GetDirectoryName(filepath));
             _source.EndInit();
 
             // Set the scaling mode to the best available
@@ -118,33 +120,26 @@ namespace VectorSpace.MapData.Components
         }
 
         /// <summary>
-        /// Constructs a texture object
+        /// Used for deserialization
         /// </summary>
         /// <param name="name">The file name</param>
-        /// <param name="path">The file path</param>
+        /// <param name="path">The relative file path</param>
         [JsonConstructor]
-        public Texture(string name, string path)
+        protected Texture(string name, string path)
         {
             filename = name;
             filepath = path;
 
-            _source = new BitmapImage();
-            _source.BeginInit();
-            _source.CacheOption = BitmapCacheOption.OnLoad;
-            _source.UriSource = new Uri(path + "\\" + name);
-            _source.EndInit();
-
-            _size = new Point((int)_source.Width, (int)_source.Height);
-            _origin = new Point(_size.X / 2, _size.Y / 2);
-
             properties = new ObservableCollection<ItemProperty>();
+
+            _origin = new Point();
         }
 
         /// <summary>
         /// Constructs a texture object
         /// </summary>
         /// <param name="name">The file name</param>
-        /// <param name="path">The file path</param>
+        /// <param name="path">The relative file path</param>
         /// <param name="source">The image source</param>
         public Texture(string name, string path, BitmapImage source)
         {
@@ -162,7 +157,7 @@ namespace VectorSpace.MapData.Components
         /// Constructs a texture object
         /// </summary>
         /// <param name="name">The file name</param>
-        /// <param name="path">The file path</param>
+        /// <param name="path">The relative file path</param>
         /// <param name="source">The image source</param>
         /// <param name="size">The image size</param>
         public Texture(string name, string path, BitmapImage source, Point size)
@@ -181,7 +176,7 @@ namespace VectorSpace.MapData.Components
         /// Constructs a texture object
         /// </summary>
         /// <param name="name">The file name</param>
-        /// <param name="path">The file path</param>
+        /// <param name="path">The relative file path</param>
         /// <param name="source">The image source</param>
         /// <param name="size">The image size</param>
         /// <param name="origin">The image origin point</param>
@@ -196,6 +191,30 @@ namespace VectorSpace.MapData.Components
             properties = new ObservableCollection<ItemProperty>();
         }
         #endregion
+
+
+        /// <summary>
+        /// Initializes the texture (mainly used after deserialization)
+        /// </summary>
+        /// <param name="mapPath">The path to the Map project folder</param>
+        public void Initialize(string mapPath)
+        {
+            try
+            {
+                _source = new BitmapImage();
+                _source.BeginInit();
+                _source.CacheOption = BitmapCacheOption.OnLoad;
+                _source.UriSource = new Uri(mapPath + "\\" + filepath + "\\" + filename);
+                _source.EndInit();
+
+                _size = new Point((int)_source.Width, (int)_source.Height);
+                _origin = new Point(_size.X / 2, _size.Y / 2);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
 
         #region User Property Handlers

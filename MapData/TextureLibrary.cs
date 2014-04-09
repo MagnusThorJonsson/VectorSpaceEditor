@@ -54,5 +54,17 @@ namespace VectorSpace.MapData
             this.textures = textures;
         }
         #endregion
+
+        /// <summary>
+        /// Initializes the textures within this library (mainly used after deserialization)
+        /// </summary>
+        /// <param name="mapPath">The path to the Map project folder</param>
+        public void Initialize(string mapPath)
+        {
+            for (int i = 0; i < Textures.Count; i++)
+                Textures[i].Initialize(mapPath);
+        }
+
+
     }
 }

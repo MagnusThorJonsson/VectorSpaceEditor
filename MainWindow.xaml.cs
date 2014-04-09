@@ -198,7 +198,7 @@ namespace VectorSpace
                 using (StreamReader file = File.OpenText(dlg.FileName))
                 {
                     // Close the currently open map
-                    CloseMap();
+                    closeMap();
 
                     // Try to deserialize
                     JsonSerializer serializer = new JsonSerializer();
@@ -207,6 +207,9 @@ namespace VectorSpace
 
                     if (_currentMap != null)
                     {
+                        FileInfo fInfo = new FileInfo(dlg.FileName);
+                        _currentMap.SetPath(fInfo.DirectoryName);
+
                         // Initialize the map
                         _currentMap.Initialize();
 
@@ -285,33 +288,9 @@ namespace VectorSpace
         private void MenuItem_File_Close_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             // Close the currently open map
-            CloseMap();
+            closeMap();
         }
         #endregion
-
-        /// <summary>
-        /// Closes the currently open map
-        /// </summary>
-        private void CloseMap()
-        {
-            ///clear any undo operations added implicitly during startup
-            UndoRedoManager.Instance().Clear();
-
-            MainCanvasPanel.Visibility = System.Windows.Visibility.Hidden;
-
-            LevelCanvas.IsEnabled = false;
-            LevelCanvas.ItemsSource = null;
-            LayersListBox.ItemsSource = null;
-            CanvasItemsTab.ItemsSource = null;
-            _currentlySelectedCanvasItem = null;
-            _currentShapeItemInConstruction = null;
-            
-            assignUserPropertyPanel(null);
-            enableTools(false);
-
-            // TODO: Probably need to handle this in a better way
-            _currentMap = null;
-        }
 
         /// <summary>
         /// Exit application
@@ -336,7 +315,6 @@ namespace VectorSpace
         private void MenuItem_Edit_Undo_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             UndoRedoManager.Instance().Undo();
-
         }
 
         private void MenuItem_Edit_Redo_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -352,7 +330,6 @@ namespace VectorSpace
         private void MenuItem_Edit_Redo_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             UndoRedoManager.Instance().Redo();
-
         }
 
         private void MenuItem_Edit_MapSettings(object sender, RoutedEventArgs e)
@@ -381,11 +358,12 @@ namespace VectorSpace
             {
                 // Do everything that doesn't depend on the user pressing the OK button
                 loadResources();
-
+                /*
                 // If the OK button was pressed
                 if (settingsDlg.DialogResult.Value)
                 {
                 }
+                */
             }
         }
         #endregion
@@ -417,7 +395,7 @@ namespace VectorSpace
 
         private void MenuItem_Tools_TextureManager(object sender, ExecutedRoutedEventArgs e)
         {
-            TextureManagerWindow txtManagerWindow = new TextureManagerWindow();
+            TextureManagerWindow txtManagerWindow = new TextureManagerWindow(_currentMap.FilePath);
             txtManagerWindow.Owner = this;
             txtManagerWindow.ShowDialog();
 
@@ -426,9 +404,23 @@ namespace VectorSpace
                 // Add texture library to the map
                 _currentMap.AddTextureLibrary(txtManagerWindow.TextureLibrary);
                 CanvasItemsTab.SelectedIndex = CanvasItemsTab.Items.Count - 1;
+
+                // Enable the Edit Texture Menu option
+                ToolMenuItem_EditTextureLibrary.IsEnabled = true;
             }
         }
         public static RoutedCommand TextureManagerShortcutCommand = new RoutedCommand();
+
+
+        private void MenuItem_Tools_EditTextureLibrary(object sender, RoutedEventArgs e)
+        {
+            if (_currentMap != null && _selectedLibrary >= 0 && _selectedLibrary < _currentMap.TextureLibraries.Count)
+            {
+                TextureManagerWindow txtManagerWindow = new TextureManagerWindow(_currentMap.FilePath, _currentMap.TextureLibraries[_selectedLibrary]);
+                txtManagerWindow.Owner = this;
+                txtManagerWindow.ShowDialog();
+            }
+        }
         #endregion
 
         #region MenuItem View Helpers
@@ -550,6 +542,11 @@ namespace VectorSpace
             // Bind the texture libraries to the Canvas Tab Item Control
             CanvasItemsTab.ItemsSource = _currentMap.TextureLibraries;
 
+            // Menu items
+            EditMenuItem_MapSettings.IsEnabled = true;
+            if (_currentMap.TextureLibraries.Count > 0)
+                ToolMenuItem_EditTextureLibrary.IsEnabled = true;
+            
             // Layers panel
             RemoveLayerBtn.IsEnabled = true;
             AddLayerBtn.IsEnabled = true;
@@ -586,6 +583,33 @@ namespace VectorSpace
 
             if (enabledButton != null)
                 enabledButton.IsChecked = true;
+        }
+
+        /// <summary>
+        /// Closes the currently open map
+        /// </summary>
+        private void closeMap()
+        {
+            ///clear any undo operations added implicitly during startup
+            UndoRedoManager.Instance().Clear();
+
+            MainCanvasPanel.Visibility = System.Windows.Visibility.Hidden;
+
+            EditMenuItem_MapSettings.IsEnabled = false;
+            ToolMenuItem_EditTextureLibrary.IsEnabled = false;
+
+            LevelCanvas.IsEnabled = false;
+            LevelCanvas.ItemsSource = null;
+            LayersListBox.ItemsSource = null;
+            CanvasItemsTab.ItemsSource = null;
+            _currentlySelectedCanvasItem = null;
+            _currentShapeItemInConstruction = null;
+
+            assignUserPropertyPanel(null);
+            enableTools(false);
+
+            // TODO: Probably need to handle this in a better way
+            _currentMap = null;
         }
         #endregion
 
@@ -764,18 +788,27 @@ namespace VectorSpace
                 // Remove adorners
                 removeAdorner(_currentlySelectedCanvasItem);
 
-                int currentIndex = _selectedLayerIndex;
-                if (_currentMap.RemoveLayer((Layer)LayersListBox.SelectedItem))
+                // Pop up a yes/no window
+                MessageBoxResult result = System.Windows.MessageBox.Show(
+                    "Are you sure want to remove this layer?\n\nYou can't undo this action.", 
+                    "Remove layer", 
+                    MessageBoxButton.YesNo, MessageBoxImage.Warning
+                );
+                if (result == MessageBoxResult.Yes)
                 {
-                    // If we manage to remove the layer we select the layer below
-                    if (currentIndex > 0)
-                        currentIndex--;
-                    else if (currentIndex < 0)
-                        currentIndex = 0;
+                    int currentIndex = _selectedLayerIndex;
+                    if (_currentMap.RemoveLayer((Layer)LayersListBox.SelectedItem))
+                    {
+                        // If we manage to remove the layer we select the layer below
+                        if (currentIndex > 0)
+                            currentIndex--;
+                        else if (currentIndex < 0)
+                            currentIndex = 0;
 
-                    _selectedLayerIndex = currentIndex;
-                    LayersListBox.SelectedIndex = currentIndex;
-                    _currentlySelectedCanvasItem = null;
+                        _selectedLayerIndex = currentIndex;
+                        LayersListBox.SelectedIndex = currentIndex;
+                        _currentlySelectedCanvasItem = null;
+                    }
                 }
             }
         }
@@ -831,6 +864,7 @@ namespace VectorSpace
                     break;
 
 
+                #region Create Shape
                 case ApplicationEditState.CreateShape:
                     if (e.LeftButton == MouseButtonState.Pressed)
                     {
@@ -873,6 +907,7 @@ namespace VectorSpace
                         }
                     }
                     break;
+                #endregion
             }
         }
         
@@ -1342,6 +1377,131 @@ namespace VectorSpace
         }
         #endregion
 
+        #endregion
+
+
+        #region Canvas Key Stroke handling
+
+        public void LevelCanvas_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Up:
+                case Key.Down:
+                case Key.Left:
+                case Key.Right:
+                    if (_currentlySelectedCanvasItem != null)
+                    {
+                        // If the canvas item contains an IRenderable item and if we've moved at all
+                        IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                        if (item != null && (!_currentItemDragAmount.X.Equals(0) || !_currentItemDragAmount.Y.Equals(0)))
+                        {
+                            _undoDragMove(item, (float)_currentItemStartPosition.X, (float)_currentItemStartPosition.Y);
+                        }
+                    }
+                    break;
+                
+            }
+        }
+        public void LevelCanvas_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                #region Nudge Canvas Item
+                case Key.Up:
+                    if (_currentlySelectedCanvasItem != null && LevelCanvas.IsKeyboardFocusWithin)
+                    {
+                        // If item is on the currently selected layer we allow the move
+                        Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
+                        IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                        if (item != null && layer != null && item.Layer == layer.Id)
+                        {
+                            // Save starting position only if we haven't nudged at all
+                            if (_currentItemDragAmount.X.Equals(0) && _currentItemDragAmount.Y.Equals(0))
+                               _currentItemStartPosition = item.Position.Position;
+
+                            // move up
+                            _handleItemMove(item, 0f, -1f);
+
+                            // Update property panel
+                            assignItemPropertyPanel(item as TextureItem);
+
+                            e.Handled = true;
+                        }
+                    }
+                    break;
+
+                case Key.Down:
+                    if (_currentlySelectedCanvasItem != null)
+                    {
+                        // If item is on the currently selected layer we allow the move
+                        Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
+                        IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                        if (item != null && layer != null && item.Layer == layer.Id)
+                        {
+                            // Save starting position only if we haven't nudged at all
+                            if (_currentItemDragAmount.X.Equals(0) && _currentItemDragAmount.Y.Equals(0))
+                                _currentItemStartPosition = item.Position.Position;
+
+                            // move up
+                            _handleItemMove(item, 0f, 1f);
+
+                            // Update property panel
+                            assignItemPropertyPanel(item as TextureItem);
+
+                            e.Handled = true;
+                        }
+                    }
+                    break;
+
+                case Key.Left:
+                    if (_currentlySelectedCanvasItem != null)
+                    {
+                        // If item is on the currently selected layer we allow the move
+                        Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
+                        IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                        if (item != null && layer != null && item.Layer == layer.Id)
+                        {
+                            // Save starting position only if we haven't nudged at all
+                            if (_currentItemDragAmount.X.Equals(0) && _currentItemDragAmount.Y.Equals(0))
+                                _currentItemStartPosition = item.Position.Position;
+
+                            // move up
+                            _handleItemMove(item, -1f, 0f);
+
+                            // Update property panel
+                            assignItemPropertyPanel(item as TextureItem);
+
+                            e.Handled = true;
+                        }
+                    }
+                    break;
+
+                case Key.Right:
+                    if (_currentlySelectedCanvasItem != null)
+                    {
+                        // If item is on the currently selected layer we allow the move
+                        Layer layer = LayersListBox.Items[_selectedLayerIndex] as Layer;
+                        IRenderable item = _currentlySelectedCanvasItem.DataContext as IRenderable;
+                        if (item != null && layer != null && item.Layer == layer.Id)
+                        {
+                            // Save starting position only if we haven't nudged at all
+                            if (_currentItemDragAmount.X.Equals(0) && _currentItemDragAmount.Y.Equals(0))
+                                _currentItemStartPosition = item.Position.Position;
+
+                            // move up
+                            _handleItemMove(item, 1f, 0f);
+
+                            // Update property panel
+                            assignItemPropertyPanel(item as TextureItem);
+
+                            e.Handled = true;
+                        }
+                    }
+                    break;
+                #endregion
+            }
+        }
         #endregion
 
 

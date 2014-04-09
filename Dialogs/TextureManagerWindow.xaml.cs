@@ -29,16 +29,54 @@ namespace VectorSpace.Dialogs
         public List<Texture> Textures;
 
         public TextureLibrary TextureLibrary;
+
+        private string _mapPath;
         #endregion
 
         #region Constructors
-        public TextureManagerWindow()
+        /// <summary>
+        /// Constructs a TextureManagerWindow used to create a new library
+        /// </summary>
+        /// <param name="mapPath">The current map project path</param>
+        public TextureManagerWindow(string mapPath)
         {
+            _mapPath = mapPath;
             Textures = new List<Texture>();
             TextureLibrary = null;
             InitializeComponent();
 
             TextureLibName.Focus();
+
+            CreateBtn.Content = "Create";
+
+            CreateLibraryPanel.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Constructs a TextureManagerWindow used to edit an already existing library
+        /// </summary>
+        /// <param name="mapPath">The current map project path</param>
+        /// <param name="library">The library to edit</param>
+        public TextureManagerWindow(string mapPath, TextureLibrary library)
+        {
+            _mapPath = mapPath;
+            TextureLibrary = library;
+            Textures = library.Textures;
+
+            InitializeComponent();
+
+            TextureLibName.Focus();
+
+            CreateBtn.Content = "Save";
+
+            // Disable the folder browse
+            FileBrowseBtn.IsEnabled = false;
+
+            // Bind to the texture list box and enable the create button
+            TextureListBox.ItemsSource = Textures;
+
+            TextureLibName.Text = TextureLibrary.Name;
+            CreateLibraryPanel.Visibility = Visibility.Collapsed;
         }
         #endregion
 
@@ -62,7 +100,10 @@ namespace VectorSpace.Dialogs
                 for (int i = 0; i < files.Length; i++)
                 {
                     if (ImageExtensions.Contains(System.IO.Path.GetExtension(files[i]).ToUpperInvariant()))
-                        Textures.Add(new Texture(files[i]));
+                    {
+                        FileInfo fInfo = new FileInfo(files[i]);
+                        Textures.Add(new Texture(_mapPath, fInfo.DirectoryName, fInfo.Name));
+                    }
                 }
 
                 // Bind to the texture list box and enable the create button

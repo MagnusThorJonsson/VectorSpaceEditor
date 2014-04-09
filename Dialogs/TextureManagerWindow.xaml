@@ -26,7 +26,7 @@
                             <TextBox DockPanel.Dock="Right" Width="150" Name="TextureLibName" TextChanged="TextureLibName_TextChanged" TabIndex="0" />
                         </StackPanel>
 
-                        <StackPanel Orientation="Horizontal" Margin="0, 0, 5, 5">
+                        <StackPanel Name="CreateLibraryPanel" Orientation="Horizontal" Margin="0, 0, 5, 5" Visibility="Visible">
                             <Label DockPanel.Dock="Left" Width="80">Location:</Label>
                             <TextBox DockPanel.Dock="Right" Width="300" Name="TextureLibLocation" IsReadOnly="True" />
                             <Button DockPanel.Dock="Right" Name="FileBrowseBtn" Click="FileBrowseBtn_Click" Margin="10, 0, 0, 0" Height="23" Content="Browse" TabIndex="1" />

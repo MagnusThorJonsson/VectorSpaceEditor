@@ -25,7 +25,6 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Map name
         /// </summary>
-        [DataMember(Order = 0)]
         [JsonProperty(Order = 1)]
         public string Name 
         { 
@@ -37,8 +36,8 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The path to the map root directory
         /// </summary>
-        [DataMember(Order = 1)]
-        [JsonProperty(Order = 2)]
+        //[JsonProperty(Order = 2)]
+        [JsonIgnore]
         public string FilePath 
         { 
             get { return _filepath; }
@@ -49,8 +48,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The map width & height
         /// </summary>
-        [DataMember(Order = 2)]
-        [JsonProperty(Order = 3)]
+        [JsonProperty(Order = 2)]
         public Point Size 
         { 
             get { return _size; }
@@ -61,8 +59,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Map layers
         /// </summary>
-        [DataMember(Order = 6)]
-        [JsonProperty(Order = 7)]
+        [JsonProperty(Order = 6)]
         public ObservableCollection<Layer> Layers
         { 
             get { return _layers; }
@@ -74,8 +71,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// The next layer id that is available
         /// </summary>
-        [DataMember(Order = 5)]
-        [JsonProperty(Order = 6)]
+        [JsonProperty(Order = 5)]
         public int NextLayerId 
         { 
             get { return _nextLayerId; }
@@ -86,8 +82,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// User properties for the map
         /// </summary>
-        [DataMember(Order = 3)]
-        [JsonProperty(Order = 4)]
+        [JsonProperty(Order = 3)]
         public ObservableCollection<ItemProperty> Properties 
         { 
             get { return _properties; }
@@ -98,8 +93,7 @@ namespace VectorSpace.MapData
         /// <summary>
         /// Texture libraries in use by the map
         /// </summary>
-        [DataMember(Order = 4)]
-        [JsonProperty(Order = 5)]
+        [JsonProperty(Order = 4)]
         public ObservableCollection<TextureLibrary> TextureLibraries 
         { 
             get { return _textureLibraries; }
@@ -171,6 +165,10 @@ namespace VectorSpace.MapData
         /// </summary>
         public void Initialize()
         {
+            // Initialize the TextureLibrary textures
+            for (int i = 0; i < TextureLibraries.Count; i++)
+                TextureLibraries[i].Initialize(FilePath);
+
             // Clear the currently cached MapItems
             MapItems.Clear();
 
