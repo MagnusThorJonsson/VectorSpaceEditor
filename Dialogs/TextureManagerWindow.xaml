@@ -32,6 +32,10 @@
                             <Button DockPanel.Dock="Right" Name="FileBrowseBtn" Click="FileBrowseBtn_Click" Margin="10, 0, 0, 0" Height="23" Content="Browse" TabIndex="1" />
                         </StackPanel>
 
+                        <StackPanel Name="AddTexturePanel" Orientation="Horizontal" Margin="0, 0, 5, 5" Visibility="Collapsed">
+                            <Button Name="AddTextureBrowseBtn" Click="AddTextureBrowseBtn_Click" Margin="5, 0, 0, 0" Height="23" Content="Browse" TabIndex="1" />
+                        </StackPanel>
+
                     </StackPanel>
                 </Border>
             </Border>

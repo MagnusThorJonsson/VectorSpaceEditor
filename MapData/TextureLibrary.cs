@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -33,12 +34,12 @@ namespace VectorSpace.MapData
         /// </summary>
         [DataMember(Order = 1)]
         [JsonProperty(Order = 2)]
-        public List<Texture> Textures 
+        public ObservableCollection<Texture> Textures 
         { 
             get { return textures; }
             protected set { textures = value; }
         }
-        protected List<Texture> textures;
+        protected ObservableCollection<Texture> textures;
         #endregion
 
 
@@ -48,23 +49,12 @@ namespace VectorSpace.MapData
         /// </summary>
         /// <param name="name">The name of the library</param>
         /// <param name="textures">The texture collection</param>
-        public TextureLibrary(string name, List<Texture> textures)
+        public TextureLibrary(string name, ObservableCollection<Texture> textures)
         {
             this.name = name;
             this.textures = textures;
         }
         #endregion
-
-        /// <summary>
-        /// Initializes the textures within this library (mainly used after deserialization)
-        /// </summary>
-        /// <param name="mapPath">The path to the Map project folder</param>
-        public void Initialize(string mapPath)
-        {
-            for (int i = 0; i < Textures.Count; i++)
-                Textures[i].Initialize(mapPath);
-        }
-
 
     }
 }

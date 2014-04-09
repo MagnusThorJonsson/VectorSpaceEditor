@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace VectorSpace.Dialogs
         #region Variables & Properties
         public static readonly List<string> ImageExtensions = new List<string> { ".JPG", ".JPE", ".JPEG", ".BMP", ".GIF", ".PNG", ".TIF", ".TIFF" };
 
-        public List<Texture> Textures;
+        public ObservableCollection<Texture> Textures;
 
         public TextureLibrary TextureLibrary;
 
@@ -41,7 +42,7 @@ namespace VectorSpace.Dialogs
         public TextureManagerWindow(string mapPath)
         {
             _mapPath = mapPath;
-            Textures = new List<Texture>();
+            Textures = new ObservableCollection<Texture>();
             TextureLibrary = null;
             InitializeComponent();
 
@@ -50,6 +51,7 @@ namespace VectorSpace.Dialogs
             CreateBtn.Content = "Create";
 
             CreateLibraryPanel.Visibility = Visibility.Visible;
+            AddTexturePanel.Visibility = Visibility.Collapsed;
         }
 
         /// <summary>
@@ -76,12 +78,14 @@ namespace VectorSpace.Dialogs
             TextureListBox.ItemsSource = Textures;
 
             TextureLibName.Text = TextureLibrary.Name;
+
             CreateLibraryPanel.Visibility = Visibility.Collapsed;
+            AddTexturePanel.Visibility = Visibility.Visible;
         }
         #endregion
 
 
-        #region Loading Handlers
+        #region Button Handlers
         private void FileBrowseBtn_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -98,13 +102,7 @@ namespace VectorSpace.Dialogs
 
                 // Filter out any file that isn't an image and add to texture list
                 for (int i = 0; i < files.Length; i++)
-                {
-                    if (ImageExtensions.Contains(System.IO.Path.GetExtension(files[i]).ToUpperInvariant()))
-                    {
-                        FileInfo fInfo = new FileInfo(files[i]);
-                        Textures.Add(new Texture(_mapPath, fInfo.DirectoryName, fInfo.Name));
-                    }
-                }
+                    addFileAsTexture(files[i]);
 
                 // Bind to the texture list box and enable the create button
                 TextureListBox.ItemsSource = Textures;
@@ -113,6 +111,38 @@ namespace VectorSpace.Dialogs
                     CreateBtn.IsEnabled = true;
                 else
                     CreateBtn.IsEnabled = false;
+            }
+        }
+
+        private void AddTextureBrowseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // Create OpenFileDialog 
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".png";
+            dlg.Filter = "All Images|*.jpeg;*.jpg;*.png;*.gif;*.bmp;*.tif;*.tiff" +
+                         "|JPEG Files (*.jpeg)|*.jpeg|JPG Files (*.jpg)|*.jpg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|BMP Files (*.bmp)|*.bmp|TIF Files (*.tif)|*.tif|TIFF Files (*.tiff)|*.tiff";
+
+            Nullable<bool> result = dlg.ShowDialog();
+            if (result != null || result == true)
+            {
+                addFileAsTexture(dlg.FileName);
+            }
+        }
+
+        private void CreateBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (TextureLibName.Text != null && Textures != null && Textures.Count > 0)
+            {
+                // Populate library
+                TextureLibrary = new TextureLibrary(
+                    TextureLibName.Text,
+                    Textures
+                );
+
+                DialogResult = true;
+                this.Close();
             }
         }
 
@@ -170,6 +200,21 @@ namespace VectorSpace.Dialogs
 
 
         #region Helper Methods
+        /// <summary>
+        /// Adds a file as a texture
+        /// </summary>
+        /// <param name="file">The file to add</param>
+        private void addFileAsTexture(string file)
+        {
+            if (ImageExtensions.Contains(System.IO.Path.GetExtension(file).ToUpperInvariant()))
+            {
+                Textures.Add(new Texture(file));
+            }
+        }
+
+        /// <summary>
+        /// Clears the texture preview
+        /// </summary>
         private void clearTexturePreview()
         {
             RemovePropertyBtn.IsEnabled = false;
@@ -184,19 +229,5 @@ namespace VectorSpace.Dialogs
         #endregion
 
 
-        private void CreateBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (TextureLibName.Text != null && Textures != null && Textures.Count > 0)
-            {
-                // Populate library
-                TextureLibrary = new TextureLibrary(
-                    TextureLibName.Text,
-                    Textures
-                );
-
-                DialogResult = true;
-                this.Close();
-            }
-        }
     }
 }

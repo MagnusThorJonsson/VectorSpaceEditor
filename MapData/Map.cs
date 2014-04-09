@@ -165,10 +165,6 @@ namespace VectorSpace.MapData
         /// </summary>
         public void Initialize()
         {
-            // Initialize the TextureLibrary textures
-            for (int i = 0; i < TextureLibraries.Count; i++)
-                TextureLibraries[i].Initialize(FilePath);
-
             // Clear the currently cached MapItems
             MapItems.Clear();
 
