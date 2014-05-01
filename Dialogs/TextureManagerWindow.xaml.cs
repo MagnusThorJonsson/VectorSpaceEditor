@@ -31,6 +31,7 @@ namespace VectorSpace.Dialogs
 
         public TextureLibrary TextureLibrary;
 
+        private bool _isEdit;
         private string _mapPath;
         #endregion
 
@@ -49,9 +50,11 @@ namespace VectorSpace.Dialogs
             TextureLibName.Focus();
 
             CreateBtn.Content = "Create";
-
+            
             CreateLibraryPanel.Visibility = Visibility.Visible;
             AddTexturePanel.Visibility = Visibility.Collapsed;
+
+            _isEdit = false;
         }
 
         /// <summary>
@@ -81,6 +84,8 @@ namespace VectorSpace.Dialogs
 
             CreateLibraryPanel.Visibility = Visibility.Collapsed;
             AddTexturePanel.Visibility = Visibility.Visible;
+
+            _isEdit = true;
         }
         #endregion
 
@@ -135,11 +140,17 @@ namespace VectorSpace.Dialogs
         {
             if (TextureLibName.Text != null && Textures != null && Textures.Count > 0)
             {
-                // Populate library
-                TextureLibrary = new TextureLibrary(
-                    TextureLibName.Text,
-                    Textures
-                );
+                // If we're not editing we create a Texture Library, else we just update the name
+                if (!_isEdit)
+                {
+                    // Populate library
+                    TextureLibrary = new TextureLibrary(
+                        TextureLibName.Text,
+                        Textures
+                    );
+                }
+                else
+                    TextureLibrary.Name = TextureLibName.Text;
 
                 DialogResult = true;
                 this.Close();
@@ -157,6 +168,13 @@ namespace VectorSpace.Dialogs
         #endregion
 
 
+        #region Move Origin Handlers
+        private void MoveOriginBtn_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        #endregion
+
+
         #region Texture Preview Handlers
         private void TextureListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -164,10 +182,13 @@ namespace VectorSpace.Dialogs
             {
                 TexturePreviewImage.Source = ((Texture)TextureListBox.SelectedItem).Source;
                 TextureNameLabel.Content = ((Texture)TextureListBox.SelectedItem).Name;
-                TextureSizeLabel.Content = ((Texture)TextureListBox.SelectedItem).Size.X + " x " + ((Texture)TextureListBox.SelectedItem).Size.Y;
+                TextureSizeLabel.Content = ((Texture)TextureListBox.SelectedItem).Size.Width + " x " + ((Texture)TextureListBox.SelectedItem).Size.Height;
+                TextureOriginLabel.Content = ((Texture)TextureListBox.SelectedItem).Origin.X + " x " + ((Texture)TextureListBox.SelectedItem).Origin.Y;
 
                 RemovePropertyBtn.IsEnabled = true;
                 AddPropertyBtn.IsEnabled = true;
+                MoveOriginBtn.IsEnabled = true;
+                AddCollisionBtn.IsEnabled = true;
 
                 PropertiesDataGrid.ItemsSource = ((Texture)TextureListBox.SelectedItem).Properties;
             }
@@ -219,6 +240,8 @@ namespace VectorSpace.Dialogs
         {
             RemovePropertyBtn.IsEnabled = false;
             AddPropertyBtn.IsEnabled = false;
+            MoveOriginBtn.IsEnabled = false;
+            AddCollisionBtn.IsEnabled = false;
 
             TexturePreviewImage.Source = null;
             TextureNameLabel.Content = null;

@@ -280,6 +280,18 @@ namespace VectorSpace.MapData.MapItems
             }
         }
 
+        [JsonIgnore]
+        public float ScaleX
+        {
+            get { return position.ScaleX; }
+        }
+
+        [JsonIgnore]
+        public float ScaleY
+        {
+            get { return position.ScaleY; }
+        }
+
         /// <summary>
         /// Current angle in degrees
         /// </summary>

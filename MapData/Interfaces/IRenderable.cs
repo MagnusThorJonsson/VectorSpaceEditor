@@ -39,6 +39,16 @@ namespace VectorSpace.MapData.Interfaces
         /// The height of the renderable item
         /// </summary>
         float Height { get; set; }
+
+        /// <summary>
+        /// Gets the scale ratio on the X axis
+        /// </summary>
+        float ScaleX { get; }
+
+        /// <summary>
+        /// Gets the scale ratio on the Y axis
+        /// </summary>
+        float ScaleY { get; }
         
         /// <summary>
         /// Objects world position

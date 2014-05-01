@@ -11,7 +11,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="5, 10, 5, 5">
+        <Grid Grid.Row="0" Margin="5, 5, 5, 5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
@@ -26,14 +26,14 @@
                             <TextBox DockPanel.Dock="Right" Width="150" Name="TextureLibName" TextChanged="TextureLibName_TextChanged" TabIndex="0" />
                         </StackPanel>
 
-                        <StackPanel Name="CreateLibraryPanel" Orientation="Horizontal" Margin="0, 0, 5, 5" Visibility="Visible">
+                        <StackPanel Name="CreateLibraryPanel" Orientation="Horizontal" Margin="0, 0, 5, 5" Visibility="Collapsed">
                             <Label DockPanel.Dock="Left" Width="80">Location:</Label>
                             <TextBox DockPanel.Dock="Right" Width="300" Name="TextureLibLocation" IsReadOnly="True" />
                             <Button DockPanel.Dock="Right" Name="FileBrowseBtn" Click="FileBrowseBtn_Click" Margin="10, 0, 0, 0" Height="23" Content="Browse" TabIndex="1" />
                         </StackPanel>
 
-                        <StackPanel Name="AddTexturePanel" Orientation="Horizontal" Margin="0, 0, 5, 5" Visibility="Collapsed">
-                            <Button Name="AddTextureBrowseBtn" Click="AddTextureBrowseBtn_Click" Margin="5, 0, 0, 0" Height="23" Content="Browse" TabIndex="1" />
+                        <StackPanel Name="AddTexturePanel" Orientation="Horizontal" Margin="0, 5, 5, 0" Visibility="Visible">
+                            <Button Name="AddTextureBrowseBtn" Click="AddTextureBrowseBtn_Click" Margin="5, 0, 0, 0" Height="23" Content="Add a new Texture" TabIndex="1" />
                         </StackPanel>
 
                     </StackPanel>
@@ -82,22 +82,26 @@
                 <Border BorderBrush="#EEE" BorderThickness="1,1,0,0">
                     <DockPanel Width="200">
                         <Label DockPanel.Dock="Top" FontWeight="Bold">Properties</Label>
-                        <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical">
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Margin="0, -2, 0, 0">
                             <Separator />
                             
                             <DockPanel Margin="5, 0">
-                                <Label DockPanel.Dock="Left" Width="60" FontWeight="Bold">Name:</Label>
+                                <Label DockPanel.Dock="Left" Width="60" FontWeight="Bold" HorizontalContentAlignment="Right">Name:</Label>
                                 <Label DockPanel.Dock="Right" Name="TextureNameLabel"></Label>
                             </DockPanel>
                             <DockPanel Margin="5, 0">
-                                <Label DockPanel.Dock="Left" Width="60" FontWeight="Bold">Size:</Label>
+                                <Label DockPanel.Dock="Left" Width="60" FontWeight="Bold" HorizontalContentAlignment="Right">Size:</Label>
                                 <Label DockPanel.Dock="Right" Name="TextureSizeLabel"></Label>
+                            </DockPanel>
+                            <DockPanel Margin="5, 0">
+                                <Label DockPanel.Dock="Left" Width="60" FontWeight="Bold" HorizontalContentAlignment="Right">Origin:</Label>
+                                <Label DockPanel.Dock="Right" Name="TextureOriginLabel"></Label>
                             </DockPanel>
 
                             <Separator />
-                            <Label FontWeight="Bold" Margin="0, -2, 0, 0">Add Properties</Label>
-                            <DockPanel Height="129">
-                                <DataGrid DockPanel.Dock="Top" Height="103" Name="PropertiesDataGrid" AutoGenerateColumns="False" Margin="5, 0, 5, 0" BorderBrush="Gray">
+                            <Label FontWeight="Bold" Margin="0, -2, 0, 0">User Properties</Label>
+                            <DockPanel Height="119">
+                                <DataGrid DockPanel.Dock="Top" Height="88" Name="PropertiesDataGrid" AutoGenerateColumns="False" Margin="5, 0, 5, 0" BorderBrush="Gray">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Key" Binding="{Binding Path=Key}" Width="40*" />
                                         <DataGridTextColumn Header="Value" Binding="{Binding Path=Value}" Width="60*" />
@@ -128,9 +132,15 @@
             
         </Grid>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,5">
-            <Button Name="CreateBtn" Width="50" Margin="0,0,5,0" IsEnabled="False" Click="CreateBtn_Click" TabIndex="2">Create</Button>
-            <Button Name="CancelBtn" IsCancel="True" Width="50" Margin="0,0,5,0" TabIndex="3">Cancel</Button>
-        </StackPanel>
+        <DockPanel Grid.Row="3" Margin="0,5,0,5">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Button Name="MoveOriginBtn" Margin="0,0,5,0" IsEnabled="False" Click="MoveOriginBtn_Click" TabIndex="4">Move Origin</Button>
+                <Button Name="AddCollisionBtn" Margin="0,0,5,0" IsEnabled="False" TabIndex="5">Add Collision</Button>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Name="CreateBtn" Width="50" Margin="0,0,5,0" IsEnabled="False" Click="CreateBtn_Click" TabIndex="2">Create</Button>
+                <Button Name="CancelBtn" IsCancel="True" Width="50" Margin="0,0,5,0" TabIndex="3">Cancel</Button>
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </Window>

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
+using System.Windows;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -59,12 +59,12 @@ namespace VectorSpace.MapData.Components
         /// </summary>
         [DataMember(Order = 2)]
         [JsonProperty(Order = 3)]
-        public Point Size
+        public Size Size
         {
             get { return _size; }
             protected set { _size = value; }
         }
-        private Point _size;
+        private Size _size;
 
         /// <summary>
         /// Texture origin point
@@ -111,8 +111,8 @@ namespace VectorSpace.MapData.Components
             // Set the scaling mode to the best available
             RenderOptions.SetBitmapScalingMode(_source, BitmapScalingMode.NearestNeighbor);
 
-            _size = new Point((int)_source.Width, (int)_source.Height);
-            _origin = new Point(_size.X / 2, _size.Y / 2);
+            _size = new Size((int)_source.Width, (int)_source.Height);
+            _origin = new Point(0.5, 0.5);
 
             properties = new ObservableCollection<ItemProperty>();
         }
@@ -134,8 +134,8 @@ namespace VectorSpace.MapData.Components
             _source.UriSource = new Uri(path + "\\" + name);
             _source.EndInit();
 
-            _size = new Point((int)_source.Width, (int)_source.Height);
-            _origin = new Point(_size.X / 2, _size.Y / 2);
+            _size = new Size((int)_source.Width, (int)_source.Height);
+            _origin = new Point(0.5, 0.5);
 
             properties = new ObservableCollection<ItemProperty>();
         }
@@ -152,8 +152,8 @@ namespace VectorSpace.MapData.Components
             filepath = path;
             _source = source;
 
-            _size = new Point((int)source.Width, (int)source.Height);
-            _origin = new Point(_size.X / 2, _size.Y / 2);
+            _size = new Size((int)source.Width, (int)source.Height);
+            _origin = new Point(0.5, 0.5);
 
             properties = new ObservableCollection<ItemProperty>();
         }
@@ -165,14 +165,14 @@ namespace VectorSpace.MapData.Components
         /// <param name="path">The file path</param>
         /// <param name="source">The image source</param>
         /// <param name="size">The image size</param>
-        public Texture(string name, string path, BitmapImage source, Point size)
+        public Texture(string name, string path, BitmapImage source, Size size)
         {
             filename = name;
             filepath = path;
             _source = source;
             _size = size;
 
-            _origin = new Point(_size.X / 2, _size.Y / 2);
+            _origin = new Point(0.5, 0.5);
 
             properties = new ObservableCollection<ItemProperty>();
         }
@@ -185,7 +185,7 @@ namespace VectorSpace.MapData.Components
         /// <param name="source">The image source</param>
         /// <param name="size">The image size</param>
         /// <param name="origin">The image origin point</param>
-        public Texture(string name, string path, BitmapImage source, Point size, Point origin)
+        public Texture(string name, string path, BitmapImage source, Size size, Point origin)
         {
             filename = name;
             filepath = path;

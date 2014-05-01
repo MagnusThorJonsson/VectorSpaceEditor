@@ -221,28 +221,6 @@ namespace VectorSpace
                         // Select the first Texture Library item
                         if (CanvasItemsTab.Items.Count > 0)
                             CanvasItemsTab.SelectedIndex = 0;
-
-                        // Apply rotation on load (hacky shit, need to make a better MVVM
-                        for (int i = 0; i < LevelCanvas.Items.Count; i++)
-                        {
-                            IRenderable item = LevelCanvas.Items[i] as IRenderable;
-                            ContentPresenter presenter = LevelCanvas.ItemContainerGenerator.ContainerFromItem(LevelCanvas.Items[i]) as ContentPresenter;
-
-                            // TODO: Use item origin point 
-                            Point origin = new Point(
-                                    item.Width * 0.5,//adornedElement.RenderTransformOrigin.X,
-                                    item.Height * 0.5//adornedElement.RenderTransformOrigin.Y
-                            );
-
-                            // Initialize rotate transform
-                            RotateTransform rotateTransform = presenter.RenderTransform as RotateTransform;
-                            if (rotateTransform == null)
-                            {
-                                presenter.RenderTransform = new RotateTransform(item.Position.Rotation, origin.X, origin.Y);
-                                presenter.InvalidateMeasure();
-                            }
-                        }
-
                     }
                 }
             }
@@ -1051,7 +1029,13 @@ namespace VectorSpace
                         layer.Id,
                         item.Name + "_" + _currentMap.Layers[0].Items.Count, // TODO: Need a unique id generator for item names/ids
                         item,
-                        new WorldPosition(new Point((int)mousePos.X - item.Origin.X, (int)mousePos.Y - item.Origin.Y), new Point(), 1f, 1f, 0f)
+                        new WorldPosition(
+                            new Point(
+                                (int)mousePos.X - (item.Size.Width * item.Origin.X), 
+                                (int)mousePos.Y - (item.Size.Height * item.Origin.Y)
+                            ), 
+                            item.Origin, 
+                            1f, 1f, 0f)
                     );
                 }
             }

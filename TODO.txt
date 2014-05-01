@@ -1,7 +1,7 @@
 ﻿
 
 NEXT MOVES
-* Make TextureLibraries editable
+* Remove Texture from TextureLibrary (also deletes all instances currently placed on the map)
 * Add an origin selector for Textures to the TextureLibrary
 * Add a Collision Area to Textures in TextureLibrary
 * Add Entity items. Ability for placing/dragging
@@ -13,6 +13,7 @@ NEXT MOVES
 * Ability to attach trigger areas to items
 * Ability to replace all texture items with another texture item (maybe even within a layer)
 * Add a distinction between path items and texture items in the layer window
+* Add Tint property to Textures and TextureItems
 
 
 
@@ -22,11 +23,5 @@ POLISH
 * Fix Focus for Level Canvas
 * Move KeyDown/KeyUp to Level Canvas
 * Fix Item Movement Click event (make sure Canvas is focused)
-
-19/02/2014
-Add Tint property to Textures and TextureItems
-
-02/04/2014
-Fix Item Property panel update on rotate and resize
-
-Refactor and simplify the places where the assignItemProperty and assignUserProperty get called
+* Fix Item Property panel update on rotate and resize
+* Refactor and simplify the places where the assignItemProperty and assignUserProperty get called

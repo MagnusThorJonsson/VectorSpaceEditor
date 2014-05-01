@@ -81,6 +81,18 @@ namespace VectorSpace.MapData.MapItems
         }
         protected bool isSelected;
 
+        [JsonIgnore]
+        public float ScaleX
+        {
+            get { return position.ScaleX; }
+        }
+
+        [JsonIgnore]
+        public float ScaleY
+        {
+            get { return position.ScaleY; }
+        }
+
         /// <summary>
         /// Current width based on scale
         /// </summary>
@@ -89,16 +101,17 @@ namespace VectorSpace.MapData.MapItems
         {
             get
             {
-                return texture.Size.X * position.ScaleX;
+                return (float)(texture.Size.Width * position.ScaleX);
             }
             set
             {
                 if (value > 0f)
                 {
-                    position.ScaleX = value / texture.Size.X;
+                    position.ScaleX = (float)(value / texture.Size.Width);
 
                     OnPropertyChanged("Position");
                     OnPropertyChanged("Width");
+                    OnPropertyChanged("ScaleX");
                 }
             }
         }
@@ -111,16 +124,17 @@ namespace VectorSpace.MapData.MapItems
         {
             get
             {
-                return texture.Size.Y * position.ScaleY;
+                return (float)(texture.Size.Height * position.ScaleY);
             }
             set
             {
                 if (value > 0f)
                 {
-                    position.ScaleY = value / texture.Size.Y;
+                    position.ScaleY = (float)(value / texture.Size.Height);
 
                     OnPropertyChanged("Position");
                     OnPropertyChanged("Height");
+                    OnPropertyChanged("ScaleY");
                 }
             }
         }
